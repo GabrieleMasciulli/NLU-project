@@ -65,18 +65,67 @@ def eval_loop(data, eval_criterion, model):
     loss_to_return = []
     loss_array = []
     number_of_tokens = []
-    # softmax = nn.Softmax(dim=1) # Use Softmax if you need the actual probability
 
     with torch.no_grad():  # It used to avoid the creation of computational graph
         for sample in data:
-            output = model(sample['source'])
-            loss = eval_criterion(output, sample['target'])
+            source = sample['source']
+            target = sample['target']
+            num_tokens = sample['num_tokens']
+
+            output = model(source)
+            loss = eval_criterion(output, target)
             loss_array.append(loss.item())
-            number_of_tokens.append(sample["number_tokens"])
+            number_of_tokens.append(num_tokens)
 
     ppl = math.exp(sum(loss_array) / sum(number_of_tokens))
     loss_to_return = sum(loss_array) / sum(number_of_tokens)
     return ppl, loss_to_return
+
+
+def ensemble_eval_loop(data, eval_criterion, models):
+    """Evaluates an ensemble of models by averaging their log probabilities"""
+
+    for model in models:
+        model.eval()
+
+    total_loss = 0
+    total_tokens = 0
+    log_softmax = nn.LogSoftmax(dim=1)
+
+    with torch.no_grad():
+        for sample in data:
+            source = sample['source']
+            target = sample['target']
+            num_tokens = sample['num_tokens']
+
+            log_prob_list = []  # shape: (batch_size * seq_len, vocab)
+
+            for model in models:
+                output_logits = model(source)
+
+                # Apply log softmax to get log probabilities
+                # logit output shape: (batch_size, vocab_size, seq_len), we need (batch_size * seq_len, vocab_size)
+                # target shape: (batch_size, seq_len), we need (batch_size * seq_len)
+                # Criterion (CrossEntropyLoss) expects Input: (N, C), Target: (N)
+                # Reshaping output_logits before applying softmax:
+                batch_size, vocab_size, seq_len = output_logits.shape
+
+                # reshapes the tensor s.t. to have vocab_size columns and automatically infers num. of rows
+                log_probs = log_softmax(output_logits.permute(
+                    0, 2, 1).reshape(-1, vocab_size))
+                log_prob_list.append(log_probs)
+
+            # average the log probabilities (stack and mean)
+            avg_log_probs = torch.stack(log_prob_list).mean(dim=0)
+
+            # compute loss using the averages log probabilities
+            loss = eval_criterion(avg_log_probs, target.reshape(-1))
+            total_loss += loss.item()
+            total_tokens += num_tokens
+
+    avg_loss = total_loss / total_tokens
+    ppl = math.exp(avg_loss)
+    return ppl, avg_loss
 
 
 def init_weights(mat):
