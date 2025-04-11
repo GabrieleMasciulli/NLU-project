@@ -37,7 +37,7 @@ def collate_fn(data, pad_token):
 
     new_item["source"] = source.to(DEVICE)
     new_item["target"] = target.to(DEVICE)
-    new_item["number_tokens"] = sum(lengths)
+    new_item["num_tokens"] = sum(lengths)
     return new_item
 
 
@@ -50,8 +50,8 @@ def train_loop(data, optimizer, criterion, model, clip=5):
         optimizer.zero_grad()  # Zeroing the gradient
         output = model(sample['source'])
         loss = criterion(output, sample['target'])
-        loss_array.append(loss.item() * sample["number_tokens"])
-        number_of_tokens.append(sample["number_tokens"])
+        loss_array.append(loss.item() * sample["num_tokens"])
+        number_of_tokens.append(sample["num_tokens"])
         loss.backward()  # Compute the gradient, deleting the computational graph
         # clip the gradient to avoid exploding gradients
         torch.nn.utils.clip_grad_norm_(model.parameters(), clip)

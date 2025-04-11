@@ -2,7 +2,7 @@ from functools import partial
 import math
 import torch.optim as optim
 import torch.nn as nn
-from LM.vanilla_RNN.utils import Lang, read_file
+from utils import Lang, read_file
 from functions import collate_fn, init_weights, train_loop, eval_loop, ensemble_eval_loop
 from model import LM_RNN
 from utils import DEVICE, PennTreeBank
@@ -52,7 +52,6 @@ if __name__ == "__main__":
     test_dataset = PennTreeBank(test_raw, lang)
 
     # Dataloader instantiation
-    # You can reduce the batch_size if the GPU memory is not enough
     train_loader = DataLoader(train_dataset, batch_size=64, collate_fn=partial(
         collate_fn, pad_token=pad_idx),  shuffle=True)
     dev_loader = DataLoader(dev_dataset, batch_size=128, collate_fn=partial(
@@ -62,7 +61,7 @@ if __name__ == "__main__":
 
     # Define Fixed Hyperparameters
     hid_size = 256
-    compression_dim = 100  # From your model.py
+    compression_dim = 100
     emb_size = 300
     lr = 1.0
     clip = 5
@@ -213,7 +212,6 @@ if __name__ == "__main__":
             "hidden_size": hid_size,
             "embedding_size": emb_size,
             "compression_dim": compression_dim,
-            # Add other relevant fixed hyperparameters if needed
         })
         wandb.summary["final_ensemble_test_perplexity"] = final_ensemble_ppl
         wandb.finish()
