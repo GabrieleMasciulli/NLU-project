@@ -193,7 +193,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
 if __name__ == "__main__":
     # --- Hardcoded Hyperparameters (Reverted from Zaremba config, keeping dropout structure) ---
     hid_size = 650
-    # emb_size will be set by GloVe if used, otherwise needs definition
+    emb_size = 300
     n_layers = 2
     lr = 1.0
     emb_dropout_rate = 0.5
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     epochs = 100
     patience = 3
     clip = 5.0
-    use_glove = False
+    use_glove = True
     glove_dim = 300
     wandb_project = "NLU-project"
     wandb_group_prefix = "lstm_early_stopping"
