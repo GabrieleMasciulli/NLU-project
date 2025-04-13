@@ -69,7 +69,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
 
     # --- Optimizer and Loss --- #
     # Consider using AdamW or Adam for potentially faster/better convergence
-    optimizer = optim.SGD(model.parameters(), lr=lr)
+    optimizer = optim.AdamW(model.parameters(), lr=lr)
     criterion_train = nn.CrossEntropyLoss(ignore_index=pad_index)
     criterion_eval = nn.CrossEntropyLoss(
         ignore_index=pad_index, reduction='sum')
@@ -210,7 +210,7 @@ if __name__ == "__main__":
     use_glove = True
     glove_dim = 300
     wandb_project = "NLU-project"
-    wandb_group_prefix = "lstm_early_stopping"
+    wandb_group_prefix = "lstm_AdamW"
 
     # --- GloVe Setup ---
     glove_path = None
