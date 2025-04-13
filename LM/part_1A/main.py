@@ -13,6 +13,7 @@ import numpy as np
 from torch.utils.data import DataLoader
 import torch
 import os
+from torch.optim.lr_scheduler import LambdaLR
 
 
 GLOVE_URL = "http://nlp.stanford.edu/data/glove.6B.zip"
@@ -20,8 +21,8 @@ DATA_DIR = "data"
 EXPECTED_GLOVE_FILE = "glove.6B.300d.txt"
 
 
-def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
-         batch_size_train, batch_size_eval, epochs, patience, clip,
+def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, out_dropout_rate,
+         batch_size_train, batch_size_eval, epochs, clip,
          glove_path, use_glove, wandb_project, wandb_group_prefix):
     """Main function to train and evaluate the LSTM Language Model."""
 
@@ -74,17 +75,27 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
     criterion_eval = nn.CrossEntropyLoss(
         ignore_index=pad_index, reduction='sum')
 
+    # --- Learning Rate Scheduler (as per Zaremba et al. 2014) ---
+    # Decrease LR by factor of 1.2 after epoch 6
+    lr_decay_epoch_start = 6
+    lr_decay_factor = 1.2
+    # Lambda function for the scheduler
+
+    def lr_lambda(epoch): return 1.0 if epoch < lr_decay_epoch_start else (
+        1.0 / (lr_decay_factor ** (epoch - lr_decay_epoch_start + 1)))
+    scheduler = LambdaLR(optimizer, lr_lambda=lr_lambda)
+
     # --- Training Setup --- #
     losses_train = []
     losses_dev = []
     sampled_epochs = []
     best_ppl = math.inf
     best_model = None
-    current_patience = patience
     pbar = tqdm(range(1, epochs + 1))  # Correct range to include final epoch
 
     # --- W&B Initialization --- #
     run_name_parts = [
+        f"zaremba_medium",
         f"lstm",
         f"l{n_layers}",
         f"h{hid_size}",
@@ -109,12 +120,13 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
             "embedding_size": emb_size,
             "optimizer": type(optimizer).__name__,
             "epochs": epochs,
-            "patience": patience,
             "clip_gradient": clip,
             "n_layers": n_layers,
             "embeddings": embedding_type,
             "emb_dropout": emb_dropout_rate,
-            "out_dropout": out_dropout_rate
+            "lstm_dropout": lstm_dropout_rate,
+            "out_dropout": out_dropout_rate,
+            "lr_schedule": f"decay {lr_decay_factor} after epoch {lr_decay_epoch_start}"
         }
     )
 
@@ -149,26 +161,14 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
             "dev_perplexity": ppl_dev
         })
 
-        # --- Early Stopping and Best Model Saving --- #
+        # --- Best Model Saving (based on validation perplexity) --- #
         if ppl_dev < best_ppl:
             best_ppl = ppl_dev
             best_model = copy.deepcopy(model).to('cpu')
-            current_patience = patience  # Reset patience
             print(f"  New best model found! Dev PPL: {best_ppl:.2f}")
-            # Save checkpoint of best model immediately (optional)
-            # best_model_path = f'bin/best_model_checkpoint_epoch{epoch}.pt'
-            # torch.save(best_model.state_dict(), best_model_path)
-            # print(f"  Best model checkpoint saved to {best_model_path}")
-        else:
-            current_patience -= 1
-            print(f"  No improvement. Patience left: {current_patience}")
 
-        # Optional: Learning rate scheduling based on patience or validation loss
-        # if current_patience == patience // 2: optimizer.param_groups[0]['lr'] *= 0.5
-
-        if current_patience <= 0:
-            print(f"Early stopping triggered at epoch {epoch}!")
-            break
+        # Step the scheduler AFTER the optimizer step and epoch completion
+        scheduler.step()
 
     # --- Final Evaluation on Test Set --- #
     print("\nTraining finished.")
@@ -196,27 +196,27 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
 
 
 if __name__ == "__main__":
-    # --- Hardcoded Hyperparameters ---
-    hid_size = 256
-    # Default embedding size (will be overwritten by GloVe if used)
-    emb_size = 300
-    n_layers = 1
+    # --- Hardcoded Hyperparameters (Zaremba et al. 2014 Medium LSTM PTB config) ---
+    hid_size = 650
+    # emb_size will be set by GloVe if used, otherwise needs definition
+    n_layers = 2
     lr = 1.0
-    emb_dropout_rate = 0.25
+    emb_dropout_rate = 0.5
+    lstm_dropout_rate = 0.5  # Dropout between LSTM layers
     out_dropout_rate = 0.5
-    batch_size_train = 64
-    batch_size_eval = 128
-    epochs = 100
-    patience = 3
+    batch_size_train = 20
+    # Use same batch size for eval as in paper for consistency (?)
+    batch_size_eval = 20
+    epochs = 39
     clip = 5.0
-    use_glove = True  # Set to False to train without GloVe
+    use_glove = False
+    glove_dim = 300
     wandb_project = "NLU-project"
-    wandb_group_prefix = "lstm_glove"
+    wandb_group_prefix = "zaremba_medium"
 
     # --- GloVe Setup ---
     glove_path = None
     if use_glove:
-        # Determine GloVe path based on hardcoded dimension
         expected_glove_file = "glove.6B.300d.txt"
         print(f"Attempting to download/use GloVe 300d...")
         glove_path = download_and_extract_glove(
@@ -237,7 +237,6 @@ if __name__ == "__main__":
         wandb.login()
     except Exception as e:
         print(f"Could not login to WandB: {e}. Proceeding without logging.")
-        # wandb.init(mode="disabled") # Uncomment to explicitly disable
 
     # --- Run Main Function --- #
     main(
@@ -246,11 +245,11 @@ if __name__ == "__main__":
         n_layers=n_layers,
         lr=lr,
         emb_dropout_rate=emb_dropout_rate,
+        lstm_dropout_rate=lstm_dropout_rate,
         out_dropout_rate=out_dropout_rate,
         batch_size_train=batch_size_train,
         batch_size_eval=batch_size_eval,
         epochs=epochs,
-        patience=patience,
         clip=clip,
         glove_path=glove_path,
         use_glove=use_glove,
