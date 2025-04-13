@@ -198,7 +198,7 @@ if __name__ == "__main__":
     hid_size = 650
     emb_size = 300
     n_layers = 2
-    lr = 1.0
+    lr = 1e-3
     emb_dropout_rate = 0.5
     lstm_dropout_rate = 0.5
     out_dropout_rate = 0.5
