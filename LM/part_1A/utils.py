@@ -1,6 +1,11 @@
 import torch
 import torch.utils.data as data
 import numpy as np
+import os
+import requests
+import zipfile
+from tqdm import tqdm
+
 DEVICE = torch.device("cuda:0")
 
 # Loading the corpus
@@ -133,3 +138,63 @@ def load_glove_embeddings(path, word2id, emb_dim):
 
     # Ensure the matrix is float32
     return torch.tensor(embedding_matrix, dtype=torch.float32)
+
+
+def download_and_extract_glove(url, download_dir, expected_filename):
+    """Downloads and extracts the specified GloVe file if it doesn't exist."""
+    os.makedirs(download_dir, exist_ok=True)
+    glove_txt_path = os.path.join(download_dir, expected_filename)
+
+    if os.path.exists(glove_txt_path):
+        print(
+            f"GloVe file '{expected_filename}' already exists in '{download_dir}'. Skipping download.")
+        return glove_txt_path
+
+    zip_filename = url.split('/')[-1]
+    zip_filepath = os.path.join(download_dir, zip_filename)
+
+    print(f"Downloading GloVe embeddings from {url}...")
+    try:
+        with requests.get(url, stream=True) as r:
+            r.raise_for_status()
+            total_size = int(r.headers.get('content-length', 0))
+            block_size = 8192  # 8KB
+            progress_bar = tqdm(total=total_size, unit='iB',
+                                unit_scale=True, desc=f"Downloading {zip_filename}")
+            with open(zip_filepath, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=block_size):
+                    progress_bar.update(len(chunk))
+                    f.write(chunk)
+            progress_bar.close()
+            if total_size != 0 and progress_bar.n != total_size:
+                print("ERROR, something went wrong during download")
+                return None
+
+        print(f"Extracting '{expected_filename}' from {zip_filename}...")
+        with zipfile.ZipFile(zip_filepath, 'r') as zip_ref:
+            # Ensure the specific file exists in the archive before extracting
+            if expected_filename in zip_ref.namelist():
+                zip_ref.extract(expected_filename, path=download_dir)
+                print(f"Successfully extracted '{expected_filename}'.")
+            else:
+                print(
+                    f"Error: '{expected_filename}' not found in the downloaded zip file.")
+                return None
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error downloading GloVe embeddings: {e}")
+        return None
+    except zipfile.BadZipFile:
+        print(
+            f"Error: Downloaded file '{zip_filename}' is not a valid zip file.")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return None
+    finally:
+        # Clean up the zip file
+        if os.path.exists(zip_filepath):
+            print(f"Removing downloaded zip file: {zip_filepath}")
+            os.remove(zip_filepath)
+
+    return glove_txt_path
