@@ -41,14 +41,15 @@ if __name__ == "__main__":
     # Define the model parameters
     hid_size = 256
     emb_size = 512
-    lr = 0.1
+    n_layers = 1  # Number of LSTM layers
+    lr = 1
 
     # Get the vocabulary length
     vocab_len = len(lang.word2id)
 
     # Instantiate the model
     model = LM_LSTM(emb_size, hid_size, vocab_len,
-                    pad_index=lang.word2id["<pad>"]).to(DEVICE)
+                    pad_index=lang.word2id["<pad>"], n_layers=n_layers).to(DEVICE)
 
     # loading pre-trained model
     # path = 'model_name.pt'
@@ -74,8 +75,8 @@ if __name__ == "__main__":
     best_model = None
     pbar = tqdm(range(1, n_epochs))
 
-    group_name = "lstm_emb_size"
-    run_name = f"emb_{emb_size}"
+    group_name = "lstm_num_layers"
+    run_name = f"n_layers_{n_layers}"
 
     # Initialize W&B
     run = wandb.init(
@@ -89,7 +90,8 @@ if __name__ == "__main__":
             "embedding_size": emb_size,
             "optimizer": "SGD",
             "epochs": n_epochs,
-            "patience": patience
+            "patience": patience,
+            "n_layers": n_layers  # Log the number of layers
         }
     )
 
