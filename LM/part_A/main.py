@@ -2,7 +2,7 @@ from functools import partial
 import math
 import torch.optim as optim
 import torch.nn as nn
-from LM.vanilla_RNN.utils import Lang, read_file
+from utils import Lang, read_file
 from functions import collate_fn, init_weights, train_loop, eval_loop
 from model import LM_LSTM
 from utils import DEVICE, PennTreeBank
@@ -39,9 +39,9 @@ if __name__ == "__main__":
         collate_fn, pad_token=lang.word2id["<pad>"]))
 
     # Define the model parameters
-    hid_size = 128
-    emb_size = 300
-    lr = 1
+    hid_size = 256
+    emb_size = 512
+    lr = 0.1
 
     # Get the vocabulary length
     vocab_len = len(lang.word2id)
@@ -74,12 +74,12 @@ if __name__ == "__main__":
     best_model = None
     pbar = tqdm(range(1, n_epochs))
 
-    group_name = "lstm_hidden_size"
-    run_name = f"hid_{hid_size}"
+    group_name = "lstm_emb_size"
+    run_name = f"emb_{emb_size}"
 
     # Initialize W&B
     run = wandb.init(
-        project="rnn-hyperparam-tuning",
+        project="NLU-project",
         group=group_name,
         name=run_name,
         config={
@@ -112,7 +112,7 @@ if __name__ == "__main__":
                 "dev_perplexity": ppl_dev
             })
 
-            if ppl_dev < best_ppl:  # the lower, the better
+            if ppl_dev < best_ppl:
                 best_ppl = ppl_dev
                 best_model = copy.deepcopy(model).to('cpu')
                 patience = 3
@@ -120,7 +120,7 @@ if __name__ == "__main__":
                 patience -= 1
 
             if patience <= 0:  # Early stopping with patience
-                break  # Not nice but it keeps the code clean
+                break
 
     if best_model is not None:
         best_model.to(device=DEVICE)
