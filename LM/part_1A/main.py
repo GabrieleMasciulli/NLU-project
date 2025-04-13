@@ -122,49 +122,52 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
 
     # --- Training Loop --- #
     print(f"Starting training for run: {run_name}")
-    for epoch in pbar:
-        # Train one epoch
-        model.train()
-        epoch_train_loss = train_loop(
-            train_loader, optimizer, criterion_train, model, clip)
+    try:
+        for epoch in pbar:
+            # Train one epoch
+            model.train()
+            epoch_train_loss = train_loop(
+                train_loader, optimizer, criterion_train, model, clip)
 
-        # Evaluate on development set
-        model.eval()
-        ppl_dev, epoch_dev_loss = eval_loop(dev_loader, criterion_eval, model)
+            # Evaluate on development set
+            model.eval()
+            ppl_dev, epoch_dev_loss = eval_loop(
+                dev_loader, criterion_eval, model)
 
-        # Process and log metrics
-        avg_train_loss = epoch_train_loss.item() if isinstance(
-            epoch_train_loss, torch.Tensor) else epoch_train_loss
-        avg_dev_loss = epoch_dev_loss.item() if isinstance(
-            epoch_dev_loss, torch.Tensor) else epoch_dev_loss
-        losses_train.append(avg_train_loss)
-        losses_dev.append(avg_dev_loss)
-        sampled_epochs.append(epoch)
+            # Process and log metrics
+            avg_train_loss = epoch_train_loss.item() if isinstance(
+                epoch_train_loss, torch.Tensor) else epoch_train_loss
+            avg_dev_loss = epoch_dev_loss.item() if isinstance(
+                epoch_dev_loss, torch.Tensor) else epoch_dev_loss
+            losses_train.append(avg_train_loss)
+            losses_dev.append(avg_dev_loss)
+            sampled_epochs.append(epoch)
 
-        pbar.set_description(
-            f"Epoch {epoch} | Train Loss: {avg_train_loss:.4f} | Dev PPL: {ppl_dev:.2f}")
+            pbar.set_description(
+                f"Epoch {epoch} | Train Loss: {avg_train_loss:.4f} | Dev PPL: {ppl_dev:.2f}")
 
-        run.log({
-            "epoch": epoch,
-            "train_loss": avg_train_loss,
-            "dev_loss": avg_dev_loss,
-            "dev_perplexity": ppl_dev
-        })
+            run.log({
+                "epoch": epoch,
+                "train_loss": avg_train_loss,
+                "dev_loss": avg_dev_loss,
+                "dev_perplexity": ppl_dev
+            })
 
-        # --- Early Stopping and Best Model Saving --- #
-        if ppl_dev < best_ppl:
-            best_ppl = ppl_dev
-            best_model = copy.deepcopy(model).to('cpu')
-            current_patience = patience
-            print(f"  New best model found! Dev PPL: {best_ppl:.2f}")
-        else:
-            current_patience -= 1
-            print(f"  No improvement. Patience left: {current_patience}")
+            # --- Early Stopping and Best Model Saving --- #
+            if ppl_dev < best_ppl:
+                best_ppl = ppl_dev
+                best_model = copy.deepcopy(model).to('cpu')
+                current_patience = patience
+                print(f"  New best model found! Dev PPL: {best_ppl:.2f}")
+            else:
+                current_patience -= 1
+                print(f"  No improvement. Patience left: {current_patience}")
 
-        if current_patience <= 0:
-            print(f"Early stopping triggered at epoch {epoch}!")
-            break
-
+            if current_patience <= 0:
+                print(f"Early stopping triggered at epoch {epoch}!")
+                break
+    except KeyboardInterrupt:
+        print("\nTraining interrupted by user.")
     # --- Final Evaluation on Test Set --- #
     print("\nTraining finished.")
     if best_model is not None:
