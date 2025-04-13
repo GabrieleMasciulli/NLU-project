@@ -118,8 +118,6 @@ if __name__ == "__main__":
     emb_size = 300  # Set embedding size to GloVe dimension (e.g., 300)
     n_layers = 1  # Number of LSTM layers
     lr = 1
-    # glove_path is now set by download_and_extract_glove
-    # glove_path = "data/glove.6B.300d.txt" # <-- ADJUST THIS PATH IF NEEDED
 
     # Load GloVe embeddings
     pretrained_weights = load_glove_embeddings(
@@ -127,7 +125,7 @@ if __name__ == "__main__":
     if pretrained_weights is None:
         # Handle error: Exit or fallback to random initialization
         print("Failed to load GloVe embeddings. Exiting.")
-        exit()  # Or potentially fallback: pretrained_weights = None
+        exit()
 
     # Get the vocabulary length
     vocab_len = len(lang.word2id)
@@ -208,9 +206,6 @@ if __name__ == "__main__":
             else:
                 patience -= 1
 
-            # Potentially adjust learning rate if using a scheduler or based on patience
-            # Example: if patience == 1: optimizer.param_groups[0]['lr'] *= 0.5
-
             if patience <= 0:  # Early stopping with patience
                 print(f"Early stopping triggered at epoch {epoch}!")
                 break
@@ -220,7 +215,7 @@ if __name__ == "__main__":
         final_ppl,  _ = eval_loop(test_loader, criterion_eval, best_model)
         print('Test ppl: ', final_ppl)
         # Save the best model
-        # Consider adding experiment details to the filename
+
         model_save_path = f'bin/best_model_glove_l{n_layers}_h{hid_size}.pt'
         torch.save(best_model.state_dict(), model_save_path)
         print(f"Best model saved to {model_save_path}")
