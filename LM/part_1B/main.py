@@ -217,7 +217,7 @@ if __name__ == "__main__":
     weight_decay = 1.2e-6  # L2 penalty
     patience = 10
     asgd_trigger_epochs = 5  # Epochs without improvement before switching to ASGD
-    wandb_project = "NLU-project"
+    wandb_project = "NLU-project-part-1"
     wandb_group_prefix = "AWD-LSTM-Medium-Approx"
 
     print("Using random weight initialization U[-0.05, 0.05].")
