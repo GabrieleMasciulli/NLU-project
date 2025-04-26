@@ -4,7 +4,7 @@ import os
 from torch import optim
 from torch.utils.data import DataLoader
 from torch import nn
-from tqdm import tqdm 
+from tqdm import tqdm
 import wandb
 from utils import DEVICE, PAD_TOKEN, IntentsAndSlots, Lang, load_data
 from functions import collate_fn, eval_loop, init_weights, train_loop

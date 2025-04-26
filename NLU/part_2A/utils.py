@@ -97,7 +97,7 @@ class IntentsAndSlots(data.Dataset):
 
         self.utterances_ids = self.mapping_seq(self.utterances, lang.word2id)
         self.slot_ids = self.mapping_seq(self.slots, lang.slot2id)
-        self.intent_ids = self.mapping_seq(self.intents, lang.intent2id)
+        self.intent_ids = self.mapping_lab(self.intents, lang.intent2id)
 
     def __len__(self):
         return len(self.utterances)
@@ -110,6 +110,9 @@ class IntentsAndSlots(data.Dataset):
         return sample
 
     # Auxiliary methods
+    def mapping_lab(self, data, mapper):
+        return [mapper[elem] if elem in mapper else mapper[self.unk] for elem in data]
+
     def mapping_seq(self, data, mapper):
         """
         This function maps a sequence of elements to their corresponding ids.
