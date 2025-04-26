@@ -206,7 +206,7 @@ if __name__ == "__main__":
     patience = 3
     batch_size_train = 128
     batch_size_eval = 64
-    wandb_project_name = "NLU_project_part_2A"
+    wandb_project_name = "NLU-project-part-2A"
     wandb_group_prefix = "before_changes"
 
     # --- Login to W&B --- #
