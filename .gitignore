@@ -32,12 +32,9 @@ ENV/
 *.swo
 
 # Project specific
-bin/
 data/
 models/
-logs/
 notebooks/
-wandb/
 
 # OS generated files
 .DS_Store
