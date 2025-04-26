@@ -35,6 +35,7 @@ ENV/
 data/
 models/
 notebooks/
+__pycache__/
 
 # OS generated files
 .DS_Store
