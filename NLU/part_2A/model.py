@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
@@ -15,14 +16,15 @@ class ModelIAS(nn.Module):
         # vocab_len: size of the vocabulary
         # n_layers: number of layers of the LSTM
         # pad_index: index of the padding token
+        # bidirectional: whether the LSTM is bidirectional or not
         super(ModelIAS, self).__init__()
 
         self.embedding = nn.Embedding(
             vocab_len, emb_size, padding_idx=pad_index)
         self.utt_encoder = nn.LSTM(
-            emb_size, hid_size, n_layers, batch_first=True, bidirectional=False)
-        self.slot_out = nn.Linear(hid_size, out_slot)
-        self.intent_out = nn.Linear(hid_size, out_int)
+            emb_size, hid_size, n_layers, batch_first=True, bidirectional=True)
+        self.slot_out = nn.Linear(hid_size * 2, out_slot)
+        self.intent_out = nn.Linear(hid_size * 2, out_int)
 
     def forward(self, utterance, seq_lengths):
         """
@@ -47,7 +49,9 @@ class ModelIAS(nn.Module):
         utt_encoded, input_sizes = pad_packed_sequence(
             packed_output, batch_first=True)  # (batch_size, seq_len, hid_size)
 
-        hidden = hidden[-1, :, :]  # (batch_size, hid_size)
+        # (batch_size, hid_size * 2)
+        combined_hidden = torch.cat(
+            (hidden[-2, :, :], hidden[-1, :, :]), dim=1)
 
         # compute the logits for the slot tagging task
         # (batch_size, seq_len, classes)
@@ -55,7 +59,7 @@ class ModelIAS(nn.Module):
 
         # compute the logits for the intent classification task
         # (batch_size, out_int)
-        intent_logits = self.intent_out(hidden)
+        intent_logits = self.intent_out(combined_hidden)
 
         # (batch_size, classes, seq_len)
         slot_logits = slot_logits.permute(0, 2, 1)
