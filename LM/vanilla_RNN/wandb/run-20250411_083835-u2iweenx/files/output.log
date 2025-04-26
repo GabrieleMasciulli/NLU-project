@@ -1,0 +1,7 @@
+M1 E0 PPL: N/A:   0%|                                                                                                                               | 0/100 [00:06<?, ?it/s]
+Traceback (most recent call last):
+  File "main.py", line 133, in <module>
+    ppl_dev, loss_dev = eval_loop(dev_loader, criterion_eval, model)
+  File "/home/disi/NLU-project/LM/vanilla_RNN/functions.py", line 73, in eval_loop
+    num_tokens = sample['num_tokens']
+KeyError: 'num_tokens'

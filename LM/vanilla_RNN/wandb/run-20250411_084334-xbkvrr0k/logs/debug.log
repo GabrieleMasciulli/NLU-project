@@ -1,0 +1,24 @@
+2025-04-11 08:43:34,585 INFO    MainThread:4895 [wandb_init.py:setup_run_log_directory():662] Logging user logs to /home/disi/NLU-project/LM/vanilla_RNN/wandb/run-20250411_084334-xbkvrr0k/logs/debug.log
+2025-04-11 08:43:34,585 INFO    MainThread:4895 [wandb_init.py:setup_run_log_directory():663] Logging internal logs to /home/disi/NLU-project/LM/vanilla_RNN/wandb/run-20250411_084334-xbkvrr0k/logs/debug-internal.log
+2025-04-11 08:43:34,585 INFO    MainThread:4895 [wandb_init.py:init():781] calling init triggers
+2025-04-11 08:43:34,586 INFO    MainThread:4895 [wandb_init.py:init():786] wandb.init called with sweep_config: {}
+config: {'model_type': 'RNN', 'ensemble_member': 3, 'seed': 44, 'n_layers': 1, 'learning_rate': 1.0, 'batch_size': 64, 'hidden_size': 256, 'embedding_size': 300, 'compression_dim': 100, 'optimizer': 'SGD', 'clip': 5, 'max_epochs': 100, 'patience': 3, '_wandb': {}}
+2025-04-11 08:43:34,586 INFO    MainThread:4895 [wandb_init.py:init():809] starting backend
+2025-04-11 08:43:34,586 INFO    MainThread:4895 [wandb_init.py:init():813] sending inform_init request
+2025-04-11 08:43:34,586 INFO    MainThread:4895 [backend.py:_multiprocessing_setup():101] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2025-04-11 08:43:34,586 INFO    MainThread:4895 [wandb_init.py:init():823] backend started and connected
+2025-04-11 08:43:34,589 INFO    MainThread:4895 [wandb_init.py:init():915] updated telemetry
+2025-04-11 08:43:34,619 INFO    MainThread:4895 [wandb_init.py:init():939] communicating run to backend with 90.0 second timeout
+2025-04-11 08:43:35,037 INFO    MainThread:4895 [wandb_init.py:init():1014] starting run threads in backend
+2025-04-11 08:43:35,085 INFO    MainThread:4895 [wandb_run.py:_console_start():2454] atexit reg
+2025-04-11 08:43:35,085 INFO    MainThread:4895 [wandb_run.py:_redirect():2306] redirect: wrap_raw
+2025-04-11 08:43:35,086 INFO    MainThread:4895 [wandb_run.py:_redirect():2371] Wrapping output streams.
+2025-04-11 08:43:35,086 INFO    MainThread:4895 [wandb_run.py:_redirect():2394] Redirects installed.
+2025-04-11 08:43:35,087 INFO    MainThread:4895 [wandb_init.py:init():1056] run started, returning control to user process
+2025-04-11 08:45:42,912 INFO    MainThread:4895 [wandb_run.py:_finish():2189] finishing run gabriele-masciulli-university-of-trento/rnn-hyperparam-tuning/xbkvrr0k
+2025-04-11 08:45:42,912 INFO    MainThread:4895 [wandb_run.py:_atexit_cleanup():2419] got exitcode: 0
+2025-04-11 08:45:42,912 INFO    MainThread:4895 [wandb_run.py:_restore():2401] restore
+2025-04-11 08:45:42,912 INFO    MainThread:4895 [wandb_run.py:_restore():2407] restore done
+2025-04-11 08:45:44,072 INFO    MainThread:4895 [wandb_run.py:_footer_history_summary_info():4064] rendering history
+2025-04-11 08:45:44,072 INFO    MainThread:4895 [wandb_run.py:_footer_history_summary_info():4096] rendering summary
+2025-04-11 08:45:44,073 INFO    MainThread:4895 [wandb_run.py:_footer_sync_info():4025] logging synced files

@@ -1,0 +1,38 @@
+_wandb:
+    value:
+        cli_version: 0.19.9
+        m: []
+        python_version: 3.8.10
+        t:
+            "1":
+                - 1
+                - 55
+            "2":
+                - 1
+                - 55
+            "3":
+                - 2
+                - 13
+                - 23
+                - 55
+                - 62
+            "4": 3.8.10
+            "5": 0.19.9
+            "8":
+                - 5
+            "10":
+                - 20
+            "12": 0.19.9
+            "13": linux-x86_64
+compression_dim:
+    value: 100
+embedding_size:
+    value: 300
+hidden_size:
+    value: 256
+model_type:
+    value: RNN
+n_ensemble_members:
+    value: 4
+n_layers:
+    value: 1

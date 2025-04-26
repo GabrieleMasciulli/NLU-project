@@ -1,0 +1,16 @@
+M3 E19 PPL: 177.88:  18%|████████████████████▌                                                                                             | 18/100 [02:07<09:42,  7.10s/it]
+Epoch 1: New best PPL: 334.96
+Epoch 2: New best PPL: 290.78
+Epoch 3: New best PPL: 222.90
+Epoch 4: New best PPL: 218.04
+Epoch 6: New best PPL: 193.18
+Epoch 7: New best PPL: 187.68
+Epoch 10: New best PPL: 184.24
+Epoch 13: New best PPL: 177.13
+Epoch 14: New best PPL: 175.95
+Epoch 15: New best PPL: 173.32
+Epoch 16: New best PPL: 166.25
+Epoch 19: Early stopping triggered.
+--- Training Finished: Member 3 ---
+Best Dev PPL: 166.25
+Saved best model state for member 3 to bin/ensemble_models/best_model_member_3_seed44.pt

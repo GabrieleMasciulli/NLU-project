@@ -1,0 +1,46 @@
+Starting training for run: lstm_l3_h650_emb_dropout0.4_out_dropout0.4
+Epoch 32 | LR: 30.0000 | Train Loss: 4.0419 | Dev PPL: 87.70:  31%|███▋        | 31/100 [22:26<48:10, 41.89s/it]
+  New best model found! Dev PPL: 217.00. Saving model.
+  New best model found! Dev PPL: 161.95. Saving model.
+  New best model found! Dev PPL: 134.27. Saving model.
+  New best model found! Dev PPL: 124.40. Saving model.
+  New best model found! Dev PPL: 113.46. Saving model.
+  New best model found! Dev PPL: 108.96. Saving model.
+  New best model found! Dev PPL: 103.81. Saving model.
+  New best model found! Dev PPL: 100.81. Saving model.
+  New best model found! Dev PPL: 99.89. Saving model.
+  New best model found! Dev PPL: 96.40. Saving model.
+  New best model found! Dev PPL: 95.88. Saving model.
+  New best model found! Dev PPL: 94.88. Saving model.
+  New best model found! Dev PPL: 93.58. Saving model.
+  New best model found! Dev PPL: 92.27. Saving model.
+  New best model found! Dev PPL: 91.44. Saving model.
+  No improvement in Dev PPL (92.16 vs best 91.44) using SGD. Patience: 1/10
+  New best model found! Dev PPL: 90.56. Saving model.
+  New best model found! Dev PPL: 89.82. Saving model.
+  New best model found! Dev PPL: 89.57. Saving model.
+  No improvement in Dev PPL (93.81 vs best 89.57) using SGD. Patience: 1/10
+  New best model found! Dev PPL: 88.59. Saving model.
+  No improvement in Dev PPL (89.23 vs best 88.59) using SGD. Patience: 1/10
+  New best model found! Dev PPL: 88.17. Saving model.
+  No improvement in Dev PPL (89.03 vs best 88.17) using SGD. Patience: 1/10
+  New best model found! Dev PPL: 87.35. Saving model.
+  No improvement in Dev PPL (88.46 vs best 87.35) using SGD. Patience: 1/10
+  New best model found! Dev PPL: 86.63. Saving model.
+  No improvement in Dev PPL (87.15 vs best 86.63) using SGD. Patience: 1/10
+  No improvement in Dev PPL (87.25 vs best 86.63) using SGD. Patience: 2/10
+  No improvement in Dev PPL (87.42 vs best 86.63) using SGD. Patience: 3/10
+  No improvement in Dev PPL (86.88 vs best 86.63) using SGD. Patience: 4/10
+  No improvement in Dev PPL (87.70 vs best 86.63) using SGD. Patience: 5/10
+--- Switching to ASGD --- (Triggered after 5 epochs without improvement)
+  New best model found! Dev PPL: 85.67. Saving model.
+  No improvement in Dev PPL (87.96 vs best 85.67) using ASGD. Patience: 1/10
+  No improvement in Dev PPL (88.15 vs best 85.67) using ASGD. Patience: 2/10
+  No improvement in Dev PPL (89.66 vs best 85.67) using ASGD. Patience: 3/10
+
+Training interrupted by user.
+
+Training finished.
+Evaluating best model (from epoch 33, PPL: 85.67) on test set...
+Final Test Perplexity: 85.22
+Best model saved to bin/best_model_lstm_l3_h650_emb_dropout0.4_out_dropout0.4.pt

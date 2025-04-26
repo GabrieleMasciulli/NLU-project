@@ -1,0 +1,1 @@
+{"best_dev_perplexity":172.41290835881304,"_runtime":109.493650583,"_step":15,"_timestamp":1.74436101325425e+09,"train_loss":4.62282283891629,"dev_loss":5.176053748257476,"dev_perplexity":176.98301159132893,"_wandb":{"runtime":109},"epoch":16}

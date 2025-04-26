@@ -1,0 +1,15 @@
+{"time":"2025-04-11T08:38:35.556431129Z","level":"INFO","msg":"stream: starting","core version":"0.19.9","symlink path":"/home/disi/NLU-project/LM/vanilla_RNN/wandb/run-20250411_083835-u2iweenx/logs/debug-core.log"}
+{"time":"2025-04-11T08:38:35.85386692Z","level":"INFO","msg":"created new stream","id":"u2iweenx"}
+{"time":"2025-04-11T08:38:35.853913118Z","level":"INFO","msg":"stream: started","id":"u2iweenx"}
+{"time":"2025-04-11T08:38:35.853930217Z","level":"INFO","msg":"writer: Do: started","stream_id":"u2iweenx"}
+{"time":"2025-04-11T08:38:35.853953416Z","level":"INFO","msg":"sender: started","stream_id":"u2iweenx"}
+{"time":"2025-04-11T08:38:35.853940817Z","level":"INFO","msg":"handler: started","stream_id":"u2iweenx"}
+{"time":"2025-04-11T08:38:36.124271639Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-04-11T08:38:43.830736762Z","level":"INFO","msg":"stream: closing","id":"u2iweenx"}
+{"time":"2025-04-11T08:38:43.830770161Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-04-11T08:38:43.830839257Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-04-11T08:38:44.448881393Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-04-11T08:38:44.628676321Z","level":"INFO","msg":"handler: closed","stream_id":"u2iweenx"}
+{"time":"2025-04-11T08:38:44.628727219Z","level":"INFO","msg":"writer: Close: closed","stream_id":"u2iweenx"}
+{"time":"2025-04-11T08:38:44.628752717Z","level":"INFO","msg":"sender: closed","stream_id":"u2iweenx"}
+{"time":"2025-04-11T08:38:44.628789116Z","level":"INFO","msg":"stream: closed","id":"u2iweenx"}

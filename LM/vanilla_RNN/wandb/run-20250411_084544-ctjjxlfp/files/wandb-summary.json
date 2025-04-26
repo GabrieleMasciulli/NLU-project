@@ -1,0 +1,1 @@
+{"train_loss":4.644834070692851,"_runtime":108.002827754,"epoch":16,"best_dev_perplexity":173.32909588475195,"_step":15,"dev_loss":5.185672999871253,"_wandb":{"runtime":108},"_timestamp":1.7443612521212635e+09,"dev_perplexity":178.69367014814864}

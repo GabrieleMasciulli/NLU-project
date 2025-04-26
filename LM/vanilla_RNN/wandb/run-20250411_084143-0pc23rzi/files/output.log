@@ -1,0 +1,15 @@
+M2 E16 PPL: 176.98:  15%|█████████████████                                                                                                 | 15/100 [01:49<10:17,  7.27s/it]
+Epoch 1: New best PPL: 320.87
+Epoch 2: New best PPL: 264.65
+Epoch 3: New best PPL: 225.67
+Epoch 4: New best PPL: 202.60
+Epoch 5: New best PPL: 196.14
+Epoch 6: New best PPL: 183.82
+Epoch 7: New best PPL: 182.84
+Epoch 8: New best PPL: 177.76
+Epoch 10: New best PPL: 175.93
+Epoch 13: New best PPL: 172.41
+Epoch 16: Early stopping triggered.
+--- Training Finished: Member 2 ---
+Best Dev PPL: 172.41
+Saved best model state for member 2 to bin/ensemble_models/best_model_member_2_seed43.pt

@@ -1,0 +1,9 @@
+Starting training for run: zaremba_medium_lstm_l2_h650_emb300_lr1.0_do_emb0.5_do_out0.5_gloveTrue
+Epoch 2 | Train Loss: nan | Dev PPL: nan:   2%|█▋                                                                                 | 2/100 [01:40<1:21:45, 50.06s/it]
+  No improvement. Patience left: 2
+  No improvement. Patience left: 1
+
+Training interrupted by user.
+
+Training finished.
+No best model found - training might have diverged or stopped very early.

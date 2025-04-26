@@ -1,0 +1,12 @@
+M1 E11 PPL: 190.75:  10%|█████▎                                               | 10/100 [01:15<11:19,  7.55s/it]
+Epoch 1: New best PPL: 331.25
+Epoch 2: New best PPL: 250.44
+Epoch 3: New best PPL: 233.13
+Epoch 4: New best PPL: 206.87
+Epoch 5: New best PPL: 206.79
+Epoch 7: New best PPL: 186.26
+Epoch 8: New best PPL: 177.93
+Epoch 11: Early stopping triggered.
+--- Training Finished: Member 1 ---
+Best Dev PPL: 177.93
+Saved best model state for member 1 to bin/ensemble_models/best_model_member_1_seed42.pt

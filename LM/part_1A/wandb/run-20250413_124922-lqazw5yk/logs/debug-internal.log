@@ -1,0 +1,7 @@
+{"time":"2025-04-13T12:49:22.685512465Z","level":"INFO","msg":"stream: starting","core version":"0.19.9","symlink path":"/home/disi/NLU-project/LM/part_1A/wandb/run-20250413_124922-lqazw5yk/logs/debug-core.log"}
+{"time":"2025-04-13T12:49:22.915012948Z","level":"INFO","msg":"created new stream","id":"lqazw5yk"}
+{"time":"2025-04-13T12:49:22.915058445Z","level":"INFO","msg":"stream: started","id":"lqazw5yk"}
+{"time":"2025-04-13T12:49:22.915071545Z","level":"INFO","msg":"writer: Do: started","stream_id":"lqazw5yk"}
+{"time":"2025-04-13T12:49:22.915089344Z","level":"INFO","msg":"sender: started","stream_id":"lqazw5yk"}
+{"time":"2025-04-13T12:49:22.915118943Z","level":"INFO","msg":"handler: started","stream_id":"lqazw5yk"}
+{"time":"2025-04-13T12:49:23.121494275Z","level":"INFO","msg":"Starting system monitor"}
