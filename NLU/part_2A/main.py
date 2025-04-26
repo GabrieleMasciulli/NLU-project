@@ -11,6 +11,7 @@ from functions import collate_fn, eval_loop, init_weights, train_loop
 from model import ModelIAS
 import numpy as np
 from sklearn.model_selection import train_test_split
+import torch
 
 
 def main(
@@ -102,6 +103,8 @@ def main(
     losses_dev = []
     sampled_epochs = []
     best_model = None
+    best_f1 = -1.0
+    current_patience = patience
 
     pbar = tqdm(range(1, n_epochs))
 
@@ -165,13 +168,13 @@ def main(
                 # @todo: for decreasing the patience, we could use the average btw slot f1 and intent accuracy
                 if f1 > best_f1:
                     best_f1 = f1
-                    patience = 3
+                    current_patience = patience  # Reset patience
                     best_model = copy.deepcopy(model).to('cpu')
                     print(
                         f"  New best model found! F1: {best_f1:.2f}. Saving model.")
                 else:
-                    patience -= 1
-                if patience <= 0:
+                    current_patience -= 1
+                if current_patience <= 0:
                     print("Early stopping.")
                     break
 
@@ -180,6 +183,9 @@ def main(
     # --- Final Evaluation on Test Set --- #
     print("\nTraining finished.")
     if best_model is not None:
+        best_model.to(DEVICE)
+        best_model.eval()
+
         results_test, intent_test, _ = eval_loop(
             test_loader, criterion_slots, criterion_intents, best_model, lang)
         print('Slot F1: ', results_test['total']['f'])
@@ -190,6 +196,13 @@ def main(
             "test_slot_f1": results_test['total']['f'],
             "test_intent_accuracy": intent_test['accuracy']
         })
+
+        # Save the final best model
+        os.makedirs('bin', exist_ok=True)
+        model_save_path = f'bin/best_model_{run_name}.pt'
+        torch.save(best_model.state_dict(), model_save_path)
+        print(f"Best model saved to {model_save_path}")
+
     else:
         print('No best model found - training might have diverged or stopped very early.')
 
