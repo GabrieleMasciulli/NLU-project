@@ -47,7 +47,7 @@ class ModelIAS(nn.Module):
         utt_encoded, input_sizes = pad_packed_sequence(
             packed_output, batch_first=True)  # (batch_size, seq_len, hid_size)
 
-        last_hidden = hidden[-1, :, :]  # (batch_size, hid_size)
+        hidden = hidden[-1, :, :]  # (batch_size, hid_size)
 
         # compute the logits for the slot tagging task
         # (batch_size, seq_len, classes)
@@ -55,7 +55,7 @@ class ModelIAS(nn.Module):
 
         # compute the logits for the intent classification task
         # (batch_size, out_int)
-        intent_logits = self.intent_out(last_hidden)
+        intent_logits = self.intent_out(hidden)
 
         # (batch_size, classes, seq_len)
         slot_logits = slot_logits.permute(0, 2, 1)

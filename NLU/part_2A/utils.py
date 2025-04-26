@@ -7,7 +7,7 @@ from torch.utils import data
 # global variables
 DEVICE = 'cuda:0'
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"  # used to debug CUDA errors
-PAD_TOKEN = "<pad>"
+PAD_TOKEN = 0
 
 
 def load_data(path):
@@ -96,8 +96,8 @@ class IntentsAndSlots(data.Dataset):
             self.slots.append(sample['slots'])
 
         self.utterances_ids = self.mapping_seq(self.utterances, lang.word2id)
-        self.slot_ids = self.mapping_seq(self.intents, lang.slot2id)
-        self.intent_ids = self.mapping_seq(self.slots, lang.intent2id)
+        self.slot_ids = self.mapping_seq(self.slots, lang.slot2id)
+        self.intent_ids = self.mapping_seq(self.intents, lang.intent2id)
 
     def __len__(self):
         return len(self.utterances)

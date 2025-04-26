@@ -3,13 +3,14 @@ import copy
 import os
 from torch import optim
 from torch.utils.data import DataLoader
-import tqdm
+from torch import nn
+from tqdm import tqdm 
 import wandb
-from LM.part_1B.main import wandb_group_prefix
 from utils import DEVICE, PAD_TOKEN, IntentsAndSlots, Lang, load_data
 from functions import collate_fn, eval_loop, init_weights, train_loop
 from model import ModelIAS
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 
 def main(
@@ -86,8 +87,8 @@ def main(
         hid_size=hid_size,
         emb_size=emb_size,
         vocab_len=vocab_len,
-        out_slots=out_slots,
-        out_intents=out_intents,
+        out_slot=out_slots,
+        out_int=out_intents,
         pad_index=PAD_TOKEN
     ).to(DEVICE)
     model.apply(init_weights)
@@ -224,6 +225,6 @@ if __name__ == "__main__":
         patience=patience,
         batch_size_train=batch_size_train,
         batch_size_eval=batch_size_eval,
-        wandb_project=wandb_project,
+        wandb_project=wandb_project_name,
         wandb_group_prefix=wandb_group_prefix
     )
