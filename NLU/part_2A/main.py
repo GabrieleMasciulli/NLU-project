@@ -107,7 +107,7 @@ def main(
 
     # --- W&B Initialization --- #
     run_name_parts = [
-        f"lstm",
+        f"lstm_bidir",
         f"l{1}",
         f"h{hid_size}",
         f"emb{emb_size}",
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     batch_size_train = 128
     batch_size_eval = 64
     wandb_project_name = "NLU-project-part-2A"
-    wandb_group_prefix = "before_changes"
+    wandb_group_prefix = "bidirectional-lstm"
 
     # --- Login to W&B --- #
     try:
