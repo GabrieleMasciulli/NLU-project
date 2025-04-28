@@ -51,14 +51,14 @@ class ModelIAS(nn.Module):
             packed_output, batch_first=True)  # (batch_size, seq_len, hid_size)
 
         # dropout on the output of the LSTM
-        utt_encoded = self.dropout(utt_encoded)
+        utt_encoded = self.out_dropout(utt_encoded)
 
         # (batch_size, hid_size * 2)
         combined_hidden = torch.cat(
             (hidden[-2, :, :], hidden[-1, :, :]), dim=1)
 
         # dropout on the combined hidden state
-        combined_hidden = self.dropout(combined_hidden)
+        combined_hidden = self.out_dropout(combined_hidden)
 
         # compute the logits for the slot tagging task
         # (batch_size, seq_len, classes)
