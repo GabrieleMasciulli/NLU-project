@@ -141,8 +141,10 @@ def main(
 
     # --- Training Loop --- #
     print(f"Starting training for run: {run_name}")
+    last_completed_epoch = 0
     try:
         for epoch in pbar:
+            last_completed_epoch = epoch
             loss = train_loop(train_loader, optimizer,
                               criterion_slots, criterion_intents, model, clip)
 
@@ -150,7 +152,7 @@ def main(
             run.log({
                 "epoch": epoch,
                 "train_loss": np.asarray(loss).mean()
-            })
+            }, step=epoch)
 
             if epoch % 5 == 0:  # checking the performance of the model every 5 epochs
                 sampled_epochs.append(epoch)
@@ -163,7 +165,7 @@ def main(
                     "dev_loss": losses_dev[-1],
                     "dev_slot_f1": results_dev['total']['f'],
                     "dev_intent_accuracy": intent_res['accuracy']
-                })
+                }, step=epoch)
                 print(
                     f"Epoch {epoch} - Train loss: {losses_train[-1]} - Dev loss: {losses_dev[-1]}")
 
@@ -198,7 +200,7 @@ def main(
         wandb.log({
             "test_slot_f1": results_test['total']['f'],
             "test_intent_accuracy": intent_test['accuracy']
-        })
+        }, step=last_completed_epoch)
 
         # Save the final best model
         os.makedirs('bin', exist_ok=True)
@@ -218,13 +220,15 @@ if __name__ == "__main__":
     emb_size = 300
     lr = 0.0001
     clip = 5.0
-    dropout = 0.5
     n_epochs = 200
     patience = 3
     batch_size_train = 128
     batch_size_eval = 64
     wandb_project_name = "NLU-project-part-2A"
-    wandb_group_prefix = "bidir-dropout-lstm"
+    wandb_group_prefix = "bidir-lstm-dropout-sweep"
+
+    # --- Dropout values to test --- #
+    dropout_values = [0.1, 0.2, 0.3, 0.4, 0.5]
 
     # --- Login to W&B --- #
     try:
@@ -232,16 +236,22 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Could not login to WandB: {e}. Proceeding without logging.")
 
-    # --- Starts training --- #
-    main(
-        hid_size=hid_size,
-        emb_size=emb_size,
-        lr=lr,
-        clip=clip,
-        n_epochs=n_epochs,
-        patience=patience,
-        batch_size_train=batch_size_train,
-        batch_size_eval=batch_size_eval,
-        wandb_project=wandb_project_name,
-        wandb_group_prefix=wandb_group_prefix
-    )
+    # --- Loop through dropout values and start training --- #
+    for dropout_val in dropout_values:
+        print(f"\n--- Starting Run with Dropout: {dropout_val} ---")
+        main(
+            hid_size=hid_size,
+            emb_size=emb_size,
+            lr=lr,
+            clip=clip,
+            dropout=dropout_val,  # Pass the current dropout value
+            n_epochs=n_epochs,
+            patience=patience,
+            batch_size_train=batch_size_train,
+            batch_size_eval=batch_size_eval,
+            wandb_project=wandb_project_name,
+            wandb_group_prefix=wandb_group_prefix
+        )
+        print(f"--- Finished Run with Dropout: {dropout_val} ---")
+
+    print("\n--- All Dropout Experiments Finished ---")
