@@ -19,7 +19,8 @@ def main(
     emb_size: int,
     lr: float,
     clip: float,
-    dropout: float,
+    fc_dropout: float,
+    lstm_dropout: float,
     n_epochs: int,
     patience: int,
     batch_size_train: int,
@@ -90,7 +91,8 @@ def main(
         hid_size=hid_size,
         emb_size=emb_size,
         vocab_len=vocab_len,
-        out_dropout=dropout,
+        lstm_dropout=lstm_dropout,
+        fc_dropout=fc_dropout,
         out_slot=out_slots,
         out_int=out_intents,
         n_layers=n_layers,
@@ -118,7 +120,8 @@ def main(
         f"l{n_layers}",
         f"h{hid_size}",
         f"emb{emb_size}",
-        f"drop{dropout}"
+        f"dp_fc{fc_dropout}",
+        f"dp_lstm{lstm_dropout}",
     ]
     run_name = "_".join(run_name_parts)
     group_name = wandb_group_prefix
@@ -138,7 +141,8 @@ def main(
             "clip_gradient": clip,
             "patience": patience,
             "n_layers": n_layers,
-            "dropout": dropout
+            "fc_dropout": fc_dropout,
+            "lstm_dropout": lstm_dropout
         }
     )
 
@@ -226,25 +230,26 @@ if __name__ == "__main__":
     n_layers = 2
     n_epochs = 200
     patience = 3
-    dropout = 0.3
+    fc_dropout = 0.3
+    lstm_dropout = 0.2
     batch_size_train = 128
     batch_size_eval = 64
     wandb_project_name = "NLU-project-part-2A"
     wandb_group_prefix = "bidir-lstm-dropout-l2-h500"
-
 
     # --- Login to W&B --- #
     try:
         wandb.login()
     except Exception as e:
         print(f"Could not login to WandB: {e}. Proceeding without logging.")
-    
+
     main(
         hid_size=hid_size,
         emb_size=emb_size,
         lr=lr,
         clip=clip,
-        dropout=dropout,
+        fc_dropout=fc_dropout,
+        lstm_dropout=lstm_dropout,
         n_layers=n_layers,
         n_epochs=n_epochs,
         patience=patience,
@@ -253,6 +258,3 @@ if __name__ == "__main__":
         wandb_project=wandb_project_name,
         wandb_group_prefix=wandb_group_prefix
     )
-
-
-
