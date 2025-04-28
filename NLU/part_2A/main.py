@@ -25,7 +25,8 @@ def main(
     batch_size_train: int,
     batch_size_eval: int,
     wandb_project: str,
-    wandb_group_prefix: str
+    wandb_group_prefix: str,
+    n_layers: int
 ):
     tmp_train_raw = load_data(os.path.join("dataset", "ATIS", "train.json"))
     test_raw = load_data(os.path.join("dataset", "ATIS", "test.json"))
@@ -92,6 +93,7 @@ def main(
         out_dropout=dropout,
         out_slot=out_slots,
         out_int=out_intents,
+        n_layers=n_layers,
         pad_index=PAD_TOKEN
     ).to(DEVICE)
     model.apply(init_weights)
@@ -113,7 +115,7 @@ def main(
     # --- W&B Initialization --- #
     run_name_parts = [
         f"lstm_bidir_drop",
-        f"l{1}",
+        f"l{n_layers}",
         f"h{hid_size}",
         f"emb{emb_size}",
         f"drop{dropout}"
@@ -135,7 +137,8 @@ def main(
             "epochs": n_epochs,
             "clip_gradient": clip,
             "patience": patience,
-            "n_layers": 1,
+            "n_layers": n_layers,
+            "dropout": dropout
         }
     )
 
@@ -216,16 +219,17 @@ def main(
 
 
 if __name__ == "__main__":
-    hid_size = 200
+    hid_size = 500
     emb_size = 300
     lr = 0.0001
     clip = 5.0
+    n_layers = 2
     n_epochs = 200
     patience = 3
     batch_size_train = 128
     batch_size_eval = 64
     wandb_project_name = "NLU-project-part-2A"
-    wandb_group_prefix = "bidir-lstm-dropout-sweep"
+    wandb_group_prefix = "bidir-lstm-dropout-l2-h500"
 
     # --- Dropout values to test --- #
     dropout_values = [0.1, 0.2, 0.3, 0.4, 0.5]
@@ -244,7 +248,8 @@ if __name__ == "__main__":
             emb_size=emb_size,
             lr=lr,
             clip=clip,
-            dropout=dropout_val,  # Pass the current dropout value
+            dropout=dropout_val,
+            n_layers=n_layers,
             n_epochs=n_epochs,
             patience=patience,
             batch_size_train=batch_size_train,
