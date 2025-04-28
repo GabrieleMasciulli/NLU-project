@@ -19,6 +19,7 @@ def main(
     emb_size: int,
     lr: float,
     clip: float,
+    dropout: float,
     n_epochs: int,
     patience: int,
     batch_size_train: int,
@@ -88,6 +89,7 @@ def main(
         hid_size=hid_size,
         emb_size=emb_size,
         vocab_len=vocab_len,
+        out_dropout=dropout,
         out_slot=out_slots,
         out_int=out_intents,
         pad_index=PAD_TOKEN
@@ -110,10 +112,11 @@ def main(
 
     # --- W&B Initialization --- #
     run_name_parts = [
-        f"lstm_bidir",
+        f"lstm_bidir_drop",
         f"l{1}",
         f"h{hid_size}",
         f"emb{emb_size}",
+        f"drop{dropout}"
     ]
     run_name = "_".join(run_name_parts)
     group_name = wandb_group_prefix
@@ -215,12 +218,13 @@ if __name__ == "__main__":
     emb_size = 300
     lr = 0.0001
     clip = 5.0
+    dropout = 0.5
     n_epochs = 200
     patience = 3
     batch_size_train = 128
     batch_size_eval = 64
     wandb_project_name = "NLU-project-part-2A"
-    wandb_group_prefix = "bidirectional-lstm"
+    wandb_group_prefix = "bidir-dropout-lstm"
 
     # --- Login to W&B --- #
     try:

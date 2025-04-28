@@ -8,21 +8,22 @@ class ModelIAS(nn.Module):
     This class instantiates the model for the intent and slot tagging task.
     """
 
-    def __init__(self, hid_size, out_slot, out_int, emb_size, vocab_len, n_layers=1, pad_index=0):
+    def __init__(self, hid_size, out_slot, out_int, emb_size, vocab_len, out_dropout, n_layers=1, pad_index=0):
         # hid_size: hidden size of the LSTM
         # out_slot: number of output classes for the slot tagging task
         # out_int: number of output classes for the intent classification task
         # emb_size: size of the word embeddings
         # vocab_len: size of the vocabulary
+        # out_dropout: dropout probability on the output of the LSTM
         # n_layers: number of layers of the LSTM
         # pad_index: index of the padding token
-        # bidirectional: whether the LSTM is bidirectional or not
         super(ModelIAS, self).__init__()
 
         self.embedding = nn.Embedding(
             vocab_len, emb_size, padding_idx=pad_index)
         self.utt_encoder = nn.LSTM(
             emb_size, hid_size, n_layers, batch_first=True, bidirectional=True)
+        self.out_dropout = nn.Dropout(out_dropout)
         self.slot_out = nn.Linear(hid_size * 2, out_slot)
         self.intent_out = nn.Linear(hid_size * 2, out_int)
 
@@ -49,9 +50,15 @@ class ModelIAS(nn.Module):
         utt_encoded, input_sizes = pad_packed_sequence(
             packed_output, batch_first=True)  # (batch_size, seq_len, hid_size)
 
+        # dropout on the output of the LSTM
+        utt_encoded = self.dropout(utt_encoded)
+
         # (batch_size, hid_size * 2)
         combined_hidden = torch.cat(
             (hidden[-2, :, :], hidden[-1, :, :]), dim=1)
+
+        # dropout on the combined hidden state
+        combined_hidden = self.dropout(combined_hidden)
 
         # compute the logits for the slot tagging task
         # (batch_size, seq_len, classes)
