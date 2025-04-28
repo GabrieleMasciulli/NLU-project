@@ -226,37 +226,33 @@ if __name__ == "__main__":
     n_layers = 2
     n_epochs = 200
     patience = 3
+    dropout = 0.3
     batch_size_train = 128
     batch_size_eval = 64
     wandb_project_name = "NLU-project-part-2A"
     wandb_group_prefix = "bidir-lstm-dropout-l2-h500"
 
-    # --- Dropout values to test --- #
-    dropout_values = [0.1, 0.2, 0.3, 0.4, 0.5]
 
     # --- Login to W&B --- #
     try:
         wandb.login()
     except Exception as e:
         print(f"Could not login to WandB: {e}. Proceeding without logging.")
+    
+    main(
+        hid_size=hid_size,
+        emb_size=emb_size,
+        lr=lr,
+        clip=clip,
+        dropout=dropout,
+        n_layers=n_layers,
+        n_epochs=n_epochs,
+        patience=patience,
+        batch_size_train=batch_size_train,
+        batch_size_eval=batch_size_eval,
+        wandb_project=wandb_project_name,
+        wandb_group_prefix=wandb_group_prefix
+    )
 
-    # --- Loop through dropout values and start training --- #
-    for dropout_val in dropout_values:
-        print(f"\n--- Starting Run with Dropout: {dropout_val} ---")
-        main(
-            hid_size=hid_size,
-            emb_size=emb_size,
-            lr=lr,
-            clip=clip,
-            dropout=dropout_val,
-            n_layers=n_layers,
-            n_epochs=n_epochs,
-            patience=patience,
-            batch_size_train=batch_size_train,
-            batch_size_eval=batch_size_eval,
-            wandb_project=wandb_project_name,
-            wandb_group_prefix=wandb_group_prefix
-        )
-        print(f"--- Finished Run with Dropout: {dropout_val} ---")
 
-    print("\n--- All Dropout Experiments Finished ---")
+
