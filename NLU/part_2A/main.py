@@ -229,7 +229,7 @@ if __name__ == "__main__":
     clip = 5.0
     n_layers = 2
     n_epochs = 200
-    patience = 3
+    patience = 5
     fc_dropout = 0.3
     lstm_dropout = 0.2
     batch_size_train = 128
