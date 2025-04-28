@@ -235,7 +235,7 @@ if __name__ == "__main__":
     batch_size_train = 128
     batch_size_eval = 64
     wandb_project_name = "NLU-project-part-2A"
-    wandb_group_prefix = "bidir-lstm-dropout-l2-h500"
+    wandb_group_prefix = "weighted-losses"
 
     # --- Login to W&B --- #
     try:

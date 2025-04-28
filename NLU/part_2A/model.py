@@ -28,6 +28,10 @@ class ModelIAS(nn.Module):
         self.slot_out = nn.Linear(hid_size * 2, out_slot)
         self.intent_out = nn.Linear(hid_size * 2, out_int)
 
+        # Lernable loss weights for the slot and intent classification tasks
+        self.alpha = nn.Parameter(torch.tensor([1.0]))  # slot_weight
+        self.beta = nn.Parameter(torch.tensor([1.0]))  # intent_weight
+
     def forward(self, utterance, seq_lengths):
         """
         Input:
