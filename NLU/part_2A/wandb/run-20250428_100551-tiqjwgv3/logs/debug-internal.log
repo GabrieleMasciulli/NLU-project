@@ -1,0 +1,16 @@
+{"time":"2025-04-28T10:05:51.608441454Z","level":"INFO","msg":"stream: starting","core version":"0.19.9","symlink path":"/home/disi/NLU-project/NLU/part_2A/wandb/run-20250428_100551-tiqjwgv3/logs/debug-core.log"}
+{"time":"2025-04-28T10:05:51.862056794Z","level":"INFO","msg":"created new stream","id":"tiqjwgv3"}
+{"time":"2025-04-28T10:05:51.862098392Z","level":"INFO","msg":"stream: started","id":"tiqjwgv3"}
+{"time":"2025-04-28T10:05:51.862113091Z","level":"INFO","msg":"writer: Do: started","stream_id":"tiqjwgv3"}
+{"time":"2025-04-28T10:05:51.86214489Z","level":"INFO","msg":"sender: started","stream_id":"tiqjwgv3"}
+{"time":"2025-04-28T10:05:51.86212809Z","level":"INFO","msg":"handler: started","stream_id":"tiqjwgv3"}
+{"time":"2025-04-28T10:05:52.108725939Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-04-28T10:08:41.54476796Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-04-28T10:08:41.544815458Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-04-28T10:08:42.535668495Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-04-28T10:08:42.546776911Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading history steps 189-194, summary, console lines 67-73","runtime_seconds":0.010991221}],"total_operations":1}}
+{"time":"2025-04-28T10:08:42.722519455Z","level":"INFO","msg":"stream: closing","id":"tiqjwgv3"}
+{"time":"2025-04-28T10:08:42.722541954Z","level":"INFO","msg":"handler: closed","stream_id":"tiqjwgv3"}
+{"time":"2025-04-28T10:08:42.722554054Z","level":"INFO","msg":"writer: Close: closed","stream_id":"tiqjwgv3"}
+{"time":"2025-04-28T10:08:42.722562253Z","level":"INFO","msg":"sender: closed","stream_id":"tiqjwgv3"}
+{"time":"2025-04-28T10:08:42.72262925Z","level":"INFO","msg":"stream: closed","id":"tiqjwgv3"}

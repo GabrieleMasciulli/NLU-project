@@ -1,0 +1,1 @@
+{"dev_slot_f1":0.9753928253780018,"_step":199,"epoch":199,"test_slot_f1":0.9364038972542073,"train_loss":0.0021308778252984795,"_wandb":{"runtime":170},"dev_loss":0.14784926967695355,"dev_intent_accuracy":0.9799196787148594,"test_intent_accuracy":0.9406494960806271,"_runtime":170.793771436,"_timestamp":1.7458350950798326e+09}
