@@ -57,6 +57,7 @@ def collate_fn(data):
     src_utt = src_utt.to(DEVICE)
     y_slots = y_slots.to(DEVICE)
     intents = intents.to(DEVICE)
+    y_lengths = torch.LongTensor(y_lengths).to(DEVICE)
 
     return {
         'utterances': src_utt,
@@ -155,7 +156,7 @@ def eval_loop(data, criterion_slot, criterion_intent, model, lang):
             for id_seq, seq in enumerate(out_slots):
                 length = batch['slots_len'].tolist()[id_seq]
                 # ignore padding tokens
-                utt_ids = batch['utterance'][id_seq][:length].tolist()
+                utt_ids = batch['utterances'][id_seq][:length].tolist()
                 gt_ids = batch['slots'][id_seq].tolist()
                 gt_slots = [lang.id2slot[id] for id in gt_ids[:length]]
                 utterance = [lang.id2word[id] for id in utt_ids]

@@ -1,0 +1,16 @@
+{"time":"2025-04-26T17:12:11.694273626Z","level":"INFO","msg":"stream: starting","core version":"0.19.9","symlink path":"/home/disi/NLU-project/NLU/part_2A/wandb/run-20250426_171211-wmd312zy/logs/debug-core.log"}
+{"time":"2025-04-26T17:12:12.178559295Z","level":"INFO","msg":"created new stream","id":"wmd312zy"}
+{"time":"2025-04-26T17:12:12.178617894Z","level":"INFO","msg":"stream: started","id":"wmd312zy"}
+{"time":"2025-04-26T17:12:12.178635394Z","level":"INFO","msg":"writer: Do: started","stream_id":"wmd312zy"}
+{"time":"2025-04-26T17:12:12.178665093Z","level":"INFO","msg":"sender: started","stream_id":"wmd312zy"}
+{"time":"2025-04-26T17:12:12.178643293Z","level":"INFO","msg":"handler: started","stream_id":"wmd312zy"}
+{"time":"2025-04-26T17:12:12.484727406Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-04-26T17:14:18.252136263Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-04-26T17:14:18.252207261Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-04-26T17:14:19.253986047Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading output.log","runtime_seconds":0.686827028,"progress":"3.8KB/3.8KB"}],"total_operations":1}}
+{"time":"2025-04-26T17:14:19.255322823Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-04-26T17:14:19.441784464Z","level":"INFO","msg":"stream: closing","id":"wmd312zy"}
+{"time":"2025-04-26T17:14:19.441806064Z","level":"INFO","msg":"handler: closed","stream_id":"wmd312zy"}
+{"time":"2025-04-26T17:14:19.441822664Z","level":"INFO","msg":"sender: closed","stream_id":"wmd312zy"}
+{"time":"2025-04-26T17:14:19.441818164Z","level":"INFO","msg":"writer: Close: closed","stream_id":"wmd312zy"}
+{"time":"2025-04-26T17:14:19.441897962Z","level":"INFO","msg":"stream: closed","id":"wmd312zy"}
