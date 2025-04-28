@@ -110,7 +110,7 @@ def train_loop(data, optimizer, criterion_slot, criterion_intent, model, clip=5)
             batch['utterances'], batch['slots_len'])
         loss_slot = criterion_slot(slot_logits, batch['slots'])
         loss_intent = criterion_intent(intent_logits, batch['intents'])
-        loss = model.alpha * loss_slot + model.beta * loss_intent
+        loss = loss_slot + loss_intent
         loss_arr.append(loss.item())
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
