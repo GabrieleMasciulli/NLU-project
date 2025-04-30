@@ -253,14 +253,14 @@ if __name__ == "__main__":
     # --- Adjust Hyperparameters for BERT ---
     main(
         bert_model_name=BERT_MODEL_NAME,
-        dropout_prob=0.1,
-        loss_alpha=0.5,  # Loss weight for intent classification loss
+        dropout_prob=0.15,
+        loss_alpha=0.3,  # Loss weight for intent classification loss
         lr=5e-5,        # Common starting point for BERT fine-tuning
         n_epochs=10,
         patience=3,
         warmup_steps=0,
-        batch_size_train=16,
-        batch_size_eval=32,
+        batch_size_train=32,
+        batch_size_eval=64,
         wandb_project="NLU-project-part-2B",
         wandb_group_prefix="joint-bert-atis",
         data_dir=os.path.join("dataset", "ATIS")
