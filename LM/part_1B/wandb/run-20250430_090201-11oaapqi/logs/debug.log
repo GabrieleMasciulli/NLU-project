@@ -1,0 +1,23 @@
+2025-04-30 09:02:01,884 INFO    MainThread:56291 [wandb_setup.py:_flush():67] Current SDK version is 0.19.9
+2025-04-30 09:02:01,884 INFO    MainThread:56291 [wandb_setup.py:_flush():67] Configure stats pid to 56291
+2025-04-30 09:02:01,884 INFO    MainThread:56291 [wandb_setup.py:_flush():67] Loading settings from /home/disi/.config/wandb/settings
+2025-04-30 09:02:01,884 INFO    MainThread:56291 [wandb_setup.py:_flush():67] Loading settings from /home/disi/NLU-project/LM/part_1B/wandb/settings
+2025-04-30 09:02:01,885 INFO    MainThread:56291 [wandb_setup.py:_flush():67] Loading settings from environment variables
+2025-04-30 09:02:01,885 INFO    MainThread:56291 [wandb_init.py:setup_run_log_directory():662] Logging user logs to /home/disi/NLU-project/LM/part_1B/wandb/run-20250430_090201-11oaapqi/logs/debug.log
+2025-04-30 09:02:01,885 INFO    MainThread:56291 [wandb_init.py:setup_run_log_directory():663] Logging internal logs to /home/disi/NLU-project/LM/part_1B/wandb/run-20250430_090201-11oaapqi/logs/debug-internal.log
+2025-04-30 09:02:01,885 INFO    MainThread:56291 [wandb_init.py:init():781] calling init triggers
+2025-04-30 09:02:01,885 INFO    MainThread:56291 [wandb_init.py:init():786] wandb.init called with sweep_config: {}
+config: {'learning_rate': 30.0, 'batch_size_train': 20, 'batch_size_eval': 10, 'hidden_size': 650, 'embedding_size': 650, 'optimizer': 'NTAvSGD', 'epochs': 100, 'weight_decay': 1.2e-06, 'clip_gradient': 0.25, 'patience': 10, 'n_layers': 3, 'asgd_trigger_epochs': 2, 'emb_dropout': 0.4, 'lstm_dropout': 0.3, 'out_dropout': 0.4, '_wandb': {}}
+2025-04-30 09:02:01,885 INFO    MainThread:56291 [wandb_init.py:init():809] starting backend
+2025-04-30 09:02:01,885 INFO    MainThread:56291 [wandb_init.py:init():813] sending inform_init request
+2025-04-30 09:02:01,897 INFO    MainThread:56291 [backend.py:_multiprocessing_setup():101] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2025-04-30 09:02:01,898 INFO    MainThread:56291 [wandb_init.py:init():823] backend started and connected
+2025-04-30 09:02:01,899 INFO    MainThread:56291 [wandb_init.py:init():915] updated telemetry
+2025-04-30 09:02:01,921 INFO    MainThread:56291 [wandb_init.py:init():939] communicating run to backend with 90.0 second timeout
+2025-04-30 09:02:02,694 INFO    MainThread:56291 [wandb_init.py:init():1014] starting run threads in backend
+2025-04-30 09:02:02,744 INFO    MainThread:56291 [wandb_run.py:_console_start():2454] atexit reg
+2025-04-30 09:02:02,744 INFO    MainThread:56291 [wandb_run.py:_redirect():2306] redirect: wrap_raw
+2025-04-30 09:02:02,744 INFO    MainThread:56291 [wandb_run.py:_redirect():2371] Wrapping output streams.
+2025-04-30 09:02:02,745 INFO    MainThread:56291 [wandb_run.py:_redirect():2394] Redirects installed.
+2025-04-30 09:02:02,747 INFO    MainThread:56291 [wandb_init.py:init():1056] run started, returning control to user process
+2025-04-30 09:02:43,747 INFO    MsgRouterThr:56291 [mailbox.py:close():129] [no run ID] Closing mailbox, abandoning 1 handles.

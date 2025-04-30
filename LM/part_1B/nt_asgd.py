@@ -54,33 +54,84 @@ class NTAvSGD(Optimizer):
                     print(
                         f"NTAvSGD: Starting averaging at step {state['step']}")
                     state['T'] = state['step']
-                    state['ax'] = torch.zeros_like(p.data)
-                    state['ax'].copy_(p.data)
+                    # Initialize ax only if it doesn't exist or needs re-initialization
+                    if state.get('ax') is None:
+                         state['ax'] = torch.zeros_like(p.data)
+                    state['ax'].copy_(p.data) # Copy current params to start average
 
-    def swap_parameters(self):
+    def is_averaging(self):
+        """
+        Checks if the optimizer is currently in the averaging phase.
+        Returns True if averaging has been triggered (state['T'] is not None), False otherwise.
+        """
+        # Check the state of the first parameter in the first group is sufficient
+        # as averaging starts for all parameters simultaneously.
+        if not self.param_groups:
+            return False # No parameters to optimize
+        first_param = self.param_groups[0]['params'][0]
+        state = self.state[first_param]
+        return state.get('T') is not None
+
+    def swap_parameters(self, model_override=None):
         """
         Swaps the current parameters with the averaged parameters `ax`.
         Should be called before evaluation if averaging has started.
         Returns the original parameters for swapping back later.
+        Optionally accepts a model instance to swap its parameters instead of the optimizer's default ones.
         """
         original_params = {}
-        for group in self.param_groups:
-            for p in group['params']:
-                state = self.state[p]
-                if state['T'] is not None:  # Only swap if averaging has started
-                    # Store original param before overwriting
-                    original_params[p] = p.data.clone()
-                    # Swap current param with averaged param
-                    p.data.copy_(state['ax'])
+        target_model = model_override if model_override is not None else None # Use override if provided
+
+        # Determine the parameters to swap
+        params_to_swap = []
+        if target_model:
+            params_to_swap = target_model.parameters()
+        else:
+            # Default: use parameters from the optimizer's param_groups
+            for group in self.param_groups:
+                params_to_swap.extend(group['params'])
+
+        for p in params_to_swap:
+            if p not in self.state:
+                # If using model_override, some params might not be in optimizer state (e.g., frozen layers)
+                # Or if the state wasn't properly initialized.
+                # print(f"Warning: Parameter not found in optimizer state during swap. Skipping.")
+                continue
+
+            state = self.state[p]
+            if state.get('T') is not None and state.get('ax') is not None:  # Only swap if averaging and ax exists
+                # Store original param before overwriting
+                original_params[p] = p.data.clone()
+                # Swap current param with averaged param
+                p.data.copy_(state['ax'])
+            # else:
+                # print(f"Debug: Not swapping param. T={state.get('T')}, ax_exists={state.get('ax') is not None}")
+
+
+        # If no parameters were swapped (e.g., averaging not started or ax not ready), return empty dict
+        if not original_params and self.is_averaging():
+             print("Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.")
+
         return original_params
 
-    def load_original_params(self, original_params):
+
+    def load_original_params(self, original_params, model_override=None):
         """
         Restores the original parameters saved by `swap_parameters`.
         Should be called after evaluation if parameters were swapped.
+        Optionally accepts a model instance to restore its parameters.
         """
-        for p, original_data in original_params.items():
-            p.data.copy_(original_data)
+        target_model = model_override if model_override is not None else None
+
+        # Determine the parameters to restore (must match those swapped)
+        params_to_restore = original_params.keys() # Use keys from the dict passed in
+
+        for p in params_to_restore:
+            if p in original_params:
+                 p.data.copy_(original_params[p])
+            # else: # This case should ideally not happen if original_params is correct
+            #     print(f"Warning: Parameter {p} found in model but not in original_params dict during restore.")
+
 
     @torch.no_grad()
     def step(self, closure=None):

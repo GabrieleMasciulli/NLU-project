@@ -1,0 +1,8 @@
+Starting training for run: lstm_l3_h650_emb_dropout0.4_out_dropout0.4
+  0%|                                                                                                                                    | 0/100 [00:41<?, ?it/s]
+Traceback (most recent call last):
+  File "main.py", line 270, in <module>
+    main(
+  File "main.py", line 118, in main
+    if optimizer.is_averaging():
+AttributeError: 'NTAvSGD' object has no attribute 'is_averaging'
