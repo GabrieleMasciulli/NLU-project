@@ -28,7 +28,7 @@ def main(
     batch_size_eval: int = 32,
 
     # --- W&B Config ---
-    wandb_project: str = "NLU-project-part-2B-BERT",
+    wandb_project: str = "NLU-project-part-2B",
     wandb_group_prefix: str = "joint-bert",
 
     # --- Data Paths ---
@@ -261,7 +261,7 @@ if __name__ == "__main__":
         warmup_steps=0,
         batch_size_train=16,
         batch_size_eval=32,
-        wandb_project="NLU-project-part-2B-BERT",
+        wandb_project="NLU-project-part-2B",
         wandb_group_prefix="joint-bert-atis",
         data_dir=os.path.join("dataset", "ATIS")
     )
