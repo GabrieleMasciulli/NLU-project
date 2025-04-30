@@ -74,6 +74,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
         f"h{hid_size}",
         f"emb_dropout{emb_dropout_rate}",
         f"out_dropout{out_dropout_rate}",
+        "NT-AvSDG"
     ]
     run_name = "_".join(run_name_parts)
     group_name = f"{wandb_group_prefix}_zaremba_medium"
@@ -115,15 +116,16 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
 
             # --- Evaluate on development set ---
             model.eval()
+            original_params = None # Initialize original_params to None
             if optimizer.is_averaging():
-                optimizer.swap_parameters()  # Swap to averaged parameters
+                original_params = optimizer.swap_parameters()  # Swap to averaged parameters and store original ones
 
             # Run evaluation
             ppl_dev, epoch_dev_loss = eval_loop(
                 dev_loader, criterion_eval, model)
 
-            if optimizer.is_averaging():
-                optimizer.load_original_params()  # Swap back to non-averaged parameters
+            if optimizer.is_averaging() and original_params is not None:
+                optimizer.load_original_params(original_params)  # Swap back using the stored original parameters
             # --- End Evaluation --- #
 
             # Process and log metrics
@@ -157,37 +159,35 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
             # --- Early Stopping & Best Model Saving --- #
             if ppl_dev < best_ppl:
                 best_ppl = ppl_dev
-                # Save the state dict of the potentially averaged model
-                if optimizer.is_averaging():
-                    # Need to get the averaged state *without* modifying the current training state
-                    temp_model = copy.deepcopy(model)
-                    # Swap temp model to avg
-                    optimizer.swap_parameters(model_override=temp_model)
-                    best_model_state = copy.deepcopy(temp_model.state_dict())
-                    # Swap back the temp model
-                    optimizer.load_original_params(model_override=temp_model)
-                    del temp_model  # Free memory
+
+                # 1. Swap the *original* model to its averaged parameters
+                original_params_for_saving = optimizer.swap_parameters()
+
+                # Check if the swap actually happened before saving
+                if original_params_for_saving:
+                    # 2. Get the state dict of the now-averaged original model
+                    best_model_state = copy.deepcopy(model.state_dict())
+                    # 3. Swap the original model back to its non-averaged state for continued training
+                    optimizer.load_original_params(original_params_for_saving)
+                    print(f"  New best model found! Dev PPL: {best_ppl:.2f}. Saving averaged model state (Epoch {epoch}).")
                 else:
-                    # If not averaging, just save the current model state
+                    # This case should ideally not happen if averaging is active,
+                    print(f"  Improved Dev PPL ({best_ppl:.2f}), but failed to swap to averaged parameters for saving. Saving current non-averaged state instead (Epoch {epoch}).")
+                    # Save the current (non-averaged) state as a fallback
                     best_model_state = copy.deepcopy(model.state_dict())
 
                 last_saved_epoch = epoch
-                current_patience = 0  # Reset patience
-                print(
-                    f"  New best model found! Dev PPL: {best_ppl:.2f}. Saving model state (Epoch {epoch}).")
+                current_patience = 0  # Reset patience only if we improve
+
             else:
                 # No improvement
-                # Check if averaging has started
-                if optimizer.is_averaging():
-                    current_patience += 1
-                    print(
-                        f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}) using NTAvSGD (Averaging). Patience: {current_patience}/{patience}")
-                else:
-                    print(
-                        f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}) using NTAvSGD (Pre-Averaging). Waiting for trigger or improvement.")
+                # Since averaging started immediately, we just increment patience
+                current_patience += 1
+                print(
+                    f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}) using NTAvSGD (Averaging). Patience: {current_patience}/{patience}")
 
-            # Check for final patience-based early stopping (only applies *after* averaging starts)
-            if optimizer.is_averaging() and current_patience >= patience:
+            # Check for final patience-based early stopping
+            if current_patience >= patience:
                 print(
                     f"Early stopping triggered after {patience} epochs without improvement during averaging phase.")
                 break  # Exit the training loop
@@ -244,7 +244,7 @@ if __name__ == "__main__":
     clip = 0.25
     weight_decay = 1.2e-6  # L2 penalty
     patience = 10  # Patience *after* ASGD switch (or if ASGD never triggers)
-    asgd_trigger_epochs = 5  # n in paper
+    asgd_trigger_epochs = 2  # n in paper
     wandb_project = "NLU-project-part-1"
     wandb_group_prefix = "NT-ASGD-AWD-LSTM-Medium-Approx"
 

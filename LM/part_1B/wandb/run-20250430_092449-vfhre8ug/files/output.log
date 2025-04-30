@@ -1,0 +1,112 @@
+Starting training for run: lstm_l3_h650_emb_dropout0.4_out_dropout0.4_NT-AvSDG
+Epoch 13 | LR: 30.0000 | Train Loss: 4.3737 | Dev PPL: 83.70 | Avg: True:  12%|█████▋                                         | 12/100 [09:11<1:02:46, 42.80s/it]
+  New best model found! Dev PPL: 222.56. Saving model state (Epoch 1).
+  New best model found! Dev PPL: 157.92. Saving model state (Epoch 2).
+  New best model found! Dev PPL: 138.29. Saving model state (Epoch 3).
+  New best model found! Dev PPL: 121.03. Saving model state (Epoch 4).
+  New best model found! Dev PPL: 112.96. Saving model state (Epoch 5).
+  New best model found! Dev PPL: 108.37. Saving model state (Epoch 6).
+  New best model found! Dev PPL: 103.67. Saving model state (Epoch 7).
+  New best model found! Dev PPL: 101.91. Saving model state (Epoch 8).
+  New best model found! Dev PPL: 98.24. Saving model state (Epoch 9).
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+  Triggering NT-AvSGD averaging as PPL hasn't improved for 2 checks.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 86.44. Saving model state (Epoch 11).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 84.78. Saving model state (Epoch 12).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 83.70. Saving model state (Epoch 13).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 82.83. Saving model state (Epoch 14).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 82.12. Saving model state (Epoch 15).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 81.50. Saving model state (Epoch 16).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 80.95. Saving model state (Epoch 17).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 80.48. Saving model state (Epoch 18).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 80.07. Saving model state (Epoch 19).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 79.67. Saving model state (Epoch 20).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 79.33. Saving model state (Epoch 21).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 79.02. Saving model state (Epoch 22).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 78.73. Saving model state (Epoch 23).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 78.46. Saving model state (Epoch 24).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 78.22. Saving model state (Epoch 25).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 77.99. Saving model state (Epoch 26).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 77.77. Saving model state (Epoch 27).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 77.57. Saving model state (Epoch 28).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 77.37. Saving model state (Epoch 29).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 77.18. Saving model state (Epoch 30).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 77.00. Saving model state (Epoch 31).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 76.83. Saving model state (Epoch 32).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 76.68. Saving model state (Epoch 33).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 76.53. Saving model state (Epoch 34).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 76.39. Saving model state (Epoch 35).
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.
+  New best model found! Dev PPL: 76.26. Saving model state (Epoch 36).
+
+Training interrupted by user.
+
+Training finished.
+Loading best model state (from epoch 36, Dev PPL: 76.26) for final evaluation...
+Evaluating on test set...
+Final Test Perplexity: 85.39
+Best model saved to bin/best_model_lstm_l3_h650_emb_dropout0.4_out_dropout0.4_NT-AvSDG.pt

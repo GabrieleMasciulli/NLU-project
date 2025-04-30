@@ -1,0 +1,32 @@
+Starting training for run: lstm_l3_h650_emb_dropout0.4_out_dropout0.4
+Epoch 10 | LR: 30.0000 | Train Loss: 4.4774 | Dev PPL: 98.33 | Avg: False:  10%|████▌                                         | 10/100 [07:44<1:09:44, 46.50s/it]
+  New best model found! Dev PPL: 216.20. Saving model state (Epoch 1).
+  New best model found! Dev PPL: 160.76. Saving model state (Epoch 2).
+  New best model found! Dev PPL: 134.92. Saving model state (Epoch 3).
+  New best model found! Dev PPL: 120.39. Saving model state (Epoch 4).
+  New best model found! Dev PPL: 114.13. Saving model state (Epoch 5).
+  New best model found! Dev PPL: 108.10. Saving model state (Epoch 6).
+  New best model found! Dev PPL: 106.79. Saving model state (Epoch 7).
+  New best model found! Dev PPL: 103.73. Saving model state (Epoch 8).
+  New best model found! Dev PPL: 98.10. Saving model state (Epoch 9).
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+NTAvSGD: Starting averaging at step 21040
+  Triggering NT-AvSGD averaging as PPL hasn't improved for 2 checks.
+Traceback (most recent call last):
+  File "main.py", line 270, in <module>
+    main(
+  File "main.py", line 126, in main
+    optimizer.load_original_params()  # Swap back to non-averaged parameters
+TypeError: load_original_params() missing 1 required positional argument: 'original_params'

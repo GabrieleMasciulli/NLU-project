@@ -1,0 +1,15 @@
+{"time":"2025-04-30T09:02:01.900904103Z","level":"INFO","msg":"stream: starting","core version":"0.19.9","symlink path":"/home/disi/NLU-project/LM/part_1B/wandb/run-20250430_090201-11oaapqi/logs/debug-core.log"}
+{"time":"2025-04-30T09:02:02.375254639Z","level":"INFO","msg":"created new stream","id":"11oaapqi"}
+{"time":"2025-04-30T09:02:02.375303137Z","level":"INFO","msg":"stream: started","id":"11oaapqi"}
+{"time":"2025-04-30T09:02:02.375316536Z","level":"INFO","msg":"writer: Do: started","stream_id":"11oaapqi"}
+{"time":"2025-04-30T09:02:02.375359435Z","level":"INFO","msg":"handler: started","stream_id":"11oaapqi"}
+{"time":"2025-04-30T09:02:02.375325736Z","level":"INFO","msg":"sender: started","stream_id":"11oaapqi"}
+{"time":"2025-04-30T09:02:02.697202039Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-04-30T09:02:43.748243706Z","level":"INFO","msg":"stream: closing","id":"11oaapqi"}
+{"time":"2025-04-30T09:02:43.748272505Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-04-30T09:02:43.748329202Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-04-30T09:02:44.400554921Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-04-30T09:02:44.587094433Z","level":"INFO","msg":"handler: closed","stream_id":"11oaapqi"}
+{"time":"2025-04-30T09:02:44.587138231Z","level":"INFO","msg":"writer: Close: closed","stream_id":"11oaapqi"}
+{"time":"2025-04-30T09:02:44.58715683Z","level":"INFO","msg":"sender: closed","stream_id":"11oaapqi"}
+{"time":"2025-04-30T09:02:44.587226027Z","level":"INFO","msg":"stream: closed","id":"11oaapqi"}
