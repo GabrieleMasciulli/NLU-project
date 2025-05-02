@@ -52,9 +52,8 @@ def eval_loop(model, data_loader: DataLoader, lang: Lang, is_test=False):
     model.eval()
     all_intent_preds = []
     all_intent_labels = []
-    all_slot_preds = []
-    all_slot_labels = []
-    all_attention_masks = []  # Store masks to filter padding
+    flat_slot_preds = []
+    flat_slot_labels = []
 
     progress_bar = tqdm(data_loader, desc="Evaluating", leave=False)
 
@@ -64,7 +63,8 @@ def eval_loop(model, data_loader: DataLoader, lang: Lang, is_test=False):
             input_ids = batch['input_ids'].to(DEVICE)
             attention_mask = batch['attention_mask'].to(DEVICE)
             intent_labels = batch['intent_id'].to(DEVICE)
-            slot_labels = batch['slot_labels'].to(DEVICE)
+            slot_labels = batch['slot_labels'].to(
+                DEVICE)  # Shape: (batch, seq_len)
 
             # Forward pass
             outputs = model(
@@ -75,6 +75,8 @@ def eval_loop(model, data_loader: DataLoader, lang: Lang, is_test=False):
 
             # Get Logits from dictionary output
             intent_logits = outputs['intent_logits']
+
+            # Shape: (batch, seq_len, num_slot_labels)
             slot_logits = outputs['slot_logits']
 
             # --- Intent Prediction ---
@@ -82,30 +84,36 @@ def eval_loop(model, data_loader: DataLoader, lang: Lang, is_test=False):
             all_intent_preds.extend(intent_preds.cpu().numpy())
             all_intent_labels.extend(intent_labels.cpu().numpy())
 
-            # --- Slot Prediction ---
-            # Shape: (batch, seq_len)
-            slot_preds = torch.argmax(slot_logits, dim=2)
+            # --- Slot Prediction using CRF Decode ---
+            crf_mask = attention_mask.bool()
+            # Ensure mask shape matches slot_logits shape
+            if crf_mask.dim() > 2 and crf_mask.shape[1] != slot_logits.shape[1]:
+                crf_mask = crf_mask[:, :slot_logits.shape[1]]
 
-            # Store predictions, labels, and masks for later flattening
-            all_slot_preds.extend(slot_preds.cpu().numpy())
-            all_slot_labels.extend(slot_labels.cpu().numpy())
-            all_attention_masks.extend(
-                attention_mask.cpu().numpy())
+            # Decode returns List[List[int]], len(outer_list)=batch_size
+            batch_slot_preds = model.crf.decode(slot_logits, mask=crf_mask)
+
+            # Flatten predictions and labels, respecting the mask and PAD ID
+            # Iterate through each sequence in the batch
+            # Iterate through batch items
+            for i in range(slot_labels.shape[0]):
+                # Get the true length of the sequence using the mask
+                seq_len = int(attention_mask[i].sum().item())
+                # Get the predicted sequence for this item (up to true length)
+                preds_for_seq = batch_slot_preds[i][:seq_len]
+                labels_for_seq = slot_labels[i][:seq_len].cpu().numpy()
+
+                # Iterate through tokens in the sequence
+                for j in range(seq_len):
+                    if labels_for_seq[j] != SLOT_PAD_LABEL_ID:
+                        flat_slot_preds.append(preds_for_seq[j])
+                        flat_slot_labels.append(labels_for_seq[j])
 
     # --- Calculate Metrics ---
     # Intent Accuracy
     intent_accuracy = accuracy_score(all_intent_labels, all_intent_preds)
 
-    # Slot F1 Score - Flatten and filter based on attention mask and PAD label
-    flat_slot_preds = []
-    flat_slot_labels = []
-
-    for i in range(len(all_slot_labels)):  # Iterate through samples
-        for j in range(len(all_slot_labels[i])):  # Iterate through tokens
-            if all_attention_masks[i][j] == 1 and all_slot_labels[i][j] != SLOT_PAD_LABEL_ID:
-                flat_slot_preds.append(all_slot_preds[i][j])
-                flat_slot_labels.append(all_slot_labels[i][j])
-
+    # Slot F1 Score - Already flattened and filtered
     # Ensure there are labels to evaluate
     if not flat_slot_labels:
         print("Warning: No valid slot labels found for evaluation.")
@@ -115,6 +123,7 @@ def eval_loop(model, data_loader: DataLoader, lang: Lang, is_test=False):
         slot_report_dict = {}
     else:
         # Get unique labels present in the actual data (excluding PAD/IGNORE)
+        # Use the already flattened and filtered labels
         present_labels = sorted(list(set(flat_slot_labels)))
         # Map IDs to names for the report, only for labels actually present
         target_names = [lang.id2slot.get(

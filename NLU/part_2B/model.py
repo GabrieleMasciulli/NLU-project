@@ -1,6 +1,6 @@
 import torch.nn as nn
 from transformers import BertModel, BertPreTrainedModel
-from utils import SLOT_PAD_LABEL_ID
+from torchcrf import CRF
 
 
 class JointBERT(BertPreTrainedModel):
@@ -34,6 +34,9 @@ class JointBERT(BertPreTrainedModel):
 
         # Classifier for slot filling
         self.slot_classifier = nn.Linear(config.hidden_size, num_slot_labels)
+
+        # CRF layer for slot filling
+        self.crf = CRF(num_tags=num_slot_labels, batch_first=True)
 
     def forward(
         self,
@@ -100,17 +103,28 @@ class JointBERT(BertPreTrainedModel):
         total_loss = None
         intent_loss = None
         slot_loss = None
-        if intent_labels is not None and slot_labels is not None:
-            loss_fct = nn.CrossEntropyLoss(ignore_index=SLOT_PAD_LABEL_ID)
 
-            # Intent Loss
-            intent_loss = loss_fct(
+        if intent_labels is not None and slot_labels is not None:
+            intent_loss_fct = nn.CrossEntropyLoss()
+            intent_loss = intent_loss_fct(
                 intent_logits.view(-1, self.num_intent_labels), intent_labels.view(-1))
 
-            # Slot Loss
-            # Ensure slot_labels are correctly shaped (batch_size, seq_len)
-            slot_loss = loss_fct(
-                slot_logits.view(-1, self.num_slot_labels), slot_labels.view(-1))
+            # Slot Loss (using CRF which calculates the negative log likelihood loss.)
+            if attention_mask is not None:
+                # The mask ensures that padded tokens are ignored.
+                crf_mask = attention_mask.bool()
+
+                if crf_mask.dim() > 2:
+                    # Adjust if mask has extra dims
+                    crf_mask = crf_mask[:, :slot_logits.shape[1]]
+
+                # We negate the result because optimizers minimize loss, and CRF returns log-likelihood.
+                slot_loss = -self.crf(slot_logits, slot_labels,
+                                      mask=crf_mask, reduction='mean')
+            else:
+                # Calculate loss without mask if attention_mask is None
+                slot_loss = -self.crf(slot_logits,
+                                      slot_labels, reduction='mean')
 
             # Combine losses using alpha
             total_loss = loss_alpha * intent_loss + \
