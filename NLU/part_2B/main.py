@@ -249,15 +249,14 @@ def main(
 
 
 if __name__ == "__main__":
-    # --- Adjust Hyperparameters for BERT ---
     main(
         bert_model_name=BERT_MODEL_NAME,
         dropout_prob=0.15,
-        loss_alpha=0.3,  # Loss weight for intent classification loss
-        lr=5e-5,        # Common starting point for BERT fine-tuning
-        n_epochs=10,
+        loss_alpha=0.5,
+        lr=3e-5,
+        n_epochs=15,
         patience=3,
-        warmup_steps=0,
+        warmup_steps=20,
         batch_size_train=32,
         batch_size_eval=64,
         wandb_project="NLU-project-part-2B",
