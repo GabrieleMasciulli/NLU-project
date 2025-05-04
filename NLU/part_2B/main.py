@@ -8,7 +8,7 @@ import os
 import copy
 from collections import Counter
 from utils import DEVICE, IntentsAndSlots, Lang, load_data, collate_fn, tokenizer, BERT_MODEL_NAME
-from model import JointBERT
+from model import CTRAN
 from functions import train_loop, eval_loop
 
 
@@ -115,7 +115,7 @@ def main(
     # Can set num_labels to intent or slot
     config = BertConfig.from_pretrained(
         bert_model_name, num_labels=num_intent_labels)
-    model = JointBERT.from_pretrained(
+    model = CTRAN.from_pretrained(
         bert_model_name,
         config=config,
         num_intent_labels=num_intent_labels,
@@ -256,10 +256,10 @@ if __name__ == "__main__":
         lr=3e-5,
         n_epochs=15,
         patience=3,
-        warmup_steps=20,
+        warmup_steps=0,
         batch_size_train=32,
         batch_size_eval=64,
         wandb_project="NLU-project-part-2B",
-        wandb_group_prefix="joint-bert-atis-CRF",
+        wandb_group_prefix="joint-bert-atis-CTRAN",
         data_dir=os.path.join("dataset", "ATIS")
     )
