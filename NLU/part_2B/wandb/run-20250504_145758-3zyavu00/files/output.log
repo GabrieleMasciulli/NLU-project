@@ -1,0 +1,142 @@
+--- Starting Training: joint-bert-atis-CRF_lr5e-05_bs32_alpha0.3_do0.15 ---
+
+--- Epoch 1/10 ---
+                                                                                                                                                         
+Epoch 1 Summary:
+  Avg Train Loss: 3.1620
+  Dev Intent Acc: 0.7369
+  Dev Slot F1 (Macro): 0.0528
+  Dev Combined Metric: 0.3949
+  New best model found! Metric: 0.3949. Saving...
+
+--- Epoch 2/10 ---
+Epoch 2 Summary:
+  Avg Train Loss: 0.9795
+  Dev Intent Acc: 0.7590
+  Dev Slot F1 (Macro): 0.0570
+  Dev Combined Metric: 0.4080
+  New best model found! Metric: 0.4080. Saving...
+
+--- Epoch 3/10 ---
+Epoch 3 Summary:
+  Avg Train Loss: 0.7312
+  Dev Intent Acc: 0.8614
+  Dev Slot F1 (Macro): 0.2046
+  Dev Combined Metric: 0.5330
+  New best model found! Metric: 0.5330. Saving...
+
+--- Epoch 4/10 ---
+Epoch 4 Summary:
+  Avg Train Loss: 0.5483
+  Dev Intent Acc: 0.8775
+  Dev Slot F1 (Macro): 0.3144
+  Dev Combined Metric: 0.5960
+  New best model found! Metric: 0.5960. Saving...
+
+--- Epoch 5/10 ---
+Epoch 5 Summary:
+  Avg Train Loss: 0.4470
+  Dev Intent Acc: 0.8896
+  Dev Slot F1 (Macro): 0.3862
+  Dev Combined Metric: 0.6379
+  New best model found! Metric: 0.6379. Saving...
+
+--- Epoch 6/10 ---
+Epoch 6 Summary:
+  Avg Train Loss: 0.3543
+  Dev Intent Acc: 0.9297
+  Dev Slot F1 (Macro): 0.4802
+  Dev Combined Metric: 0.7050
+  New best model found! Metric: 0.7050. Saving...
+
+--- Epoch 7/10 ---
+Epoch 7 Summary:
+  Avg Train Loss: 0.2933
+  Dev Intent Acc: 0.9297
+  Dev Slot F1 (Macro): 0.5485
+  Dev Combined Metric: 0.7391
+  New best model found! Metric: 0.7391. Saving...
+
+--- Epoch 8/10 ---
+Epoch 8 Summary:
+  Avg Train Loss: 0.2538
+  Dev Intent Acc: 0.9317
+  Dev Slot F1 (Macro): 0.5603
+  Dev Combined Metric: 0.7460
+  New best model found! Metric: 0.7460. Saving...
+
+--- Epoch 9/10 ---
+Epoch 9 Summary:
+  Avg Train Loss: 0.2304
+  Dev Intent Acc: 0.9337
+  Dev Slot F1 (Macro): 0.5427
+  Dev Combined Metric: 0.7382
+  No improvement. Patience: 1/3
+
+--- Epoch 10/10 ---
+Epoch 10 Summary:
+  Avg Train Loss: 0.2188
+  Dev Intent Acc: 0.9337
+  Dev Slot F1 (Macro): 0.5376
+  Dev Combined Metric: 0.7357
+  No improvement. Patience: 2/3
+
+--- Evaluating best model on Test Set ---
+Loading best model from epoch 8 (Dev Metric: 0.7460)
+
+--- Test Results ---
+Intent Accuracy: 0.8723
+Slot F1 (Macro): 0.3662
+Slot F1 (Micro): 0.9732
+
+Slot Classification Report:
+                              precision    recall  f1-score   support
+
+              I-airport_name     0.0000    0.0000    0.0000         1
+ B-depart_time.period_of_day     0.7500    0.4286    0.5455        14
+          B-restriction_code     0.0000    0.0000    0.0000         2
+ B-depart_date.date_relative     0.0000    0.0000    0.0000         2
+          I-depart_time.time     0.0000    0.0000    0.0000         1
+           B-fare_basis_code     0.0000    0.0000    0.0000         2
+                B-state_name     0.0000    0.0000    0.0000         5
+           B-toloc.city_name     1.0000    1.0000    1.0000        24
+         B-fromloc.city_name     0.8545    0.9792    0.9126        48
+              B-airport_name     0.0000    0.0000    0.0000         1
+                B-class_type     0.6667    0.8000    0.7273         5
+                   B-connect     0.0000    0.0000    0.0000         1
+                B-round_trip     0.9412    0.9412    0.9412        17
+             B-cost_relative     0.7143    1.0000    0.8333         5
+                I-class_type     1.0000    0.5000    0.6667         2
+                           O     0.9938    0.9979    0.9959      2414
+    B-depart_date.month_name     0.6000    0.7500    0.6667         4
+            B-transport_type     0.0000    0.0000    0.0000         2
+         I-fromloc.city_name     1.0000    0.4737    0.6429        19
+          B-depart_time.time     0.0000    0.0000    0.0000         1
+               B-flight_stop     0.5556    1.0000    0.7143         5
+              I-airline_name     0.8462    1.0000    0.9167        11
+                B-flight_mod     0.7500    0.5000    0.6000         6
+             B-aircraft_code     0.0000    0.0000    0.0000         1
+              B-airline_name     0.8333    1.0000    0.9091        30
+                 B-city_name     0.0000    0.0000    0.0000         3
+B-depart_date.today_relative     0.0000    0.0000    0.0000         1
+              B-airline_code     0.0000    0.0000    0.0000         2
+              B-airport_code     0.3636    1.0000    0.5333         4
+          B-meal_description     0.0000    0.0000    0.0000         1
+                      B-meal     0.0000    0.0000    0.0000         5
+                    B-flight     0.0000    0.0000    0.0000         1
+    B-depart_date.day_number     0.3333    1.0000    0.5000         3
+      B-depart_date.day_name     0.6800    0.7083    0.6939        24
+                       B-mod     0.0000    0.0000    0.0000         1
+                I-round_trip     1.0000    0.6000    0.7500         5
+ B-depart_time.time_relative     0.0000    0.0000    0.0000         2
+
+                   micro avg     0.9745    0.9720    0.9732      2675
+                   macro avg     0.3752    0.3967    0.3662      2675
+                weighted avg     0.9668    0.9720    0.9675      2675
+
+
+Test Set Performance:
+  Intent Accuracy: 0.8723
+  Slot F1 (Macro): 0.3662
+  Slot F1 (Micro): 0.9732
+Best model state saved to bin/best_model_3zyavu00.pt

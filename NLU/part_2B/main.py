@@ -233,8 +233,8 @@ def main(
             run.summary["test_slot_f1_macro"] = test_metrics['slot_f1_macro']
             run.summary["test_slot_f1_micro"] = test_metrics['slot_f1_micro']
 
-            # Save the best model state definitively
-            model_save_path = f'bin/best_model_{run.id}.pt'
+            
+            model_save_path = f'bin/best_model_{run_name}.pt' 
             os.makedirs('bin', exist_ok=True)
             torch.save(best_model_state, model_save_path)
             print(f"Best model state saved to {model_save_path}")
