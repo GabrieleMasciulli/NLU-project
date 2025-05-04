@@ -1,6 +1,5 @@
 import torch
 from torch.utils.data import DataLoader
-# Updated imports
 from transformers import BertConfig, get_linear_schedule_with_warmup
 from sklearn.model_selection import train_test_split
 from torch.optim import AdamW
@@ -262,6 +261,6 @@ if __name__ == "__main__":
         batch_size_train=32,
         batch_size_eval=64,
         wandb_project="NLU-project-part-2B",
-        wandb_group_prefix="joint-bert-atis",
+        wandb_group_prefix="joint-bert-atis-CRF",
         data_dir=os.path.join("dataset", "ATIS")
     )
