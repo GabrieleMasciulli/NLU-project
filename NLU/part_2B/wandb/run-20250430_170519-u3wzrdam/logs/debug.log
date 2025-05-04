@@ -1,0 +1,29 @@
+2025-04-30 17:05:19,322 INFO    MainThread:4472 [wandb_setup.py:_flush():67] Current SDK version is 0.19.9
+2025-04-30 17:05:19,322 INFO    MainThread:4472 [wandb_setup.py:_flush():67] Configure stats pid to 4472
+2025-04-30 17:05:19,322 INFO    MainThread:4472 [wandb_setup.py:_flush():67] Loading settings from /home/disi/.config/wandb/settings
+2025-04-30 17:05:19,322 INFO    MainThread:4472 [wandb_setup.py:_flush():67] Loading settings from /home/disi/NLU-project/NLU/part_2B/wandb/settings
+2025-04-30 17:05:19,322 INFO    MainThread:4472 [wandb_setup.py:_flush():67] Loading settings from environment variables
+2025-04-30 17:05:19,322 INFO    MainThread:4472 [wandb_init.py:setup_run_log_directory():662] Logging user logs to /home/disi/NLU-project/NLU/part_2B/wandb/run-20250430_170519-u3wzrdam/logs/debug.log
+2025-04-30 17:05:19,323 INFO    MainThread:4472 [wandb_init.py:setup_run_log_directory():663] Logging internal logs to /home/disi/NLU-project/NLU/part_2B/wandb/run-20250430_170519-u3wzrdam/logs/debug-internal.log
+2025-04-30 17:05:19,323 INFO    MainThread:4472 [wandb_init.py:init():781] calling init triggers
+2025-04-30 17:05:19,323 INFO    MainThread:4472 [wandb_init.py:init():786] wandb.init called with sweep_config: {}
+config: {'bert_model': 'bert-base-uncased', 'learning_rate': 5e-05, 'batch_size_train': 32, 'batch_size_eval': 64, 'dropout_prob': 0.15, 'loss_alpha': 0.3, 'optimizer': 'AdamW', 'scheduler': 'LinearWarmup', 'epochs': 10, 'patience': 3, 'warmup_steps': 0, 'num_intent_labels': 26, 'num_slot_labels': 131, '_wandb': {}}
+2025-04-30 17:05:19,323 INFO    MainThread:4472 [wandb_init.py:init():809] starting backend
+2025-04-30 17:05:19,323 INFO    MainThread:4472 [wandb_init.py:init():813] sending inform_init request
+2025-04-30 17:05:19,339 INFO    MainThread:4472 [backend.py:_multiprocessing_setup():101] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2025-04-30 17:05:19,339 INFO    MainThread:4472 [wandb_init.py:init():823] backend started and connected
+2025-04-30 17:05:19,342 INFO    MainThread:4472 [wandb_init.py:init():915] updated telemetry
+2025-04-30 17:05:19,358 INFO    MainThread:4472 [wandb_init.py:init():939] communicating run to backend with 90.0 second timeout
+2025-04-30 17:05:20,086 INFO    MainThread:4472 [wandb_init.py:init():1014] starting run threads in backend
+2025-04-30 17:05:20,258 INFO    MainThread:4472 [wandb_run.py:_console_start():2454] atexit reg
+2025-04-30 17:05:20,259 INFO    MainThread:4472 [wandb_run.py:_redirect():2306] redirect: wrap_raw
+2025-04-30 17:05:20,259 INFO    MainThread:4472 [wandb_run.py:_redirect():2371] Wrapping output streams.
+2025-04-30 17:05:20,259 INFO    MainThread:4472 [wandb_run.py:_redirect():2394] Redirects installed.
+2025-04-30 17:05:20,274 INFO    MainThread:4472 [wandb_init.py:init():1056] run started, returning control to user process
+2025-04-30 17:06:54,116 INFO    MainThread:4472 [wandb_run.py:_finish():2189] finishing run gabriele-masciulli-university-of-trento/NLU-project-part-2B/u3wzrdam
+2025-04-30 17:06:54,117 INFO    MainThread:4472 [wandb_run.py:_atexit_cleanup():2419] got exitcode: 0
+2025-04-30 17:06:54,117 INFO    MainThread:4472 [wandb_run.py:_restore():2401] restore
+2025-04-30 17:06:54,117 INFO    MainThread:4472 [wandb_run.py:_restore():2407] restore done
+2025-04-30 17:06:55,085 INFO    MainThread:4472 [wandb_run.py:_footer_history_summary_info():4064] rendering history
+2025-04-30 17:06:55,086 INFO    MainThread:4472 [wandb_run.py:_footer_history_summary_info():4096] rendering summary
+2025-04-30 17:06:55,086 INFO    MainThread:4472 [wandb_run.py:_footer_sync_info():4025] logging synced files
