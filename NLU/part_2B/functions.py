@@ -84,27 +84,24 @@ def eval_loop(model, data_loader: DataLoader, lang: Lang, is_test=False):
             all_intent_preds.extend(intent_preds.cpu().numpy())
             all_intent_labels.extend(intent_labels.cpu().numpy())
 
-            # --- Slot Prediction using CRF Decode ---
-            crf_mask = attention_mask.bool()
-            # Ensure mask shape matches slot_logits shape
-            if crf_mask.dim() > 2 and crf_mask.shape[1] != slot_logits.shape[1]:
-                crf_mask = crf_mask[:, :slot_logits.shape[1]]
-
-            # Decode returns List[List[int]], len(outer_list)=batch_size
-            batch_slot_preds = model.crf.decode(slot_logits, mask=crf_mask)
+            # --- Slot Prediction ---
+            # Shape: (batch, seq_len)
+            batch_slot_preds_tensor = torch.argmax(slot_logits, dim=-1)
 
             # Flatten predictions and labels, respecting the mask and PAD ID
             # Iterate through each sequence in the batch
-            # Iterate through batch items
             for i in range(slot_labels.shape[0]):
                 # Get the true length of the sequence using the mask
                 seq_len = int(attention_mask[i].sum().item())
                 # Get the predicted sequence for this item (up to true length)
-                preds_for_seq = batch_slot_preds[i][:seq_len]
+                # Convert the tensor slice to a list for iteration
+                preds_for_seq = batch_slot_preds_tensor[i][:seq_len].cpu(
+                ).tolist()
                 labels_for_seq = slot_labels[i][:seq_len].cpu().numpy()
 
                 # Iterate through tokens in the sequence
                 for j in range(seq_len):
+                    # Only consider non-padding label tokens
                     if labels_for_seq[j] != SLOT_PAD_LABEL_ID:
                         flat_slot_preds.append(preds_for_seq[j])
                         flat_slot_labels.append(labels_for_seq[j])

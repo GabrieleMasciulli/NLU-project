@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from transformers import BertModel, BertPreTrainedModel
-from utils import SLOT_PAD_LABEL_ID
+from .utils import SLOT_PAD_LABEL_ID
 
 # Define CTRAN specific parameters
 CNN_KERNEL_SIZE = 3
