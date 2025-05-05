@@ -27,7 +27,7 @@ class LM_LSTM(nn.Module):
 
         # Create a list of LockedDropout layers to apply *after* each LSTM layer's output
         self.inter_rnn_dropouts = nn.ModuleList(
-            [LockedDropout(out_dropout_rate) for _ in range(n_layers)])
+            [LockedDropout() for _ in range(n_layers)])
 
         # Output layer (fully connected)
         self.output = nn.Linear(hidden_size, vocab_len)
@@ -52,7 +52,7 @@ class LM_LSTM(nn.Module):
             rnn_output, _ = rnn(current_input)
 
             # Apply LockedDropout to the output of this LSTM layer
-            rnn_output = self.inter_rnn_dropouts[i](rnn_output)
+            rnn_output = self.inter_rnn_dropouts[i](rnn_output, self.out_dropout_rate)
 
             # The output of this layer becomes the input for the next
             current_input = rnn_output
