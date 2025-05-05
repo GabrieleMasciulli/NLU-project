@@ -1,0 +1,50 @@
+Starting training for run: lstm_l3_h650_emb_dropout0.4_out_dropout0.4_SGD_VarDrop
+Epoch 32 | LR: 5.0000 | Train Loss: 3.7829 | Dev PPL: 93.82:  31%|██████████████████▎                                        | 31/100 [16:54<36:22, 31.64s/it]
+  New best model found! Dev PPL: 486.91. Saving model state (Epoch 1).
+  New best model found! Dev PPL: 302.92. Saving model state (Epoch 2).
+  New best model found! Dev PPL: 218.19. Saving model state (Epoch 3).
+  New best model found! Dev PPL: 182.38. Saving model state (Epoch 4).
+  New best model found! Dev PPL: 160.44. Saving model state (Epoch 5).
+  New best model found! Dev PPL: 144.86. Saving model state (Epoch 6).
+  New best model found! Dev PPL: 133.31. Saving model state (Epoch 7).
+  New best model found! Dev PPL: 124.95. Saving model state (Epoch 8).
+  New best model found! Dev PPL: 119.92. Saving model state (Epoch 9).
+  New best model found! Dev PPL: 114.39. Saving model state (Epoch 10).
+  New best model found! Dev PPL: 111.52. Saving model state (Epoch 11).
+  New best model found! Dev PPL: 107.83. Saving model state (Epoch 12).
+  New best model found! Dev PPL: 105.80. Saving model state (Epoch 13).
+  New best model found! Dev PPL: 103.06. Saving model state (Epoch 14).
+  New best model found! Dev PPL: 101.50. Saving model state (Epoch 15).
+  New best model found! Dev PPL: 99.07. Saving model state (Epoch 16).
+  New best model found! Dev PPL: 98.65. Saving model state (Epoch 17).
+  New best model found! Dev PPL: 97.50. Saving model state (Epoch 18).
+  New best model found! Dev PPL: 96.51. Saving model state (Epoch 19).
+  New best model found! Dev PPL: 96.28. Saving model state (Epoch 20).
+  New best model found! Dev PPL: 95.82. Saving model state (Epoch 21).
+  New best model found! Dev PPL: 95.58. Saving model state (Epoch 22).
+  No improvement in Dev PPL (95.60 vs best 95.58). Patience: 1/10
+  New best model found! Dev PPL: 94.35. Saving model state (Epoch 24).
+  No improvement in Dev PPL (95.02 vs best 94.35). Patience: 1/10
+  No improvement in Dev PPL (95.67 vs best 94.35). Patience: 2/10
+  No improvement in Dev PPL (95.35 vs best 94.35). Patience: 3/10
+  No improvement in Dev PPL (95.78 vs best 94.35). Patience: 4/10
+  No improvement in Dev PPL (95.06 vs best 94.35). Patience: 5/10
+  No improvement in Dev PPL (95.30 vs best 94.35). Patience: 6/10
+  New best model found! Dev PPL: 93.27. Saving model state (Epoch 31).
+  No improvement in Dev PPL (93.82 vs best 93.27). Patience: 1/10
+  No improvement in Dev PPL (93.95 vs best 93.27). Patience: 2/10
+  No improvement in Dev PPL (94.22 vs best 93.27). Patience: 3/10
+  No improvement in Dev PPL (94.37 vs best 93.27). Patience: 4/10
+  No improvement in Dev PPL (94.83 vs best 93.27). Patience: 5/10
+  No improvement in Dev PPL (95.48 vs best 93.27). Patience: 6/10
+  No improvement in Dev PPL (94.44 vs best 93.27). Patience: 7/10
+  No improvement in Dev PPL (94.88 vs best 93.27). Patience: 8/10
+  No improvement in Dev PPL (94.64 vs best 93.27). Patience: 9/10
+  No improvement in Dev PPL (94.59 vs best 93.27). Patience: 10/10
+Early stopping triggered after 10 epochs without improvement.
+
+Training finished.
+Loading best model state (from epoch 31, Dev PPL: 93.27) for final evaluation...
+Evaluating on test set...
+Final Test Perplexity: 89.92
+Best model saved to bin/best_model_lstm_l3_h650_emb_dropout0.4_out_dropout0.4_SGD_VarDrop.pt
