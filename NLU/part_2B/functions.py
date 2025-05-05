@@ -7,7 +7,7 @@ from utils import DEVICE, SLOT_PAD_LABEL_ID, Lang
 # --- Training Loop ---
 
 
-def train_loop(model, data_loader: DataLoader, optimizer, scheduler, loss_alpha=0.5):
+def train_loop(model, data_loader: DataLoader, optimizer, scheduler):
     model.train()
     total_loss = 0
     num_batches = len(data_loader)
@@ -29,7 +29,6 @@ def train_loop(model, data_loader: DataLoader, optimizer, scheduler, loss_alpha=
             intent_labels=intent_labels,
             slot_labels=slot_labels,
             return_dict=True,
-            loss_alpha=loss_alpha
         )
 
         # Access loss from the dictionary output

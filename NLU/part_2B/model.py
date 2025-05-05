@@ -86,7 +86,6 @@ class CTRAN(BertPreTrainedModel):
         output_attentions=None,
         output_hidden_states=None,
         return_dict=None,
-        loss_alpha=0.5,
     ):
         """
         Forward pass of the CTRAN model.
@@ -181,13 +180,7 @@ class CTRAN(BertPreTrainedModel):
                 slot_loss = slot_loss_fct(
                     slot_logits.view(-1, self.num_slot_labels), slot_labels.view(-1))
 
-            # Combine losses
-            # Ensure slot_loss is a valid tensor before combining
-            if slot_loss is not None:
-                total_loss = loss_alpha * intent_loss + \
-                    (1 - loss_alpha) * slot_loss
-            else:  # Fallback if slot_loss couldn't be computed
-                total_loss = loss_alpha * intent_loss
+            total_loss = intent_loss + slot_loss
 
         if not return_dict:
             output = (intent_logits, slot_logits) + outputs[2:]

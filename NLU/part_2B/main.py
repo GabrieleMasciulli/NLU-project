@@ -16,7 +16,6 @@ def main(
     # --- BERT/Model Hyperparameters ---
     bert_model_name: str = BERT_MODEL_NAME,
     dropout_prob: float = 0.1,
-    loss_alpha: float = 0.5,
 
     # --- Training Hyperparameters ---
     lr: float = 5e-5,
@@ -130,7 +129,7 @@ def main(
     )
 
     # --- W&B Initialization ---
-    run_name = f"{wandb_group_prefix}_lr{lr}_bs{batch_size_train}_alpha{loss_alpha}_do{dropout_prob}"
+    run_name = f"{wandb_group_prefix}_lr{lr}_bs{batch_size_train}_do{dropout_prob}"
     run = wandb.init(
         project=wandb_project,
         group=wandb_group_prefix,
@@ -141,7 +140,6 @@ def main(
             "batch_size_train": batch_size_train,
             "batch_size_eval": batch_size_eval,
             "dropout_prob": dropout_prob,
-            "loss_alpha": loss_alpha,
             "optimizer": "AdamW",
             "scheduler": "LinearWarmup",
             "epochs": n_epochs,
@@ -165,7 +163,7 @@ def main(
 
             # Training
             avg_train_loss = train_loop(
-                model, train_loader, optimizer, scheduler, loss_alpha)
+                model, train_loader, optimizer, scheduler)
 
             # Evaluation
             dev_metrics = eval_loop(model, dev_loader, lang)
@@ -251,8 +249,7 @@ if __name__ == "__main__":
     main(
         bert_model_name=BERT_MODEL_NAME,
         dropout_prob=0.15,
-        loss_alpha=0.5,
-        lr=3e-5,
+        lr=5e-5,
         n_epochs=15,
         patience=3,
         warmup_steps=0,
