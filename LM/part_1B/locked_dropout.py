@@ -10,21 +10,20 @@ class LockedDropout(nn.Module):
     for original implementation.
     """
 
-    def __init__(self, dropout=0.5):
+    def __init__(self):
         super().__init__()
-        self.dropout = dropout
 
-    def forward(self, x):
+    def forward(self, x, dropout_rate=0.5):
         # x has shape (batch_size, seq_len, emb_size)
-        if not self.training or not self.dropout:
+        if not self.training or not dropout_rate:
             return x
 
         # Create a mask for the embedding dimension (features)
         # Same mask applied to all elements in batch and sequence
         # Shape: (1, 1, emb_size)
         mask = x.new_empty(
-            1, 1, x.size(-1), requires_grad=False).bernoulli_(1 - self.dropout)
-        mask = mask / (1 - self.dropout)  # Scale the mask
+            1, 1, x.size(-1), requires_grad=False).bernoulli_(1 - dropout_rate)
+        mask = mask / (1 - dropout_rate)  # Scale the mask
 
         # Expand mask to match input shape and apply
         # Shape: (batch_size, seq_len, emb_size)
