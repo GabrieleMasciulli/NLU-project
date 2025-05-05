@@ -5,7 +5,7 @@ from utils import Lang, read_file
 from functions import collate_fn, init_weights, train_loop, eval_loop
 from model import LM_LSTM
 from utils import DEVICE, PennTreeBank
-from nt_asgd import NTAvSGD
+import torch.optim as optim
 import wandb
 from tqdm import tqdm
 import copy
@@ -15,7 +15,7 @@ import torch
 
 
 def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, out_dropout_rate,
-         batch_size_train, batch_size_eval, epochs, clip, weight_decay, patience, asgd_trigger_epochs, wandb_project, wandb_group_prefix):
+         batch_size_train, batch_size_eval, epochs, clip, weight_decay, patience, wandb_project, wandb_group_prefix):
     """Main function to train and evaluate the LSTM Language Model."""
 
     # --- Data Loading and Preprocessing ---
@@ -50,8 +50,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
     init_weights(model)
 
     # --- Optimizer and Loss --- #
-    optimizer = NTAvSGD(model.parameters(), lr=lr,
-                        weight_decay=weight_decay, n=asgd_trigger_epochs)
+    optimizer = optim.SGD(model.parameters(), lr=lr, weight_decay=weight_decay)
     criterion_train = nn.CrossEntropyLoss(ignore_index=pad_index)
     criterion_eval = nn.CrossEntropyLoss(
         ignore_index=pad_index, reduction='sum')
@@ -59,11 +58,13 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
     # --- Training Setup --- #
     losses_train = []
     losses_dev = []
-    dev_ppl_logs = []
     sampled_epochs = []
     best_ppl = math.inf
     best_model_state = None
     current_patience = 0
+
+    lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, 'min', factor=0.5, patience=patience // 2, verbose=True)
 
     pbar = tqdm(range(1, epochs + 1))
 
@@ -73,11 +74,12 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
         f"l{n_layers}",
         f"h{hid_size}",
         f"emb_dropout{emb_dropout_rate}",
+        f"lstm_dropout{lstm_dropout_rate}",
         f"out_dropout{out_dropout_rate}",
-        "NT-AvSDG"
+        "SGD"
     ]
     run_name = "_".join(run_name_parts)
-    group_name = f"{wandb_group_prefix}_zaremba_medium"
+    group_name = f"{wandb_group_prefix}"
 
     run = wandb.init(
         project=wandb_project,
@@ -95,10 +97,10 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
             "clip_gradient": clip,
             "patience": patience,
             "n_layers": n_layers,
-            "asgd_trigger_epochs": asgd_trigger_epochs,
             "emb_dropout": emb_dropout_rate,
             "lstm_dropout": lstm_dropout_rate,
             "out_dropout": out_dropout_rate,
+            "lr_scheduler": type(lr_scheduler).__name__
         }
     )
 
@@ -106,7 +108,6 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
     print(f"Starting training for run: {run_name}")
     last_saved_epoch = -1
     try:
-        t = 0  # Counter for validation checks
         for epoch in pbar:
             # Train one epoch
             model.train()
@@ -116,16 +117,8 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
 
             # --- Evaluate on development set ---
             model.eval()
-            original_params = None # Initialize original_params to None
-            if optimizer.is_averaging():
-                original_params = optimizer.swap_parameters()  # Swap to averaged parameters and store original ones
-
-            # Run evaluation
             ppl_dev, epoch_dev_loss = eval_loop(
                 dev_loader, criterion_eval, model)
-
-            if optimizer.is_averaging() and original_params is not None:
-                optimizer.load_original_params(original_params)  # Swap back using the stored original parameters
             # --- End Evaluation --- #
 
             # Process and log metrics
@@ -137,59 +130,40 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
             losses_dev.append(avg_dev_loss)
             sampled_epochs.append(epoch)
 
-            # Log perplexity for NT-ASGD check
-            dev_ppl_logs.append(ppl_dev)
-            t += 1  # Increment validation check counter
-
             # Get current LR for logging
             current_lr = optimizer.param_groups[0]['lr']
 
             pbar.set_description(
-                f"Epoch {epoch} | LR: {current_lr:.4f} | Train Loss: {avg_train_loss:.4f} | Dev PPL: {ppl_dev:.2f} | Avg: {optimizer.is_averaging()}")
+                f"Epoch {epoch} | LR: {current_lr:.4f} | Train Loss: {avg_train_loss:.4f} | Dev PPL: {ppl_dev:.2f}")
 
             run.log({
                 "epoch": epoch,
                 "train_loss": avg_train_loss,
                 "dev_loss": avg_dev_loss,
                 "dev_perplexity": ppl_dev,
-                "learning_rate": current_lr,
-                "is_averaging": optimizer.is_averaging()
+                "learning_rate": current_lr
             })
 
-            # --- Early Stopping & Best Model Saving --- #
+            lr_scheduler.step(avg_dev_loss)
+
             if ppl_dev < best_ppl:
                 best_ppl = ppl_dev
-
-                # 1. Swap the *original* model to its averaged parameters
-                original_params_for_saving = optimizer.swap_parameters()
-
-                # Check if the swap actually happened before saving
-                if original_params_for_saving:
-                    # 2. Get the state dict of the now-averaged original model
-                    best_model_state = copy.deepcopy(model.state_dict())
-                    # 3. Swap the original model back to its non-averaged state for continued training
-                    optimizer.load_original_params(original_params_for_saving)
-                    print(f"  New best model found! Dev PPL: {best_ppl:.2f}. Saving averaged model state (Epoch {epoch}).")
-                else:
-                    # This case should ideally not happen if averaging is active,
-                    print(f"  Improved Dev PPL ({best_ppl:.2f}), but failed to swap to averaged parameters for saving. Saving current non-averaged state instead (Epoch {epoch}).")
-                    # Save the current (non-averaged) state as a fallback
-                    best_model_state = copy.deepcopy(model.state_dict())
-
+                best_model_state = copy.deepcopy(model.state_dict())
                 last_saved_epoch = epoch
-                current_patience = 0  # Reset patience only if we improve
+                current_patience = 0  # Reset patience on improvement
+                print(
+                    f"  New best model found! Dev PPL: {best_ppl:.2f}. Saving model state (Epoch {epoch}).")
 
             else:
                 # No improvement
-                # Since averaging started immediately, we just increment patience
                 current_patience += 1
                 print(
-                    f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}) using NTAvSGD (Averaging). Patience: {current_patience}/{patience}")
+                    f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}). Patience: {current_patience}/{patience}")
 
-            # Check for final patience-based early stopping
+            # Check for early stopping
             if current_patience >= patience:
                 print(
-                    f"Early stopping triggered after {patience} epochs without improvement during averaging phase.")
+                    f"Early stopping triggered after {patience} epochs without improvement.")
                 break  # Exit the training loop
 
     except KeyboardInterrupt:
@@ -211,7 +185,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
         final_model.eval()
 
         print("Evaluating on test set...")
-        # The best_model_state already contains the averaged weights if averaging was active when saved.
+        # Evaluate the loaded best model state
         final_ppl, _ = eval_loop(test_loader, criterion_eval, final_model)
         print(f'Final Test Perplexity: {final_ppl:.2f}')
 
@@ -234,19 +208,18 @@ if __name__ == "__main__":
     hid_size = 650
     emb_size = 650
     n_layers = 3
-    lr = 30.0
-    emb_dropout_rate = 0.4  # Input dropout (dropouti in paper)
-    lstm_dropout_rate = 0.3  # Hidden layer dropout (dropouth in paper)
-    out_dropout_rate = 0.4  # Output dropout (dropouto in paper)
-    batch_size_train = 20
-    batch_size_eval = 10
-    epochs = 100  # Train longer, rely on NT-AvSGD + early stopping
+    lr = 10
+    emb_dropout_rate = 0.4
+    lstm_dropout_rate = 0.3
+    out_dropout_rate = 0.4
+    batch_size_train = 64
+    batch_size_eval = 128
+    epochs = 100
     clip = 0.25
-    weight_decay = 1.2e-6  # L2 penalty
-    patience = 10  # Patience *after* ASGD switch (or if ASGD never triggers)
-    asgd_trigger_epochs = 2  # n in paper
-    wandb_project = "NLU-project-part-1"
-    wandb_group_prefix = "NT-ASGD-AWD-LSTM-Medium-Approx"
+    weight_decay = 1.2e-6
+    patience = 10
+    wandb_project = "NLU-project-part-1B"
+    wandb_group_prefix = "SGD-LSTM-weight_tying"
 
     print("Using random weight initialization U[-0.05, 0.05].")
     # --- Login to W&B --- #
@@ -270,7 +243,6 @@ if __name__ == "__main__":
         clip=clip,
         weight_decay=weight_decay,
         patience=patience,
-        asgd_trigger_epochs=asgd_trigger_epochs,
         wandb_project=wandb_project,
         wandb_group_prefix=wandb_group_prefix
     )
