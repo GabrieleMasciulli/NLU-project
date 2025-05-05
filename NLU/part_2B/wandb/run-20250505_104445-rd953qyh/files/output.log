@@ -1,0 +1,95 @@
+--- Starting Training: joint-bert-atis-CTRAN-dropout-sweep_lr5e-05_bs32_do0.25 ---
+
+--- Epoch 1/25 ---
+                                                                                                                                                           
+Epoch 1 Summary:
+  Avg Train Loss: nan
+  Dev Intent Acc: 0.0161
+  Dev Slot F1 (Macro): 0.0000
+  Dev Combined Metric: 0.0080
+  New best model found! Metric: 0.0080. Saving...
+
+--- Epoch 2/25 ---
+Epoch 2 Summary:
+  Avg Train Loss: nan
+  Dev Intent Acc: 0.0161
+  Dev Slot F1 (Macro): 0.0000
+  Dev Combined Metric: 0.0080
+  No improvement. Patience: 1/3
+
+--- Epoch 3/25 ---
+Epoch 3 Summary:
+  Avg Train Loss: nan
+  Dev Intent Acc: 0.0161
+  Dev Slot F1 (Macro): 0.0000
+  Dev Combined Metric: 0.0080
+  No improvement. Patience: 2/3
+
+--- Epoch 4/25 ---
+Epoch 4 Summary:
+  Avg Train Loss: nan
+  Dev Intent Acc: 0.0161
+  Dev Slot F1 (Macro): 0.0000
+  Dev Combined Metric: 0.0080
+  No improvement. Patience: 3/3
+Early stopping triggered after 4 epochs.
+
+--- Evaluating best model on Test Set ---
+Loading best model from epoch 1 (Dev Metric: 0.0080)
+
+--- Test Results ---
+Intent Accuracy: 0.0101
+Slot F1 (Macro): 0.0000
+Slot F1 (Micro): 0.0000
+
+Slot Classification Report:
+                              precision    recall  f1-score   support
+
+B-depart_date.today_relative     0.0000    0.0000    0.0000       1.0
+              I-airport_name     0.0000    0.0000    0.0000       1.0
+    B-depart_date.day_number     0.0000    0.0000    0.0000       3.0
+                B-class_type     0.0000    0.0000    0.0000       5.0
+                   B-connect     0.0000    0.0000    0.0000       1.0
+             B-aircraft_code     0.0000    0.0000    0.0000       1.0
+                 B-city_name     0.0000    0.0000    0.0000       3.0
+                       B-mod     0.0000    0.0000    0.0000       1.0
+          B-depart_time.time     0.0000    0.0000    0.0000       1.0
+                B-round_trip     0.0000    0.0000    0.0000      17.0
+              B-airport_code     0.0000    0.0000    0.0000       4.0
+                           O     0.0000    0.0000    0.0000    2414.0
+              I-airline_name     0.0000    0.0000    0.0000      11.0
+ B-depart_date.date_relative     0.0000    0.0000    0.0000       2.0
+ B-depart_time.time_relative     0.0000    0.0000    0.0000       2.0
+              B-airline_code     0.0000    0.0000    0.0000       2.0
+    B-depart_date.month_name     0.0000    0.0000    0.0000       4.0
+         B-fromloc.city_name     0.0000    0.0000    0.0000      48.0
+                I-round_trip     0.0000    0.0000    0.0000       5.0
+                      B-meal     0.0000    0.0000    0.0000       5.0
+                    B-flight     0.0000    0.0000    0.0000       1.0
+            B-transport_type     0.0000    0.0000    0.0000       2.0
+      B-depart_date.day_name     0.0000    0.0000    0.0000      24.0
+         I-fromloc.city_name     0.0000    0.0000    0.0000      19.0
+              B-airline_name     0.0000    0.0000    0.0000      30.0
+           B-toloc.city_name     0.0000    0.0000    0.0000      24.0
+          B-meal_description     0.0000    0.0000    0.0000       1.0
+                I-class_type     0.0000    0.0000    0.0000       2.0
+               B-flight_stop     0.0000    0.0000    0.0000       5.0
+ B-depart_time.period_of_day     0.0000    0.0000    0.0000      14.0
+          B-restriction_code     0.0000    0.0000    0.0000       2.0
+          I-depart_time.time     0.0000    0.0000    0.0000       1.0
+           B-fare_basis_code     0.0000    0.0000    0.0000       2.0
+              B-airport_name     0.0000    0.0000    0.0000       1.0
+             B-cost_relative     0.0000    0.0000    0.0000       5.0
+                B-state_name     0.0000    0.0000    0.0000       5.0
+                B-flight_mod     0.0000    0.0000    0.0000       6.0
+
+                   micro avg     0.0000    0.0000    0.0000    2675.0
+                   macro avg     0.0000    0.0000    0.0000    2675.0
+                weighted avg     0.0000    0.0000    0.0000    2675.0
+
+
+Test Set Performance:
+  Intent Accuracy: 0.0101
+  Slot F1 (Macro): 0.0000
+  Slot F1 (Micro): 0.0000
+Best model state saved to bin/best_model_joint-bert-atis-CTRAN-dropout-sweep_lr5e-05_bs32_do0.25.pt

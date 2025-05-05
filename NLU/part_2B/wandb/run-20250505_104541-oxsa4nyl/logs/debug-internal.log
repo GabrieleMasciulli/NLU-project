@@ -1,0 +1,16 @@
+{"time":"2025-05-05T10:45:41.692336733Z","level":"INFO","msg":"stream: starting","core version":"0.19.9","symlink path":"/home/disi/NLU-project/NLU/part_2B/wandb/run-20250505_104541-oxsa4nyl/logs/debug-core.log"}
+{"time":"2025-05-05T10:45:41.932062451Z","level":"INFO","msg":"created new stream","id":"oxsa4nyl"}
+{"time":"2025-05-05T10:45:41.932097549Z","level":"INFO","msg":"stream: started","id":"oxsa4nyl"}
+{"time":"2025-05-05T10:45:41.932108949Z","level":"INFO","msg":"writer: Do: started","stream_id":"oxsa4nyl"}
+{"time":"2025-05-05T10:45:41.932140448Z","level":"INFO","msg":"sender: started","stream_id":"oxsa4nyl"}
+{"time":"2025-05-05T10:45:41.932119948Z","level":"INFO","msg":"handler: started","stream_id":"oxsa4nyl"}
+{"time":"2025-05-05T10:45:42.169189767Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-05-05T10:45:44.344700446Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-05-05T10:45:44.344757544Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-05-05T10:45:45.043062688Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-05-05T10:45:45.346371597Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading summary, console lines 0-6","runtime_seconds":0.303192813}],"total_operations":1}}
+{"time":"2025-05-05T10:45:45.443484617Z","level":"INFO","msg":"stream: closing","id":"oxsa4nyl"}
+{"time":"2025-05-05T10:45:45.443506117Z","level":"INFO","msg":"handler: closed","stream_id":"oxsa4nyl"}
+{"time":"2025-05-05T10:45:45.443519716Z","level":"INFO","msg":"writer: Close: closed","stream_id":"oxsa4nyl"}
+{"time":"2025-05-05T10:45:45.443529216Z","level":"INFO","msg":"sender: closed","stream_id":"oxsa4nyl"}
+{"time":"2025-05-05T10:45:45.443616312Z","level":"INFO","msg":"stream: closed","id":"oxsa4nyl"}
