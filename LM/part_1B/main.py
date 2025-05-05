@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader
 import torch
 
 
-def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, out_dropout_rate,
+def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
          batch_size_train, batch_size_eval, epochs, clip, weight_decay, patience, wandb_project, wandb_group_prefix):
     """Main function to train and evaluate the LSTM Language Model."""
 
@@ -43,7 +43,6 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
                     pad_index=pad_index,
                     n_layers=n_layers,
                     emb_dropout_rate=emb_dropout_rate,
-                    lstm_dropout_rate=lstm_dropout_rate,
                     out_dropout_rate=out_dropout_rate).to(DEVICE)
 
     # Apply Zaremba weight initialization
@@ -74,12 +73,12 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
         f"l{n_layers}",
         f"h{hid_size}",
         f"emb_dropout{emb_dropout_rate}",
-        f"lstm_dropout{lstm_dropout_rate}",
         f"out_dropout{out_dropout_rate}",
-        "SGD"
+        "SGD",
+        "VarDrop"
     ]
     run_name = "_".join(run_name_parts)
-    group_name = f"{wandb_group_prefix}"
+    group_name = f"{wandb_group_prefix}_VarDrop"
 
     run = wandb.init(
         project=wandb_project,
@@ -98,7 +97,6 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
             "patience": patience,
             "n_layers": n_layers,
             "emb_dropout": emb_dropout_rate,
-            "lstm_dropout": lstm_dropout_rate,
             "out_dropout": out_dropout_rate,
             "lr_scheduler": type(lr_scheduler).__name__
         }
@@ -178,7 +176,6 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
         final_model = LM_LSTM(emb_size, hid_size, vocab_len,
                               pad_index=pad_index, n_layers=n_layers,
                               emb_dropout_rate=emb_dropout_rate,
-                              lstm_dropout_rate=lstm_dropout_rate,
                               out_dropout_rate=out_dropout_rate)
         final_model.load_state_dict(best_model_state)
         final_model.to(DEVICE)
@@ -208,9 +205,8 @@ if __name__ == "__main__":
     hid_size = 650
     emb_size = 650
     n_layers = 3
-    lr = 10
+    lr = 10.0
     emb_dropout_rate = 0.4
-    lstm_dropout_rate = 0.3
     out_dropout_rate = 0.4
     batch_size_train = 64
     batch_size_eval = 128
@@ -219,9 +215,8 @@ if __name__ == "__main__":
     weight_decay = 1.2e-6
     patience = 10
     wandb_project = "NLU-project-part-1B"
-    wandb_group_prefix = "SGD-LSTM-weight_tying"
+    wandb_group_prefix = "SGD-LSTM-weight-tying-VarDrop"
 
-    print("Using random weight initialization U[-0.05, 0.05].")
     # --- Login to W&B --- #
     try:
         wandb.login()
@@ -235,7 +230,6 @@ if __name__ == "__main__":
         n_layers=n_layers,
         lr=lr,
         emb_dropout_rate=emb_dropout_rate,
-        lstm_dropout_rate=lstm_dropout_rate,
         out_dropout_rate=out_dropout_rate,
         batch_size_train=batch_size_train,
         batch_size_eval=batch_size_eval,

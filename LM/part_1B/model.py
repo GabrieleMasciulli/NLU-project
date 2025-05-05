@@ -1,45 +1,63 @@
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from utils import DEVICE
+from locked_dropout import LockedDropout
 
 
 class LM_LSTM(nn.Module):
     def __init__(self, emb_size, hidden_size, vocab_len, pad_index=0, emb_dropout_rate=0.1,
-                 lstm_dropout_rate=0.0, out_dropout_rate=0.1, n_layers=1):
+                 out_dropout_rate=0.1, n_layers=1):
         super(LM_LSTM, self).__init__()
         self.hidden_size = hidden_size
         self.n_layers = n_layers
+        self.emb_dropout_rate = emb_dropout_rate
+        self.out_dropout_rate = out_dropout_rate
 
         # Embedding layer
         self.embedding = nn.Embedding(
             vocab_len, emb_size, padding_idx=pad_index)
 
-        self.emb_dropout = nn.Dropout(emb_dropout_rate)
+        # LockedDropout layer
+        self.locked_dropout = LockedDropout()
 
-        # LSTM layer
-        # Apply dropout between LSTM layers only if n_layers > 1
-        lstm_internal_dropout = lstm_dropout_rate if n_layers > 1 else 0.0
-        self.lstm = nn.LSTM(emb_size, hidden_size,
-                            num_layers=n_layers, batch_first=True, dropout=lstm_internal_dropout)
+        # Create a list of LSTM layers
+        self.rnns = nn.ModuleList()
+        for i in range(n_layers):
+            input_sz = emb_size if i == 0 else hidden_size
+            self.rnns.append(nn.LSTM(input_sz, hidden_size,
+                             num_layers=1, batch_first=True))
 
-        self.out_dropout = nn.Dropout(out_dropout_rate)
+        # Create a list of LockedDropout layers to apply *after* each LSTM layer's output
+        self.inter_rnn_dropouts = nn.ModuleList(
+            [LockedDropout(out_dropout_rate) for _ in range(n_layers)])
 
         # Output layer (fully connected)
         self.output = nn.Linear(hidden_size, vocab_len)
 
         # --- Weight Tying ---
-        # Tie the weights of embedding and output layers
-        # Requires emb_size == hidden_size, which should be ensured by config
         if emb_size != hidden_size:
-            raise ValueError(f"Weight tying requires embedding size ({emb_size}) "
-                             f"to be equal to hidden size ({hidden_size})")
-        self.output.weight = self.embedding.weight
+            # Weight tying is only possible if emb_size == hidden_size
+            print(
+                f"Warning: Weight tying not applied because embedding size ({emb_size}) != hidden size ({hidden_size})")
+        else:
+            # Tie the weights of embedding and output layers
+            self.output.weight = self.embedding.weight
 
     def forward(self, input_sequence):
+        # hidden should be a list of (h_n, c_n) tuples, one for each layer
         emb = self.embedding(input_sequence)
-        emb = self.emb_dropout(emb)
-        rnn_out, _ = self.lstm(emb)
-        rnn_out = self.out_dropout(rnn_out)
-        output = self.output(rnn_out).permute(0, 2, 1)
+        # Apply dropout to embeddings
+        current_input = self.locked_dropout(emb, self.emb_dropout_rate)
+
+        for i, rnn in enumerate(self.rnns):
+
+            rnn_output, _ = rnn(current_input)
+
+            # Apply LockedDropout to the output of this LSTM layer
+            rnn_output = self.inter_rnn_dropouts[i](rnn_output)
+
+            # The output of this layer becomes the input for the next
+            current_input = rnn_output
+
+        # The final rnn_output (after dropout) is used for the decoder
+        output = self.output(rnn_output).permute(0, 2, 1)
+
         return output
