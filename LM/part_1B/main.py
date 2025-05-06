@@ -12,10 +12,12 @@ import copy
 import os
 from torch.utils.data import DataLoader
 import torch
+from nt_asgd import NTAvSGD
 
 
 def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
-         batch_size_train, batch_size_eval, epochs, clip, weight_decay, patience, wandb_project, wandb_group_prefix):
+         batch_size_train, batch_size_eval, epochs, clip, weight_decay, patience, nonmono,
+         wandb_project, wandb_group_prefix):
     """Main function to train and evaluate the LSTM Language Model."""
 
     # --- Data Loading and Preprocessing ---
@@ -49,7 +51,12 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
     init_weights(model)
 
     # --- Optimizer and Loss --- #
+    # (Initial optimizer is SGD)
     optimizer = optim.SGD(model.parameters(), lr=lr, weight_decay=weight_decay)
+    asgd_optimizer_params = {'lr': lr, 't0': 0, 'lambd': 0.0,
+                             'weight_decay': weight_decay}  # Default params for NT_ASGD
+    asgd_triggered = False
+
     criterion_train = nn.CrossEntropyLoss(ignore_index=pad_index)
     criterion_eval = nn.CrossEntropyLoss(
         ignore_index=pad_index, reduction='sum')
@@ -74,11 +81,12 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
         f"h{hid_size}",
         f"emb_dropout{emb_dropout_rate}",
         f"out_dropout{out_dropout_rate}",
-        "SGD",
+        "NTASGD",
         "VarDrop"
     ]
     run_name = "_".join(run_name_parts)
-    group_name = f"{wandb_group_prefix}_VarDrop"
+    # Updated group name
+    group_name = f"{wandb_group_prefix}_NTASGD"
 
     run = wandb.init(
         project=wandb_project,
@@ -90,7 +98,9 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
             "batch_size_eval": batch_size_eval,
             "hidden_size": hid_size,
             "embedding_size": emb_size,
-            "optimizer": type(optimizer).__name__,
+            "optimizer_initial": "SGD",
+            "optimizer_final_type": "NT_ASGD",
+            "nonmono_trigger": nonmono,
             "epochs": epochs,
             "weight_decay": weight_decay,
             "clip_gradient": clip,
@@ -142,7 +152,8 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                 "learning_rate": current_lr
             })
 
-            lr_scheduler.step(avg_dev_loss)
+            if not asgd_triggered and lr_scheduler is not None:
+                lr_scheduler.step(avg_dev_loss)
 
             if ppl_dev < best_ppl:
                 best_ppl = ppl_dev
@@ -157,6 +168,23 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                 current_patience += 1
                 print(
                     f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}). Patience: {current_patience}/{patience}")
+
+            if not asgd_triggered and current_patience >= nonmono:
+                print(
+                    f"Switching to NT-ASGD optimizer at epoch {epoch} after {nonmono} epochs of no improvement on dev PPL.")
+                # Update the learning rate for ASGD to the current LR of SGD
+                current_optimizer_lr = optimizer.param_groups[0]['lr']
+                asgd_optimizer_params['lr'] = current_optimizer_lr
+                optimizer = NTAvSGD(model.parameters(), **
+                                    asgd_optimizer_params)
+                asgd_triggered = True
+
+                # Remove learning rate scheduler
+                lr_scheduler = None
+                run.log({"optimizer_switched_to_ASGD_epoch": epoch,
+                        "asgd_start_lr": current_optimizer_lr})
+                run.config.update(
+                    {"optimizer_active": "NT_ASGD"}, allow_val_change=True)
 
             # Check for early stopping
             if current_patience >= patience:
@@ -202,10 +230,8 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
 
 if __name__ == "__main__":
     # --- Hyperparameters --- #
-    hid_size = 650
-    emb_size = 650
     n_layers = 3
-    lr = 10.0
+    lr = 30.0
     emb_dropout_rate = 0.4
     out_dropout_rate = 0.4
     batch_size_train = 64
@@ -214,8 +240,9 @@ if __name__ == "__main__":
     clip = 0.25
     weight_decay = 1.2e-6
     patience = 10
+    nonmono = 5
     wandb_project = "NLU-project-part-1B"
-    wandb_group_prefix = "SGD-LSTM-weight-tying-VarDrop"
+    wandb_group_prefix = "LSTM-weight-tying-VarDrop-NT-AvSGD-"
 
     # --- Login to W&B --- #
     try:
@@ -237,6 +264,7 @@ if __name__ == "__main__":
         clip=clip,
         weight_decay=weight_decay,
         patience=patience,
+        nonmono=nonmono,
         wandb_project=wandb_project,
         wandb_group_prefix=wandb_group_prefix
     )
