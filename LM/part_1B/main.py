@@ -94,9 +94,9 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
         f"h{hid_size}",
         f"emb_dropout{emb_dropout_rate}",
         f"out_dropout{out_dropout_rate}",
-        "SGD_then_NTAvSGD",  # Clarified optimizer strategy
-        f"nonmono{nonmono}",
-        "VarDrop"
+        "SGD_then_NTAvSGD",
+        "VarDrop",
+        "GloVe"
     ]
     run_name = "_".join(run_name_parts)
     # Updated group name
