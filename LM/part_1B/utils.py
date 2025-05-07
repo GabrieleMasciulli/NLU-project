@@ -1,5 +1,9 @@
 import torch
 import torch.utils.data as data
+import os
+import requests
+import zipfile
+from tqdm import tqdm
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Loading the corpus
