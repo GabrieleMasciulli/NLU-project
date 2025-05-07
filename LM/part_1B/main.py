@@ -68,9 +68,6 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
     best_model_state = None
     current_patience = 0
 
-    lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, 'min', factor=0.5, patience=patience // 2, verbose=True)
-
     pbar = tqdm(range(1, epochs + 1))
 
     # --- W&B Initialization --- #
@@ -108,7 +105,6 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
             "n_layers": n_layers,
             "emb_dropout": emb_dropout_rate,
             "out_dropout": out_dropout_rate,
-            "lr_scheduler": type(lr_scheduler).__name__
         }
     )
 
@@ -164,10 +160,6 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                 "learning_rate": current_lr
             })
 
-            # Allow LR scheduler to run if it exists, regardless of ASGD trigger
-            if lr_scheduler is not None:
-                lr_scheduler.step(avg_dev_loss)
-
             if ppl_dev < best_ppl:
                 best_ppl = ppl_dev
                 # Saving logic modified to handle averaged weights
@@ -199,6 +191,14 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                 print(
                     f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}). Patience: {current_patience}/{patience}")
 
+                # Manual LR halving like in AWD-LSTM
+                if current_patience % (nonmono // 2) == 0:
+                    for param_group in optimizer.param_groups:
+                        old_lr = param_group['lr']
+                        param_group['lr'] *= 0.5
+                        new_lr = param_group['lr']
+                        print(f"  Halving learning rate from {old_lr:.4f} to {new_lr:.4f} due to stagnant dev performance.")
+
             if not asgd_triggered and current_patience >= nonmono:
                 print(
                     f"Switching to NT-ASGD optimizer at epoch {epoch} after {nonmono} epochs of no improvement on dev PPL.")
@@ -211,12 +211,6 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                 print(
                     f"  Optimizer switched to NTAvSGD with LR: {current_optimizer_lr:.4f} and averaging started.")
 
-                # Re-initialize the learning rate scheduler with the new optimizer
-                print(
-                    f"  Re-initializing ReduceLROnPlateau scheduler for NTAvSGD with patience {patience // 2}.")
-                lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-                    optimizer, 'min', factor=0.5, patience=patience // 2, verbose=True
-                )
 
                 run.log({"optimizer_switched_to_ASGD_epoch": epoch,
                         "asgd_start_lr": current_optimizer_lr})
@@ -269,8 +263,8 @@ if __name__ == "__main__":
     # --- Hyperparameters --- #
     n_layers = 1
     lr = 30.0
-    hid_size = 256
-    emb_size = 256
+    hid_size = 400
+    emb_size = 1150
     emb_dropout_rate = 0.4
     out_dropout_rate = 0.4
     batch_size_train = 64
@@ -278,8 +272,8 @@ if __name__ == "__main__":
     epochs = 100
     clip = 0.25
     weight_decay = 1.2e-6
-    patience = 10
-    nonmono = 5
+    patience = 8
+    nonmono = 4
     wandb_project = "NLU-project-part-1B"
     wandb_group_prefix = "LSTM-weight-tying-VarDrop-NT-AvSGD-"
 
