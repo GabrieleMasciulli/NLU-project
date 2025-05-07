@@ -4,7 +4,7 @@ import torch.nn as nn
 from utils import Lang, read_file
 from functions import collate_fn, init_weights, train_loop, eval_loop
 from model import LM_LSTM
-from utils import DEVICE, PennTreeBank
+from utils import DEVICE, PennTreeBank, load_glove_embeddings, download_and_extract_glove
 import torch.optim as optim
 import wandb
 from tqdm import tqdm
@@ -29,6 +29,21 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
     vocab_len = len(lang.word2id)
     pad_index = lang.word2id["<pad>"]
 
+    # --- GloVe Embedding Loading ---
+    glove_url = "https://nlp.stanford.edu/data/glove.6B.zip"
+    glove_dir = "glove"
+    glove_filename = f"glove.6B.{emb_size}d.txt"
+    glove_txt_path = download_and_extract_glove(
+        glove_url, glove_dir, glove_filename)
+    glove_embeddings = None
+    if glove_txt_path is not None:
+        glove_embeddings = load_glove_embeddings(
+            glove_txt_path, lang.word2id, emb_size)
+    else:
+        print(
+            "GloVe embeddings could not be loaded. Proceeding with random initialization.")
+        glove_embeddings = None
+
     train_dataset = PennTreeBank(train_raw, lang)
     dev_dataset = PennTreeBank(dev_raw, lang)
     test_dataset = PennTreeBank(test_raw, lang)
@@ -45,7 +60,9 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                     pad_index=pad_index,
                     n_layers=n_layers,
                     emb_dropout_rate=emb_dropout_rate,
-                    out_dropout_rate=out_dropout_rate).to(DEVICE)
+                    out_dropout_rate=out_dropout_rate,
+                    pretrained_embeddings=glove_embeddings
+                    ).to(DEVICE)
 
     # Apply Zaremba weight initialization
     init_weights(model)
@@ -196,7 +213,8 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                         old_lr = param_group['lr']
                         param_group['lr'] *= 0.5
                         new_lr = param_group['lr']
-                        print(f"  Halving learning rate from {old_lr:.4f} to {new_lr:.4f} as nonmono patience ({current_patience}/{nonmono}) reached before ASGD switch.")
+                        print(
+                            f"  Halving learning rate from {old_lr:.4f} to {new_lr:.4f} as nonmono patience ({current_patience}/{nonmono}) reached before ASGD switch.")
 
             if not asgd_triggered and current_patience >= nonmono:
                 print(
@@ -209,7 +227,6 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                 asgd_triggered = True
                 print(
                     f"  Optimizer switched to NTAvSGD with LR: {current_optimizer_lr:.4f} and averaging started.")
-
 
                 run.log({"optimizer_switched_to_ASGD_epoch": epoch,
                         "asgd_start_lr": current_optimizer_lr})

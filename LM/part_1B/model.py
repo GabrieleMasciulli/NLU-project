@@ -4,7 +4,7 @@ from locked_dropout import LockedDropout
 
 class LM_LSTM(nn.Module):
     def __init__(self, emb_size, hidden_size, vocab_len, pad_index=0, emb_dropout_rate=0.1,
-                 out_dropout_rate=0.1, n_layers=1):
+                 out_dropout_rate=0.1, n_layers=1, pretrained_embeddings=None, freeze_embeddings=False):
         super(LM_LSTM, self).__init__()
         self.hidden_size = hidden_size
         self.n_layers = n_layers
@@ -14,6 +14,9 @@ class LM_LSTM(nn.Module):
         # Embedding layer
         self.embedding = nn.Embedding(
             vocab_len, emb_size, padding_idx=pad_index)
+        if pretrained_embeddings is not None:
+            self.embedding.weight.data.copy_(pretrained_embeddings)
+            self.embedding.weight.requires_grad = not freeze_embeddings
 
         # LockedDropout layer
         self.locked_dropout = LockedDropout()
