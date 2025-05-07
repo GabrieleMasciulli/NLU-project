@@ -1,0 +1,88 @@
+Starting training for run: lstm_l3_h400_emb_dropout0.4_out_dropout0.4_SGD_then_NTAvSGD_nonmono4_VarDrop
+Epoch 16 | LR: 30.0000 | Train Loss: 4.3009 | Dev PPL: 95.40:  15%|████████▌                                                | 15/100 [09:23<49:49, 35.18s/it]
+  Epoch 1: New best model found with SGD weights. Dev PPL: 465.59.
+  Saving model state (Epoch 1).
+  Epoch 2: New best model found with SGD weights. Dev PPL: 249.99.
+  Saving model state (Epoch 2).
+  Epoch 3: New best model found with SGD weights. Dev PPL: 204.80.
+  Saving model state (Epoch 3).
+  Epoch 4: New best model found with SGD weights. Dev PPL: 155.70.
+  Saving model state (Epoch 4).
+  Epoch 5: New best model found with SGD weights. Dev PPL: 138.51.
+  Saving model state (Epoch 5).
+  Epoch 6: New best model found with SGD weights. Dev PPL: 129.47.
+  Saving model state (Epoch 6).
+  Epoch 7: New best model found with SGD weights. Dev PPL: 118.88.
+  Saving model state (Epoch 7).
+  Epoch 8: New best model found with SGD weights. Dev PPL: 114.12.
+  Saving model state (Epoch 8).
+  Epoch 9: New best model found with SGD weights. Dev PPL: 109.42.
+  Saving model state (Epoch 9).
+  Epoch 10: New best model found with SGD weights. Dev PPL: 104.27.
+  Saving model state (Epoch 10).
+  Epoch 11: New best model found with SGD weights. Dev PPL: 101.66.
+  Saving model state (Epoch 11).
+  Epoch 12: New best model found with SGD weights. Dev PPL: 101.03.
+  Saving model state (Epoch 12).
+  Epoch 13: New best model found with SGD weights. Dev PPL: 97.19.
+  Saving model state (Epoch 13).
+  Epoch 14: New best model found with SGD weights. Dev PPL: 96.77.
+  Saving model state (Epoch 14).
+  Epoch 15: New best model found with SGD weights. Dev PPL: 96.34.
+  Saving model state (Epoch 15).
+  Epoch 16: New best model found with SGD weights. Dev PPL: 95.40.
+  Saving model state (Epoch 16).
+  Epoch 17: New best model found with SGD weights. Dev PPL: 94.85.
+  Saving model state (Epoch 17).
+  Epoch 18: New best model found with SGD weights. Dev PPL: 92.13.
+  Saving model state (Epoch 18).
+  Epoch 19: New best model found with SGD weights. Dev PPL: 92.00.
+  Saving model state (Epoch 19).
+  No improvement in Dev PPL (94.01 vs best 92.00). Patience: 1/8
+  No improvement in Dev PPL (93.23 vs best 92.00). Patience: 2/8
+  Halving learning rate from 30.0000 to 15.0000 due to stagnant dev performance.
+  Epoch 22: New best model found with SGD weights. Dev PPL: 89.04.
+  Saving model state (Epoch 22).
+  No improvement in Dev PPL (89.34 vs best 89.04). Patience: 1/8
+  No improvement in Dev PPL (89.33 vs best 89.04). Patience: 2/8
+  Halving learning rate from 15.0000 to 7.5000 due to stagnant dev performance.
+  No improvement in Dev PPL (89.64 vs best 89.04). Patience: 3/8
+  No improvement in Dev PPL (89.57 vs best 89.04). Patience: 4/8
+  Halving learning rate from 7.5000 to 3.7500 due to stagnant dev performance.
+Switching to NT-ASGD optimizer at epoch 26 after 4 epochs of no improvement on dev PPL.
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+  Optimizer switched to NTAvSGD with LR: 3.7500 and averaging started.
+  Epoch 27: Swapping to averaged weights for dev evaluation.
+  Epoch 27: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (89.62 vs best 89.04). Patience: 5/8
+  Epoch 28: Swapping to averaged weights for dev evaluation.
+  Epoch 28: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (89.69 vs best 89.04). Patience: 6/8
+  Halving learning rate from 3.7500 to 1.8750 due to stagnant dev performance.
+  Epoch 29: Swapping to averaged weights for dev evaluation.
+  Epoch 29: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (89.86 vs best 89.04). Patience: 7/8
+  Epoch 30: Swapping to averaged weights for dev evaluation.
+  Epoch 30: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (90.00 vs best 89.04). Patience: 8/8
+  Halving learning rate from 1.8750 to 0.9375 due to stagnant dev performance.
+Early stopping triggered after 8 epochs without improvement.
+
+Training finished.
+Loading best model state (from epoch 22, Dev PPL: 89.04) for final evaluation...
+Evaluating on test set...
+Final Test Perplexity: 86.33
+Best model saved to bin/best_model_lstm_l3_h400_emb_dropout0.4_out_dropout0.4_SGD_then_NTAvSGD_nonmono4_VarDrop.pt

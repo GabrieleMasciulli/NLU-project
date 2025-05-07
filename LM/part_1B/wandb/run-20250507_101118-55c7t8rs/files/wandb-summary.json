@@ -1,0 +1,1 @@
+{"_step":31,"train_loss":3.521792186206998,"dev_perplexity":90.00288479258037,"_timestamp":1.746613738545238e+09,"epoch":30,"test_perplexity":86.32636894299453,"_wandb":{"runtime":1060},"optimizer_switched_to_ASGD_epoch":26,"asgd_start_lr":3.75,"_runtime":1060.002716958,"learning_rate":1.875,"dev_loss":4.499841723067464}
