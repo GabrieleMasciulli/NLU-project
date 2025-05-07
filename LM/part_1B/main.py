@@ -232,6 +232,8 @@ if __name__ == "__main__":
     # --- Hyperparameters --- #
     n_layers = 3
     lr = 30.0
+    hid_size = 400
+    emb_size = 1150
     emb_dropout_rate = 0.4
     out_dropout_rate = 0.4
     batch_size_train = 64

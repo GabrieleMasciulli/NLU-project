@@ -21,25 +21,29 @@ class LM_LSTM(nn.Module):
         # Create a list of LSTM layers
         self.rnns = nn.ModuleList()
         for i in range(n_layers):
-            input_sz = emb_size if i == 0 else hidden_size
-            self.rnns.append(nn.LSTM(input_sz, hidden_size,
-                             num_layers=1, batch_first=True))
+            current_input_size = emb_size if i == 0 else self.hidden_size
+            
+            # Determine output size for this LSTM layer
+            if i == n_layers - 1:  # If this is the final LSTM layer
+                current_output_size = emb_size
+            else:  # For all non-final LSTM layers
+                current_output_size = self.hidden_size
+            
+            self.rnns.append(nn.LSTM(current_input_size, current_output_size,
+                                     num_layers=1, batch_first=True))
 
         # Create a list of LockedDropout layers to apply *after* each LSTM layer's output
         self.inter_rnn_dropouts = nn.ModuleList(
             [LockedDropout() for _ in range(n_layers)])
 
         # Output layer (fully connected)
-        self.output = nn.Linear(hidden_size, vocab_len)
+        # The input to this layer is the output of the final LSTM
+        self.output = nn.Linear(emb_size, vocab_len)
 
         # --- Weight Tying ---
-        if emb_size != hidden_size:
-            # Weight tying is only possible if emb_size == hidden_size
-            print(
-                f"Warning: Weight tying not applied because embedding size ({emb_size}) != hidden size ({hidden_size})")
-        else:
-            # Tie the weights of embedding and output layers
-            self.output.weight = self.embedding.weight
+        # Weight tying is done directly, as the output layer's input dimension (emb_size)
+        # matches the embedding layer's dimension (emb_size).
+        self.output.weight = self.embedding.weight
 
     def forward(self, input_sequence):
         # hidden should be a list of (h_n, c_n) tuples, one for each layer
