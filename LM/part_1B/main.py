@@ -191,13 +191,12 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                 print(
                     f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}). Patience: {current_patience}/{patience}")
 
-                # Manual LR halving like in AWD-LSTM
-                if current_patience % (nonmono // 2) == 0:
+                if not asgd_triggered and current_patience == nonmono:
                     for param_group in optimizer.param_groups:
                         old_lr = param_group['lr']
                         param_group['lr'] *= 0.5
                         new_lr = param_group['lr']
-                        print(f"  Halving learning rate from {old_lr:.4f} to {new_lr:.4f} due to stagnant dev performance.")
+                        print(f"  Halving learning rate from {old_lr:.4f} to {new_lr:.4f} as nonmono patience ({current_patience}/{nonmono}) reached before ASGD switch.")
 
             if not asgd_triggered and current_patience >= nonmono:
                 print(
@@ -261,7 +260,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
 
 if __name__ == "__main__":
     # --- Hyperparameters --- #
-    n_layers = 1
+    n_layers = 3
     lr = 30.0
     hid_size = 400
     emb_size = 1150
@@ -272,8 +271,8 @@ if __name__ == "__main__":
     epochs = 100
     clip = 0.25
     weight_decay = 1.2e-6
-    patience = 8
-    nonmono = 4
+    patience = 10
+    nonmono = 5
     wandb_project = "NLU-project-part-1B"
     wandb_group_prefix = "LSTM-weight-tying-VarDrop-NT-AvSGD-"
 
