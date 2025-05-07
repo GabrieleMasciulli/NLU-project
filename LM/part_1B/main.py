@@ -80,7 +80,8 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
         f"h{hid_size}",
         f"emb_dropout{emb_dropout_rate}",
         f"out_dropout{out_dropout_rate}",
-        "NTASGD",
+        "SGD_then_NTAvSGD",  # Clarified optimizer strategy
+        f"nonmono{nonmono}",
         "VarDrop"
     ]
     run_name = "_".join(run_name_parts)
@@ -124,8 +125,20 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
 
             # --- Evaluate on development set ---
             model.eval()
+
+            original_params_dev = None  # To store original params when swapped for dev eval
+            if asgd_triggered and optimizer.is_averaging():  # Check if ASGD is active and averaging
+                print(
+                    f"  Epoch {epoch}: Swapping to averaged weights for dev evaluation.")
+                original_params_dev = optimizer.swap_parameters(model)
+
             ppl_dev, epoch_dev_loss = eval_loop(
                 dev_loader, criterion_eval, model)
+
+            if original_params_dev is not None:  # Swap back if params were changed for dev eval
+                print(
+                    f"  Epoch {epoch}: Swapping back to original weights after dev evaluation.")
+                optimizer.load_original_params(original_params_dev, model)
             # --- End Evaluation --- #
 
             # Process and log metrics
@@ -151,16 +164,34 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                 "learning_rate": current_lr
             })
 
-            if not asgd_triggered and lr_scheduler is not None:
+            # Allow LR scheduler to run if it exists, regardless of ASGD trigger
+            if lr_scheduler is not None:
                 lr_scheduler.step(avg_dev_loss)
 
             if ppl_dev < best_ppl:
                 best_ppl = ppl_dev
-                best_model_state = copy.deepcopy(model.state_dict())
+                # Saving logic modified to handle averaged weights
+                if asgd_triggered and optimizer.is_averaging():
+                    print(
+                        f"  Epoch {epoch}: New best model found with averaged weights. Dev PPL: {best_ppl:.2f}.")
+                    original_params_for_saving = optimizer.swap_parameters(
+                        model)
+                    best_model_state = copy.deepcopy(
+                        model.state_dict())  # Save averaged weights
+                    # Swap back for continued training
+                    optimizer.load_original_params(
+                        original_params_for_saving, model)
+                else:
+                    print(
+                        f"  Epoch {epoch}: New best model found with SGD weights. Dev PPL: {best_ppl:.2f}.")
+                    best_model_state = copy.deepcopy(
+                        model.state_dict())  # Save current SGD weights
+
                 last_saved_epoch = epoch
                 current_patience = 0  # Reset patience on improvement
+                # General print moved after specific saving logic
                 print(
-                    f"  New best model found! Dev PPL: {best_ppl:.2f}. Saving model state (Epoch {epoch}).")
+                    f"  Saving model state (Epoch {epoch}).")
 
             else:
                 # No improvement
@@ -171,15 +202,22 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
             if not asgd_triggered and current_patience >= nonmono:
                 print(
                     f"Switching to NT-ASGD optimizer at epoch {epoch} after {nonmono} epochs of no improvement on dev PPL.")
-                # Update the learning rate for ASGD to the current LR of SGD
                 current_optimizer_lr = optimizer.param_groups[0]['lr']
                 asgd_optimizer_params['lr'] = current_optimizer_lr
                 optimizer = NTAvSGD(model.parameters(), **
                                     asgd_optimizer_params)
+                optimizer.start_averaging()  # Explicitly start the averaging process
                 asgd_triggered = True
+                print(
+                    f"  Optimizer switched to NTAvSGD with LR: {current_optimizer_lr:.4f} and averaging started.")
 
-                # Remove learning rate scheduler
-                lr_scheduler = None
+                # Re-initialize the learning rate scheduler with the new optimizer
+                print(
+                    f"  Re-initializing ReduceLROnPlateau scheduler for NTAvSGD with patience {patience // 2}.")
+                lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                    optimizer, 'min', factor=0.5, patience=patience // 2, verbose=True
+                )
+
                 run.log({"optimizer_switched_to_ASGD_epoch": epoch,
                         "asgd_start_lr": current_optimizer_lr})
                 run.config.update(
@@ -229,10 +267,10 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
 
 if __name__ == "__main__":
     # --- Hyperparameters --- #
-    n_layers = 3
+    n_layers = 1
     lr = 30.0
-    hid_size = 650
-    emb_size = 650
+    hid_size = 256
+    emb_size = 256
     emb_dropout_rate = 0.4
     out_dropout_rate = 0.4
     batch_size_train = 64
