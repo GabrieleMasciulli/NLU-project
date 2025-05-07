@@ -53,8 +53,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
     # --- Optimizer and Loss --- #
     # (Initial optimizer is SGD)
     optimizer = optim.SGD(model.parameters(), lr=lr, weight_decay=weight_decay)
-    asgd_optimizer_params = {'lr': lr, 't0': 0, 'lambd': 0.0,
-                             'weight_decay': weight_decay}  # Default params for NT_ASGD
+    asgd_optimizer_params = {'lr': lr, 't0': 0, 'weight_decay': weight_decay}
     asgd_triggered = False
 
     criterion_train = nn.CrossEntropyLoss(ignore_index=pad_index)
@@ -232,8 +231,8 @@ if __name__ == "__main__":
     # --- Hyperparameters --- #
     n_layers = 3
     lr = 30.0
-    hid_size = 400
-    emb_size = 1150
+    hid_size = 650
+    emb_size = 650
     emb_dropout_rate = 0.4
     out_dropout_rate = 0.4
     batch_size_train = 64
