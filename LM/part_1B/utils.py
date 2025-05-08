@@ -4,6 +4,7 @@ import os
 import requests
 import zipfile
 from tqdm import tqdm
+import numpy as np
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Loading the corpus

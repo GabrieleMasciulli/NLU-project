@@ -33,10 +33,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
     glove_url = "https://nlp.stanford.edu/data/glove.6B.zip"
     glove_dir = "glove"
     glove_filename = f"glove.6B.{emb_size}d.txt"
-    # glove_txt_path = download_and_extract_glove(
-    #     glove_url, glove_dir, glove_filename)
-    glove_txt_path = None
-    glove_embeddings = None
+    glove_txt_path = download_and_extract_glove(glove_url, glove_dir, glove_filename)
     if glove_txt_path is not None:
         glove_embeddings = load_glove_embeddings(
             glove_txt_path, lang.word2id, emb_size)
@@ -97,7 +94,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
         f"out_dropout{out_dropout_rate}",
         "SGD_then_NTAvSGD",
         "VarDrop",
-        "GloVe"
+        "GloVe" if glove_embeddings is not None else ""
     ]
     run_name = "_".join(run_name_parts)
     # Updated group name
@@ -281,7 +278,7 @@ if __name__ == "__main__":
     n_layers = 3
     lr = 30.0
     hid_size = 1150
-    emb_size = 400
+    emb_size = 300
     emb_dropout_rate = 0.4
     out_dropout_rate = 0.4
     batch_size_train = 64
