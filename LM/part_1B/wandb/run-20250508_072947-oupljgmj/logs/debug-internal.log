@@ -1,0 +1,16 @@
+{"time":"2025-05-08T07:29:47.489631045Z","level":"INFO","msg":"stream: starting","core version":"0.19.9","symlink path":"/home/disi/NLU-project/LM/part_1B/wandb/run-20250508_072947-oupljgmj/logs/debug-core.log"}
+{"time":"2025-05-08T07:29:47.747728786Z","level":"INFO","msg":"created new stream","id":"oupljgmj"}
+{"time":"2025-05-08T07:29:47.747801383Z","level":"INFO","msg":"stream: started","id":"oupljgmj"}
+{"time":"2025-05-08T07:29:47.74787748Z","level":"INFO","msg":"sender: started","stream_id":"oupljgmj"}
+{"time":"2025-05-08T07:29:47.747906579Z","level":"INFO","msg":"handler: started","stream_id":"oupljgmj"}
+{"time":"2025-05-08T07:29:47.74788118Z","level":"INFO","msg":"writer: Do: started","stream_id":"oupljgmj"}
+{"time":"2025-05-08T07:29:48.162351481Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-05-08T08:01:42.85259234Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-05-08T08:01:42.852642538Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-05-08T08:01:43.620501671Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-05-08T08:01:43.841844554Z","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-05-08T08:01:43.844903024Z","level":"INFO","msg":"stream: closing","id":"oupljgmj"}
+{"time":"2025-05-08T08:01:43.844922723Z","level":"INFO","msg":"handler: closed","stream_id":"oupljgmj"}
+{"time":"2025-05-08T08:01:43.844934923Z","level":"INFO","msg":"writer: Close: closed","stream_id":"oupljgmj"}
+{"time":"2025-05-08T08:01:43.844940423Z","level":"INFO","msg":"sender: closed","stream_id":"oupljgmj"}
+{"time":"2025-05-08T08:01:43.845039218Z","level":"INFO","msg":"stream: closed","id":"oupljgmj"}
