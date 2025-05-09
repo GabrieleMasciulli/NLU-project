@@ -1,0 +1,108 @@
+Starting training for run: lstm_l3_h400_emb_dropout0.4_out_dropout0.4_SGD_then_NTAvSGD_nonmono5_VarDrop
+Epoch 17 | LR: 30.0000 | Train Loss: 4.2405 | Dev PPL: 93.27:  16%|█████▍                            | 16/100 [10:01<49:21, 35.26s/it]
+  Epoch 1: New best model found with SGD weights. Dev PPL: 405.35.
+  Saving model state (Epoch 1).
+  Epoch 2: New best model found with SGD weights. Dev PPL: 253.59.
+  Saving model state (Epoch 2).
+  Epoch 3: New best model found with SGD weights. Dev PPL: 180.65.
+  Saving model state (Epoch 3).
+  Epoch 4: New best model found with SGD weights. Dev PPL: 153.61.
+  Saving model state (Epoch 4).
+  Epoch 5: New best model found with SGD weights. Dev PPL: 137.39.
+  Saving model state (Epoch 5).
+  Epoch 6: New best model found with SGD weights. Dev PPL: 127.90.
+  Saving model state (Epoch 6).
+  Epoch 7: New best model found with SGD weights. Dev PPL: 119.64.
+  Saving model state (Epoch 7).
+  Epoch 8: New best model found with SGD weights. Dev PPL: 114.01.
+  Saving model state (Epoch 8).
+  Epoch 9: New best model found with SGD weights. Dev PPL: 108.00.
+  Saving model state (Epoch 9).
+  Epoch 10: New best model found with SGD weights. Dev PPL: 105.86.
+  Saving model state (Epoch 10).
+  Epoch 11: New best model found with SGD weights. Dev PPL: 103.12.
+  Saving model state (Epoch 11).
+  Epoch 12: New best model found with SGD weights. Dev PPL: 99.29.
+  Saving model state (Epoch 12).
+  No improvement in Dev PPL (99.30 vs best 99.29). Patience: 1/10
+  Epoch 14: New best model found with SGD weights. Dev PPL: 95.69.
+  Saving model state (Epoch 14).
+  Epoch 15: New best model found with SGD weights. Dev PPL: 94.59.
+  Saving model state (Epoch 15).
+  Epoch 16: New best model found with SGD weights. Dev PPL: 93.17.
+  Saving model state (Epoch 16).
+  No improvement in Dev PPL (93.27 vs best 93.17). Patience: 1/10
+  No improvement in Dev PPL (93.32 vs best 93.17). Patience: 2/10
+  Epoch 19: New best model found with SGD weights. Dev PPL: 92.91.
+  Saving model state (Epoch 19).
+  Epoch 20: New best model found with SGD weights. Dev PPL: 92.80.
+  Saving model state (Epoch 20).
+  Epoch 21: New best model found with SGD weights. Dev PPL: 91.99.
+  Saving model state (Epoch 21).
+  No improvement in Dev PPL (92.45 vs best 91.99). Patience: 1/10
+  No improvement in Dev PPL (93.72 vs best 91.99). Patience: 2/10
+  No improvement in Dev PPL (93.04 vs best 91.99). Patience: 3/10
+  No improvement in Dev PPL (93.51 vs best 91.99). Patience: 4/10
+  No improvement in Dev PPL (92.87 vs best 91.99). Patience: 5/10
+  Halving learning rate from 30.0000 to 15.0000 as nonmono patience (5/5) reached before ASGD switch.
+Switching to NT-ASGD optimizer at epoch 26 after 5 epochs of no improvement on dev PPL.
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+NTAvSGD: Starting averaging at step 0
+  Optimizer switched to NTAvSGD with LR: 15.0000 and averaging started.
+  Epoch 27: Swapping to averaged weights for dev evaluation.
+  Epoch 27: Swapping back to original weights after dev evaluation.
+  Epoch 27: New best model found with averaged weights. Dev PPL: 89.28.
+  Saving model state (Epoch 27).
+  Epoch 28: Swapping to averaged weights for dev evaluation.
+  Epoch 28: Swapping back to original weights after dev evaluation.
+  Epoch 28: New best model found with averaged weights. Dev PPL: 89.11.
+  Saving model state (Epoch 28).
+  Epoch 29: Swapping to averaged weights for dev evaluation.
+  Epoch 29: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (89.19 vs best 89.11). Patience: 1/10
+  Epoch 30: Swapping to averaged weights for dev evaluation.
+  Epoch 30: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (89.35 vs best 89.11). Patience: 2/10
+  Epoch 31: Swapping to averaged weights for dev evaluation.
+  Epoch 31: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (89.51 vs best 89.11). Patience: 3/10
+  Epoch 32: Swapping to averaged weights for dev evaluation.
+  Epoch 32: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (89.71 vs best 89.11). Patience: 4/10
+  Epoch 33: Swapping to averaged weights for dev evaluation.
+  Epoch 33: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (89.93 vs best 89.11). Patience: 5/10
+  Epoch 34: Swapping to averaged weights for dev evaluation.
+  Epoch 34: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (90.15 vs best 89.11). Patience: 6/10
+  Epoch 35: Swapping to averaged weights for dev evaluation.
+  Epoch 35: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (90.38 vs best 89.11). Patience: 7/10
+  Epoch 36: Swapping to averaged weights for dev evaluation.
+  Epoch 36: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (90.64 vs best 89.11). Patience: 8/10
+  Epoch 37: Swapping to averaged weights for dev evaluation.
+  Epoch 37: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (90.91 vs best 89.11). Patience: 9/10
+  Epoch 38: Swapping to averaged weights for dev evaluation.
+  Epoch 38: Swapping back to original weights after dev evaluation.
+  No improvement in Dev PPL (91.20 vs best 89.11). Patience: 10/10
+Early stopping triggered after 10 epochs without improvement.
+
+Training finished.
+Loading best model state (from epoch 28, Dev PPL: 89.11) for final evaluation...
+Evaluating on test set...
+Final Test Perplexity: 85.97
+Best model saved to bin/best_model_lstm_l3_h400_emb_dropout0.4_out_dropout0.4_SGD_then_NTAvSGD_nonmono5_VarDrop.pt

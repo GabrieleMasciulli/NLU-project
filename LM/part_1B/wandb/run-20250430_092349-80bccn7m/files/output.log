@@ -1,0 +1,7 @@
+Starting training for run: lstm_l3_h650_emb_dropout0.4_out_dropout0.4
+  0%|                                                                                                                                    | 0/100 [00:23<?, ?it/s]
+
+Training interrupted by user.
+
+Training finished.
+No best model state found.

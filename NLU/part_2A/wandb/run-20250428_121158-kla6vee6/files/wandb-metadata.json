@@ -1,0 +1,42 @@
+{
+  "os": "Linux-5.15.0-1087-azure-x86_64-with-glibc2.29",
+  "python": "CPython 3.8.10",
+  "startedAt": "2025-04-28T12:11:58.189943Z",
+  "program": "main.py",
+  "codePath": "NLU/part_2A/main.py",
+  "git": {
+    "remote": "https://github.com/GabrieleMasciulli/NLU-project.git",
+    "commit": "c45d0a49db65224d368bb4223e5bbad68c8b0eb5"
+  },
+  "email": "gabriele.masciulli@studenti.unitn.it",
+  "root": "/home/disi/NLU-project/NLU/part_2A",
+  "host": "labEIOX5N",
+  "executable": "/home/disi/NLU-project/.venv/bin/python",
+  "codePathLocal": "main.py",
+  "cpu_count": 6,
+  "cpu_count_logical": 6,
+  "gpu": "Tesla V100-PCIE-16GB",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "133003395072",
+      "used": "36608544768"
+    }
+  },
+  "memory": {
+    "total": "118161104896"
+  },
+  "cpu": {
+    "count": 6,
+    "countLogical": 6
+  },
+  "gpu_nvidia": [
+    {
+      "name": "Tesla V100-PCIE-16GB",
+      "memoryTotal": "17179869184",
+      "cudaCores": 5120,
+      "architecture": "Volta"
+    }
+  ],
+  "cudaVersion": "12.8"
+}

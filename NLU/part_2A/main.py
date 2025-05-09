@@ -11,6 +11,7 @@ from functions import collate_fn, eval_loop, init_weights, train_loop
 from model import ModelIAS
 import numpy as np
 from sklearn.model_selection import train_test_split
+import torch
 
 
 def main(
@@ -18,12 +19,15 @@ def main(
     emb_size: int,
     lr: float,
     clip: float,
+    fc_dropout: float,
+    lstm_dropout: float,
     n_epochs: int,
     patience: int,
     batch_size_train: int,
     batch_size_eval: int,
     wandb_project: str,
-    wandb_group_prefix: str
+    wandb_group_prefix: str,
+    n_layers: int
 ):
     tmp_train_raw = load_data(os.path.join("dataset", "ATIS", "train.json"))
     test_raw = load_data(os.path.join("dataset", "ATIS", "test.json"))
@@ -87,8 +91,11 @@ def main(
         hid_size=hid_size,
         emb_size=emb_size,
         vocab_len=vocab_len,
+        lstm_dropout=lstm_dropout,
+        fc_dropout=fc_dropout,
         out_slot=out_slots,
         out_int=out_intents,
+        n_layers=n_layers,
         pad_index=PAD_TOKEN
     ).to(DEVICE)
     model.apply(init_weights)
@@ -102,15 +109,19 @@ def main(
     losses_dev = []
     sampled_epochs = []
     best_model = None
+    best_f1 = -1.0
+    current_patience = patience
 
     pbar = tqdm(range(1, n_epochs))
 
     # --- W&B Initialization --- #
     run_name_parts = [
-        f"lstm",
-        f"l{1}",
+        f"lstm_bidir_drop",
+        f"l{n_layers}",
         f"h{hid_size}",
         f"emb{emb_size}",
+        f"dp_fc{fc_dropout}",
+        f"dp_lstm{lstm_dropout}",
     ]
     run_name = "_".join(run_name_parts)
     group_name = wandb_group_prefix
@@ -129,14 +140,18 @@ def main(
             "epochs": n_epochs,
             "clip_gradient": clip,
             "patience": patience,
-            "n_layers": 1,
+            "n_layers": n_layers,
+            "fc_dropout": fc_dropout,
+            "lstm_dropout": lstm_dropout
         }
     )
 
     # --- Training Loop --- #
     print(f"Starting training for run: {run_name}")
+    last_completed_epoch = 0
     try:
         for epoch in pbar:
+            last_completed_epoch = epoch
             loss = train_loop(train_loader, optimizer,
                               criterion_slots, criterion_intents, model, clip)
 
@@ -144,7 +159,7 @@ def main(
             run.log({
                 "epoch": epoch,
                 "train_loss": np.asarray(loss).mean()
-            })
+            }, step=epoch)
 
             if epoch % 5 == 0:  # checking the performance of the model every 5 epochs
                 sampled_epochs.append(epoch)
@@ -157,7 +172,7 @@ def main(
                     "dev_loss": losses_dev[-1],
                     "dev_slot_f1": results_dev['total']['f'],
                     "dev_intent_accuracy": intent_res['accuracy']
-                })
+                }, step=epoch)
                 print(
                     f"Epoch {epoch} - Train loss: {losses_train[-1]} - Dev loss: {losses_dev[-1]}")
 
@@ -165,13 +180,13 @@ def main(
                 # @todo: for decreasing the patience, we could use the average btw slot f1 and intent accuracy
                 if f1 > best_f1:
                     best_f1 = f1
-                    patience = 3
+                    current_patience = patience  # Reset patience
                     best_model = copy.deepcopy(model).to('cpu')
                     print(
                         f"  New best model found! F1: {best_f1:.2f}. Saving model.")
                 else:
-                    patience -= 1
-                if patience <= 0:
+                    current_patience -= 1
+                if current_patience <= 0:
                     print("Early stopping.")
                     break
 
@@ -180,6 +195,9 @@ def main(
     # --- Final Evaluation on Test Set --- #
     print("\nTraining finished.")
     if best_model is not None:
+        best_model.to(DEVICE)
+        best_model.eval()
+
         results_test, intent_test, _ = eval_loop(
             test_loader, criterion_slots, criterion_intents, best_model, lang)
         print('Slot F1: ', results_test['total']['f'])
@@ -189,7 +207,14 @@ def main(
         wandb.log({
             "test_slot_f1": results_test['total']['f'],
             "test_intent_accuracy": intent_test['accuracy']
-        })
+        }, step=last_completed_epoch)
+
+        # Save the final best model
+        os.makedirs('bin', exist_ok=True)
+        model_save_path = f'bin/best_model_{run_name}.pt'
+        torch.save(best_model.state_dict(), model_save_path)
+        print(f"Best model saved to {model_save_path}")
+
     else:
         print('No best model found - training might have diverged or stopped very early.')
 
@@ -198,16 +223,19 @@ def main(
 
 
 if __name__ == "__main__":
-    hid_size = 200
+    hid_size = 500
     emb_size = 300
     lr = 0.0001
     clip = 5.0
+    n_layers = 2
     n_epochs = 200
-    patience = 3
+    patience = 5
+    fc_dropout = 0.3
+    lstm_dropout = 0.2
     batch_size_train = 128
     batch_size_eval = 64
     wandb_project_name = "NLU-project-part-2A"
-    wandb_group_prefix = "before_changes"
+    wandb_group_prefix = "bidir-lstm-dropout-l2-h500"
 
     # --- Login to W&B --- #
     try:
@@ -215,12 +243,14 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Could not login to WandB: {e}. Proceeding without logging.")
 
-    # --- Starts training --- #
     main(
         hid_size=hid_size,
         emb_size=emb_size,
         lr=lr,
         clip=clip,
+        fc_dropout=fc_dropout,
+        lstm_dropout=lstm_dropout,
+        n_layers=n_layers,
         n_epochs=n_epochs,
         patience=patience,
         batch_size_train=batch_size_train,
