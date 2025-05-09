@@ -16,7 +16,8 @@ import os
 
 def main(hid_size, emb_size, n_layers, lr,
          batch_size_train, batch_size_eval, epochs, clip,
-         wandb_project, wandb_group_prefix):
+         wandb_project, wandb_group_prefix,
+         emb_dropout_rate=0.1, lstm_dropout_rate=0.0, out_dropout_rate=0.1):
     """Main function to train and evaluate the LSTM Language Model."""
 
     # --- Data Loading and Preprocessing ---
@@ -42,7 +43,10 @@ def main(hid_size, emb_size, n_layers, lr,
     # --- Model Initialization ---
     model = LM_LSTM(emb_size, hid_size, vocab_len,
                     pad_index=pad_index,
-                    n_layers=n_layers).to(DEVICE)
+                    n_layers=n_layers,
+                    emb_dropout_rate=emb_dropout_rate,
+                    lstm_dropout_rate=lstm_dropout_rate,
+                    out_dropout_rate=out_dropout_rate).to(DEVICE)
 
     init_weights(model)
 
@@ -88,7 +92,10 @@ def main(hid_size, emb_size, n_layers, lr,
             "clip_gradient": clip,
             "n_layers": n_layers,
             "lr_decay_factor": lr_decay_factor,
-            "lr_decay_epoch_threshold": lr_decay_epoch_threshold
+            "lr_decay_epoch_threshold": lr_decay_epoch_threshold,
+            "emb_dropout_rate": emb_dropout_rate,
+            "lstm_dropout_rate": lstm_dropout_rate,
+            "out_dropout_rate": out_dropout_rate
         }
     )
 
@@ -187,6 +194,9 @@ if __name__ == "__main__":
     parser.add_argument("--clip", type=float, default=5.0)
     parser.add_argument("--wandb_project", type=str, default="NLU-project-part1A")
     parser.add_argument("--wandb_group_prefix", type=str, default="baseline")
+    parser.add_argument("--emb_dropout_rate", type=float, default=0.1)
+    parser.add_argument("--lstm_dropout_rate", type=float, default=0.0)
+    parser.add_argument("--out_dropout_rate", type=float, default=0.1)
 
     args = parser.parse_args()
 
@@ -205,5 +215,8 @@ if __name__ == "__main__":
         epochs=args.epochs,
         clip=args.clip,
         wandb_project=args.wandb_project,
-        wandb_group_prefix=args.wandb_group_prefix
+        wandb_group_prefix=args.wandb_group_prefix,
+        emb_dropout_rate=args.emb_dropout_rate,
+        lstm_dropout_rate=args.lstm_dropout_rate,
+        out_dropout_rate=args.out_dropout_rate
     )
