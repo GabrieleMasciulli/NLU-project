@@ -1,0 +1,48 @@
+Starting training for run: lstm_l2_h650_emb650_drop0.5_lr1.0
+Epoch 32 | LR: 1.0000 | Train Loss: 4.5629 | Dev PPL: 109.91:  78%|█████████████████████████████████████████████████████████████████████████████████████▎                        | 31/40 [14:08<03:58, 26.47s/it]
+  New best model found! Dev PPL: 332.89. Saving model.
+  New best model found! Dev PPL: 248.86. Saving model.
+  New best model found! Dev PPL: 210.44. Saving model.
+  New best model found! Dev PPL: 190.18. Saving model.
+  New best model found! Dev PPL: 174.08. Saving model.
+  New best model found! Dev PPL: 165.16. Saving model.
+  New best model found! Dev PPL: 155.61. Saving model.
+  New best model found! Dev PPL: 149.24. Saving model.
+  New best model found! Dev PPL: 144.84. Saving model.
+  New best model found! Dev PPL: 139.91. Saving model.
+  New best model found! Dev PPL: 136.24. Saving model.
+  New best model found! Dev PPL: 134.46. Saving model.
+  New best model found! Dev PPL: 130.38. Saving model.
+  New best model found! Dev PPL: 127.63. Saving model.
+  New best model found! Dev PPL: 125.55. Saving model.
+  New best model found! Dev PPL: 123.71. Saving model.
+  New best model found! Dev PPL: 122.24. Saving model.
+  New best model found! Dev PPL: 121.25. Saving model.
+  New best model found! Dev PPL: 119.36. Saving model.
+  New best model found! Dev PPL: 118.11. Saving model.
+  New best model found! Dev PPL: 116.91. Saving model.
+  New best model found! Dev PPL: 116.70. Saving model.
+  New best model found! Dev PPL: 114.04. Saving model.
+  No improvement in Dev PPL (114.27 vs best 114.04). Patience: 1/3
+  New best model found! Dev PPL: 112.68. Saving model.
+  New best model found! Dev PPL: 112.30. Saving model.
+  New best model found! Dev PPL: 111.97. Saving model.
+  New best model found! Dev PPL: 111.37. Saving model.
+  New best model found! Dev PPL: 110.37. Saving model.
+  No improvement in Dev PPL (110.59 vs best 110.37). Patience: 1/3
+  No improvement in Dev PPL (110.62 vs best 110.37). Patience: 2/3
+  New best model found! Dev PPL: 109.91. Saving model.
+  New best model found! Dev PPL: 109.29. Saving model.
+  New best model found! Dev PPL: 108.29. Saving model.
+  No improvement in Dev PPL (108.31 vs best 108.29). Patience: 1/3
+  New best model found! Dev PPL: 107.87. Saving model.
+  No improvement in Dev PPL (108.20 vs best 107.87). Patience: 1/3
+  New best model found! Dev PPL: 107.31. Saving model.
+  New best model found! Dev PPL: 106.79. Saving model.
+  No improvement in Dev PPL (106.89 vs best 106.79). Patience: 1/3
+
+Training finished.
+Evaluating best model (from epoch 39, PPL: 106.79) on test set...
+Final Test Perplexity: 104.28
+Dev PPL: 106.79
+Best model saved to bin/best_model_lstm_l2_h650_emb650_drop0.5_lr1.0.pt
