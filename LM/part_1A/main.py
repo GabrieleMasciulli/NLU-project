@@ -155,6 +155,7 @@ def main(hid_size, emb_size, n_layers, lr,
         best_model.eval()
         final_ppl, _ = eval_loop(test_loader, criterion_eval, best_model)
         print(f'Final Test Perplexity: {final_ppl:.2f}')
+        print(f'Dev PPL: {best_ppl:.2f}')
 
         os.makedirs('bin', exist_ok=True)
         model_save_path = f'bin/best_model_{run_name}.pt'
@@ -162,24 +163,32 @@ def main(hid_size, emb_size, n_layers, lr,
         print(f"Best model saved to {model_save_path}")
 
         run.log({"test_perplexity": final_ppl})
+        wandb.finish()
+        print("Run finished.")
+        return final_ppl
     else:
         print('No best model found - training might have diverged or stopped very early.')
-
-    wandb.finish()
-    print("Run finished.")
+        wandb.finish()
+        print("Run finished.")
+        return float('inf')  # <-- Return inf if no model
 
 
 if __name__ == "__main__":
-    hid_size = 650
-    emb_size = 650
-    n_layers = 2
-    lr = 1.0
-    batch_size_train = 64
-    batch_size_eval = 128
-    epochs = 30
-    clip = 5.0
-    wandb_project = "NLU-project-part1A"
-    wandb_group_prefix = "baseline"
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Train LSTM Language Model")
+    parser.add_argument("--hid_size", type=int, default=256)
+    parser.add_argument("--emb_size", type=int, default=300)
+    parser.add_argument("--n_layers", type=int, default=1)
+    parser.add_argument("--lr", type=float, default=1.0)
+    parser.add_argument("--batch_size_train", type=int, default=64)
+    parser.add_argument("--batch_size_eval", type=int, default=128)
+    parser.add_argument("--epochs", type=int, default=30)
+    parser.add_argument("--clip", type=float, default=5.0)
+    parser.add_argument("--wandb_project", type=str, default="NLU-project-part1A")
+    parser.add_argument("--wandb_group_prefix", type=str, default="baseline")
+
+    args = parser.parse_args()
 
     try:
         wandb.login()
@@ -187,14 +196,14 @@ if __name__ == "__main__":
         print(f"Could not login to WandB: {e}. Proceeding without logging.")
 
     main(
-        hid_size=hid_size,
-        emb_size=emb_size,
-        n_layers=n_layers,
-        lr=lr,
-        batch_size_train=batch_size_train,
-        batch_size_eval=batch_size_eval,
-        epochs=epochs,
-        clip=clip,
-        wandb_project=wandb_project,
-        wandb_group_prefix=wandb_group_prefix
+        hid_size=args.hid_size,
+        emb_size=args.emb_size,
+        n_layers=args.n_layers,
+        lr=args.lr,
+        batch_size_train=args.batch_size_train,
+        batch_size_eval=args.batch_size_eval,
+        epochs=args.epochs,
+        clip=args.clip,
+        wandb_project=args.wandb_project,
+        wandb_group_prefix=args.wandb_group_prefix
     )
