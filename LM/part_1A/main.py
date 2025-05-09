@@ -53,7 +53,7 @@ def main(hid_size, emb_size, n_layers, lr,
     init_weights(model)
 
     # --- Optimizer and Loss --- #
-    optimizer = optim.SGD(model.parameters(), lr=lr)
+    optimizer = optim.AdamW(model.parameters(), lr=lr)
     criterion_train = nn.CrossEntropyLoss(ignore_index=pad_index)
     criterion_eval = nn.CrossEntropyLoss(
         ignore_index=pad_index, reduction='sum')
@@ -168,23 +168,6 @@ def main(hid_size, emb_size, n_layers, lr,
             # --- LR Scheduler Step --- #
             scheduler.step(ppl_dev)
 
-            # --- Early Stopping --- #
-            if ppl_dev < best_ppl:
-                best_ppl = ppl_dev
-                best_model = copy.deepcopy(model).to('cpu')
-                last_saved_epoch = epoch
-                patience_counter = 0
-                print(
-                    f"  New best model found! Dev PPL: {best_ppl:.2f}. Saving model.")
-            else:
-                patience_counter += 1
-                print(
-                    f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}). Patience: {patience_counter}/{patience}")
-                if patience_counter >= patience:
-                    print(
-                        f"  Early stopping triggered after {patience} epochs without improvement.")
-                    break
-
     except KeyboardInterrupt:
         print("\nTraining interrupted by user.")
     # --- Final Evaluation on Test Set --- #
@@ -221,7 +204,7 @@ if __name__ == "__main__":
     parser.add_argument("--hid_size", type=int, default=650)
     parser.add_argument("--emb_size", type=int, default=650)
     parser.add_argument("--n_layers", type=int, default=2)
-    parser.add_argument("--lr", type=float, default=1.0)
+    parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--batch_size_train", type=int, default=32)
     parser.add_argument("--batch_size_eval", type=int, default=128)
     parser.add_argument("--epochs", type=int, default=40)
