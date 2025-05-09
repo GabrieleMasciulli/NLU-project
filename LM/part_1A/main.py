@@ -12,12 +12,14 @@ import copy
 from torch.utils.data import DataLoader
 import torch
 import os
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
 def main(hid_size, emb_size, n_layers, lr,
          batch_size_train, batch_size_eval, epochs, clip,
          wandb_project, wandb_group_prefix,
-         emb_dropout_rate=0.1, lstm_dropout_rate=0.0, out_dropout_rate=0.1):
+         emb_dropout_rate=0.5, lstm_dropout_rate=0.5, out_dropout_rate=0.5,
+         patience=3):
     """Main function to train and evaluate the LSTM Language Model."""
 
     # --- Data Loading and Preprocessing ---
@@ -56,6 +58,10 @@ def main(hid_size, emb_size, n_layers, lr,
     criterion_eval = nn.CrossEntropyLoss(
         ignore_index=pad_index, reduction='sum')
 
+    # --- Learning Rate Scheduler --- #
+    scheduler = ReduceLROnPlateau(
+        optimizer, mode='min', factor=0.5, patience=2, verbose=True, min_lr=1e-4)
+
     # --- Training Setup --- #
     losses_train = []
     losses_dev = []
@@ -66,6 +72,9 @@ def main(hid_size, emb_size, n_layers, lr,
     lr_decay_epoch_threshold = 6
 
     pbar = tqdm(range(1, epochs + 1))
+
+    # --- Early Stopping Setup --- #
+    patience_counter = 0
 
     # --- W&B Initialization --- #
     run_name_parts = [
@@ -142,14 +151,51 @@ def main(hid_size, emb_size, n_layers, lr,
                 best_ppl = ppl_dev
                 best_model = copy.deepcopy(model).to('cpu')
                 last_saved_epoch = epoch
+                patience_counter = 0
                 print(
                     f"  New best model found! Dev PPL: {best_ppl:.2f}. Saving model.")
-            elif epoch >= lr_decay_epoch_threshold:
+            else:
+                patience_counter += 1
                 print(
-                    f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}). Decaying learning rate.")
-                current_lr *= lr_decay_factor
-                for param_group in optimizer.param_groups:
-                    param_group['lr'] = current_lr
+                    f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}). Patience: {patience_counter}/{patience}")
+                if patience_counter >= patience:
+                    print(
+                        f"  Early stopping triggered after {patience} epochs without improvement.")
+                    break
+
+            # Get current LR for logging
+            current_lr = optimizer.param_groups[0]['lr']
+
+            pbar.set_description(
+                f"Epoch {epoch} | LR: {current_lr:.4f} | Train Loss: {avg_train_loss:.4f} | Dev PPL: {ppl_dev:.2f}")
+
+            run.log({
+                "epoch": epoch,
+                "train_loss": avg_train_loss,
+                "dev_loss": avg_dev_loss,
+                "dev_perplexity": ppl_dev,
+                "learning_rate": current_lr
+            })
+
+            # --- LR Scheduler Step --- #
+            scheduler.step(ppl_dev)
+
+            # --- Early Stopping --- #
+            if ppl_dev < best_ppl:
+                best_ppl = ppl_dev
+                best_model = copy.deepcopy(model).to('cpu')
+                last_saved_epoch = epoch
+                patience_counter = 0
+                print(
+                    f"  New best model found! Dev PPL: {best_ppl:.2f}. Saving model.")
+            else:
+                patience_counter += 1
+                print(
+                    f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}). Patience: {patience_counter}/{patience}")
+                if patience_counter >= patience:
+                    print(
+                        f"  Early stopping triggered after {patience} epochs without improvement.")
+                    break
 
     except KeyboardInterrupt:
         print("\nTraining interrupted by user.")
@@ -184,19 +230,22 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Train LSTM Language Model")
-    parser.add_argument("--hid_size", type=int, default=256)
-    parser.add_argument("--emb_size", type=int, default=300)
-    parser.add_argument("--n_layers", type=int, default=1)
+    parser.add_argument("--hid_size", type=int, default=650)
+    parser.add_argument("--emb_size", type=int, default=650)
+    parser.add_argument("--n_layers", type=int, default=2)
     parser.add_argument("--lr", type=float, default=1.0)
-    parser.add_argument("--batch_size_train", type=int, default=64)
-    parser.add_argument("--batch_size_eval", type=int, default=128)
-    parser.add_argument("--epochs", type=int, default=30)
+    parser.add_argument("--batch_size_train", type=int, default=20)
+    parser.add_argument("--batch_size_eval", type=int, default=20)
+    parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--clip", type=float, default=5.0)
-    parser.add_argument("--wandb_project", type=str, default="NLU-project-part1A")
-    parser.add_argument("--wandb_group_prefix", type=str, default="baseline")
-    parser.add_argument("--emb_dropout_rate", type=float, default=0.1)
-    parser.add_argument("--lstm_dropout_rate", type=float, default=0.0)
-    parser.add_argument("--out_dropout_rate", type=float, default=0.1)
+    parser.add_argument("--wandb_project", type=str,
+                        default="NLU-project-part1A")
+    parser.add_argument("--wandb_group_prefix", type=str,
+                        default="zaremba-medium")
+    parser.add_argument("--emb_dropout_rate", type=float, default=0.5)
+    parser.add_argument("--lstm_dropout_rate", type=float, default=0.5)
+    parser.add_argument("--out_dropout_rate", type=float, default=0.5)
+    parser.add_argument("--patience", type=int, default=3)
 
     args = parser.parse_args()
 
@@ -218,5 +267,6 @@ if __name__ == "__main__":
         wandb_group_prefix=args.wandb_group_prefix,
         emb_dropout_rate=args.emb_dropout_rate,
         lstm_dropout_rate=args.lstm_dropout_rate,
-        out_dropout_rate=args.out_dropout_rate
+        out_dropout_rate=args.out_dropout_rate,
+        patience=args.patience
     )
