@@ -1,0 +1,31 @@
+Starting training for run: lstm_l1_h512_lr1.0
+Epoch 21 | LR: 0.0078 | Train Loss: 4.2741 | Dev PPL: 150.53:  70%|██████████████████████████████▊             | 21/30 [05:01<02:09, 14.37s/it]
+  New best model found! Dev PPL: 367.31. Saving model.
+  New best model found! Dev PPL: 276.04. Saving model.
+  New best model found! Dev PPL: 242.70. Saving model.
+  New best model found! Dev PPL: 208.17. Saving model.
+  New best model found! Dev PPL: 190.14. Saving model.
+  New best model found! Dev PPL: 183.05. Saving model.
+  New best model found! Dev PPL: 173.19. Saving model.
+  New best model found! Dev PPL: 167.23. Saving model.
+  New best model found! Dev PPL: 165.02. Saving model.
+  New best model found! Dev PPL: 156.06. Saving model.
+  No improvement in Dev PPL (158.16 vs best 156.06). Decaying learning rate.
+  New best model found! Dev PPL: 151.24. Saving model.
+  New best model found! Dev PPL: 151.22. Saving model.
+  No improvement in Dev PPL (152.64 vs best 151.22). Decaying learning rate.
+  New best model found! Dev PPL: 150.18. Saving model.
+  No improvement in Dev PPL (151.07 vs best 150.18). Decaying learning rate.
+  No improvement in Dev PPL (150.54 vs best 150.18). Decaying learning rate.
+  No improvement in Dev PPL (150.52 vs best 150.18). Decaying learning rate.
+  No improvement in Dev PPL (150.33 vs best 150.18). Decaying learning rate.
+  No improvement in Dev PPL (150.47 vs best 150.18). Decaying learning rate.
+  No improvement in Dev PPL (150.53 vs best 150.18). Decaying learning rate.
+
+Training interrupted by user.
+
+Training finished.
+Evaluating best model (from epoch 15, PPL: 150.18) on test set...
+Final Test Perplexity: 146.04
+Dev PPL: 150.18
+Best model saved to bin/best_model_lstm_l1_h512_lr1.0.pt

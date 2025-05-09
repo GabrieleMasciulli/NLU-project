@@ -1,0 +1,42 @@
+{
+  "os": "Linux-5.15.0-1087-azure-x86_64-with-glibc2.29",
+  "python": "CPython 3.8.10",
+  "startedAt": "2025-05-09T09:52:54.307901Z",
+  "program": "sweep_sequential.py",
+  "codePath": "LM/part_1A/sweep_sequential.py",
+  "git": {
+    "remote": "https://github.com/GabrieleMasciulli/NLU-project.git",
+    "commit": "6b906e5fe34e4851e802dbe4c860c997d5c6950e"
+  },
+  "email": "gabriele.masciulli@studenti.unitn.it",
+  "root": "/home/disi/NLU-project/LM/part_1A",
+  "host": "labEIOX5N",
+  "executable": "/home/disi/NLU-project/.venv/bin/python",
+  "codePathLocal": "sweep_sequential.py",
+  "cpu_count": 6,
+  "cpu_count_logical": 6,
+  "gpu": "Tesla V100-PCIE-16GB",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "133003395072",
+      "used": "43621629952"
+    }
+  },
+  "memory": {
+    "total": "118161108992"
+  },
+  "cpu": {
+    "count": 6,
+    "countLogical": 6
+  },
+  "gpu_nvidia": [
+    {
+      "name": "Tesla V100-PCIE-16GB",
+      "memoryTotal": "17179869184",
+      "cudaCores": 5120,
+      "architecture": "Volta"
+    }
+  ],
+  "cudaVersion": "12.8"
+}
