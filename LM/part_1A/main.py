@@ -81,6 +81,8 @@ def main(hid_size, emb_size, n_layers, lr,
         f"lstm",
         f"l{n_layers}",
         f"h{hid_size}",
+        f"emb{emb_size}",
+        f"drop{emb_dropout_rate}",
         f"lr{lr}",
     ]
     run_name = "_".join(run_name_parts)
@@ -234,8 +236,8 @@ if __name__ == "__main__":
     parser.add_argument("--emb_size", type=int, default=650)
     parser.add_argument("--n_layers", type=int, default=2)
     parser.add_argument("--lr", type=float, default=1.0)
-    parser.add_argument("--batch_size_train", type=int, default=20)
-    parser.add_argument("--batch_size_eval", type=int, default=20)
+    parser.add_argument("--batch_size_train", type=int, default=32)
+    parser.add_argument("--batch_size_eval", type=int, default=128)
     parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--clip", type=float, default=5.0)
     parser.add_argument("--wandb_project", type=str,
