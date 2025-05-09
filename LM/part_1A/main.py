@@ -165,20 +165,6 @@ def main(hid_size, emb_size, n_layers, lr,
                         f"  Early stopping triggered after {patience} epochs without improvement.")
                     break
 
-            # Get current LR for logging
-            current_lr = optimizer.param_groups[0]['lr']
-
-            pbar.set_description(
-                f"Epoch {epoch} | LR: {current_lr:.4f} | Train Loss: {avg_train_loss:.4f} | Dev PPL: {ppl_dev:.2f}")
-
-            run.log({
-                "epoch": epoch,
-                "train_loss": avg_train_loss,
-                "dev_loss": avg_dev_loss,
-                "dev_perplexity": ppl_dev,
-                "learning_rate": current_lr
-            })
-
             # --- LR Scheduler Step --- #
             scheduler.step(ppl_dev)
 
