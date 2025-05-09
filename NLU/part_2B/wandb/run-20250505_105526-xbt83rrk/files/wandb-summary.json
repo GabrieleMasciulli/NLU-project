@@ -1,0 +1,1 @@
+{"dev_combined_metric":0,"_wandb":{"runtime":45},"dev_slot_f1_macro":0,"best_dev_metric":0,"learning_rate":4.2e-05,"test_slot_f1_micro":0,"_step":3,"dev_intent_accuracy":0,"_runtime":44.380848366,"_timestamp":1.7464425705892735e+09,"test_intent_accuracy":0,"dev_slot_f1_micro":0,"train_loss":NaN,"test_slot_f1_macro":0,"best_dev_epoch":1,"epoch":4}

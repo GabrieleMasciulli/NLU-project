@@ -246,16 +246,21 @@ def main(
 
 
 if __name__ == "__main__":
-    main(
-        bert_model_name=BERT_MODEL_NAME,
-        dropout_prob=0.15,
-        lr=5e-5,
-        n_epochs=15,
-        patience=3,
-        warmup_steps=0,
-        batch_size_train=32,
-        batch_size_eval=64,
-        wandb_project="NLU-project-part-2B",
-        wandb_group_prefix="joint-bert-atis-CTRAN",
-        data_dir=os.path.join("dataset", "ATIS")
-    )
+    dropout_values = [0.15, 0.2]
+
+    for dropout_val in dropout_values:
+        print(f"\n--- Starting Run with Dropout: {dropout_val} ---")
+        main(
+            bert_model_name=BERT_MODEL_NAME,
+            dropout_prob=dropout_val,
+            lr=5e-5,
+            n_epochs=25,
+            patience=3,
+            warmup_steps=0,
+            batch_size_train=32,
+            batch_size_eval=64,
+            wandb_project="NLU-project-part-2B",
+            wandb_group_prefix="joint-bert-atis-CTRAN-dropout-sweep",
+            data_dir=os.path.join("dataset", "ATIS")
+        )
+        print(f"--- Finished Run with Dropout: {dropout_val} ---")

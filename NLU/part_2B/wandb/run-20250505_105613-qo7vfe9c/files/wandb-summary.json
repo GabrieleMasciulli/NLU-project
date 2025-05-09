@@ -1,0 +1,1 @@
+{"_wandb":{"runtime":47},"dev_intent_accuracy":0,"_step":3,"dev_slot_f1_micro":0,"_runtime":44.261154123,"best_dev_metric":0,"test_slot_f1_micro":0,"dev_combined_metric":0,"learning_rate":4.2e-05,"best_dev_epoch":1,"test_intent_accuracy":0,"dev_slot_f1_macro":0,"epoch":4,"test_slot_f1_macro":0,"train_loss":NaN,"_timestamp":1.7464426179557242e+09}
