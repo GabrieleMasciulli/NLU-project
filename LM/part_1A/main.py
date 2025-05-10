@@ -4,7 +4,7 @@ import torch.optim as optim
 import torch.nn as nn
 from utils import Lang, read_file
 from functions import collate_fn, init_weights, train_loop, eval_loop
-from model import LM_LSTM
+from model import LSTM_Dropout
 from utils import DEVICE, PennTreeBank
 import wandb
 from tqdm import tqdm
@@ -43,12 +43,12 @@ def main(hid_size, emb_size, n_layers, lr,
         collate_fn, pad_token=pad_index))
 
     # --- Model Initialization ---
-    model = LM_LSTM(emb_size, hid_size, vocab_len,
-                    pad_index=pad_index,
-                    n_layers=n_layers,
-                    emb_dropout_rate=emb_dropout_rate,
-                    lstm_dropout_rate=lstm_dropout_rate,
-                    out_dropout_rate=out_dropout_rate).to(DEVICE)
+    model = LSTM_Dropout(emb_size, hid_size, vocab_len,
+                         pad_index=pad_index,
+                         n_layers=n_layers,
+                         emb_dropout_rate=emb_dropout_rate,
+                         lstm_dropout_rate=lstm_dropout_rate,
+                         out_dropout_rate=out_dropout_rate).to(DEVICE)
 
     init_weights(model)
 

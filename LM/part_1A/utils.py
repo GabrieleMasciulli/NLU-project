@@ -1,6 +1,7 @@
 import torch
 import torch.utils.data as data
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available(
+) else "cpu")
 
 # Loading the corpus
 
