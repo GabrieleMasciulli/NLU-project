@@ -3,7 +3,7 @@ import math
 import torch.nn as nn
 from utils import Lang, read_file
 from functions import collate_fn, init_weights, train_loop, eval_loop
-from model import LM_LSTM
+from model import LSTM_VarDrop
 from utils import DEVICE, PennTreeBank, load_glove_embeddings, download_and_extract_glove
 import torch.optim as optim
 import wandb
@@ -33,7 +33,8 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
     glove_url = "https://nlp.stanford.edu/data/glove.6B.zip"
     glove_dir = "glove"
     glove_filename = f"glove.6B.{emb_size}d.txt"
-    glove_txt_path = download_and_extract_glove(glove_url, glove_dir, glove_filename)
+    glove_txt_path = download_and_extract_glove(
+        glove_url, glove_dir, glove_filename)
     if glove_txt_path is not None:
         glove_embeddings = load_glove_embeddings(
             glove_txt_path, lang.word2id, emb_size)
@@ -54,13 +55,13 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
         collate_fn, pad_token=pad_index))
 
     # --- Model Initialization ---
-    model = LM_LSTM(emb_size, hid_size, vocab_len,
-                    pad_index=pad_index,
-                    n_layers=n_layers,
-                    emb_dropout_rate=emb_dropout_rate,
-                    out_dropout_rate=out_dropout_rate,
-                    pretrained_embeddings=glove_embeddings
-                    ).to(DEVICE)
+    model = LSTM_VarDrop(emb_size, hid_size, vocab_len,
+                         pad_index=pad_index,
+                         n_layers=n_layers,
+                         emb_dropout_rate=emb_dropout_rate,
+                         out_dropout_rate=out_dropout_rate,
+                         pretrained_embeddings=glove_embeddings
+                         ).to(DEVICE)
 
     # Apply Zaremba weight initialization
     init_weights(model)
@@ -246,10 +247,10 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
         print(
             f"Loading best model state (from epoch {last_saved_epoch}, Dev PPL: {best_ppl:.2f}) for final evaluation...")
         # Reload the best state into the model structure
-        final_model = LM_LSTM(emb_size, hid_size, vocab_len,
-                              pad_index=pad_index, n_layers=n_layers,
-                              emb_dropout_rate=emb_dropout_rate,
-                              out_dropout_rate=out_dropout_rate)
+        final_model = LSTM_VarDrop(emb_size, hid_size, vocab_len,
+                                   pad_index=pad_index, n_layers=n_layers,
+                                   emb_dropout_rate=emb_dropout_rate,
+                                   out_dropout_rate=out_dropout_rate)
         final_model.load_state_dict(best_model_state)
         final_model.to(DEVICE)
         final_model.eval()
