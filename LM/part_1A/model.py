@@ -29,7 +29,7 @@ class LM_LSTM(nn.Module):
         return output
 
 
-class LSTM_Dropout(nn.Module):  # Renamed from LM_LSTM
+class LSTM_Dropout(nn.Module):
     def __init__(self, emb_size, hidden_size, vocab_len, pad_index=0, emb_dropout_rate=0.1,
                  lstm_dropout_rate=0.0, out_dropout_rate=0.1, n_layers=1):
         super(LSTM_Dropout, self).__init__()
