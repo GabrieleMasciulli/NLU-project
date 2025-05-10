@@ -4,25 +4,22 @@ import torch.optim as optim
 import torch.nn as nn
 from utils import Lang, read_file
 from functions import collate_fn, init_weights, train_loop, eval_loop
-from model import LM_LSTM
-from utils import DEVICE, PennTreeBank, load_glove_embeddings, download_and_extract_glove
+from model import LSTM_Dropout
+from utils import DEVICE, PennTreeBank
 import wandb
 from tqdm import tqdm
 import copy
-import numpy as np
 from torch.utils.data import DataLoader
 import torch
 import os
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
-GLOVE_URL = "http://nlp.stanford.edu/data/glove.6B.zip"
-DATA_DIR = "data"
-EXPECTED_GLOVE_FILE = "glove.6B.300d.txt"
-
-
-def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, out_dropout_rate,
+def main(hid_size, emb_size, n_layers, lr,
          batch_size_train, batch_size_eval, epochs, clip,
-         glove_path, use_glove, wandb_project, wandb_group_prefix):
+         wandb_project, wandb_group_prefix,
+         emb_dropout_rate=0.5, lstm_dropout_rate=0.5, out_dropout_rate=0.5,
+         patience=3):
     """Main function to train and evaluate the LSTM Language Model."""
 
     # --- Data Loading and Preprocessing ---
@@ -45,31 +42,25 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
     test_loader = DataLoader(test_dataset, batch_size=batch_size_eval, collate_fn=partial(
         collate_fn, pad_token=pad_index))
 
-    # --- GloVe Embeddings --- (Explicitly disabled for Zaremba config)
-    pretrained_weights = None
-    embedding_type = "Random Initialization U[-0.05, 0.05]"
-    # Ensure use_glove is false if we are following Zaremba
-    if use_glove:
-        print("Warning: Zaremba config typically uses random init. Overriding use_glove to False.")
-        use_glove = False
-
     # --- Model Initialization ---
-    model = LM_LSTM(emb_size, hid_size, vocab_len,
-                    pad_index=pad_index,
-                    n_layers=n_layers,
-                    pretrained_weights=pretrained_weights,  # Will be None
-                    emb_dropout_rate=emb_dropout_rate,
-                    lstm_dropout_rate=lstm_dropout_rate,
-                    out_dropout_rate=out_dropout_rate).to(DEVICE)  # Use single dropout rate
+    model = LSTM_Dropout(emb_size, hid_size, vocab_len,
+                         pad_index=pad_index,
+                         n_layers=n_layers,
+                         emb_dropout_rate=emb_dropout_rate,
+                         lstm_dropout_rate=lstm_dropout_rate,
+                         out_dropout_rate=out_dropout_rate).to(DEVICE)
 
-    # Apply Zaremba weight initialization
     init_weights(model)
 
     # --- Optimizer and Loss --- #
-    optimizer = optim.SGD(model.parameters(), lr=lr)  # Changed to SGD
+    optimizer = optim.AdamW(model.parameters(), lr=lr)
     criterion_train = nn.CrossEntropyLoss(ignore_index=pad_index)
     criterion_eval = nn.CrossEntropyLoss(
         ignore_index=pad_index, reduction='sum')
+
+    # --- Learning Rate Scheduler --- #
+    scheduler = ReduceLROnPlateau(
+        optimizer, mode='min', factor=0.5, patience=2, verbose=True, min_lr=1e-4)
 
     # --- Training Setup --- #
     losses_train = []
@@ -77,27 +68,25 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
     sampled_epochs = []
     best_ppl = math.inf
     best_model = None
-    # Removed current_patience
-    lr_decay_factor = 0.5  # Zaremba LR decay
-    lr_decay_epoch_threshold = 6  # Zaremba LR decay threshold
+    lr_decay_factor = 0.5
+    lr_decay_epoch_threshold = 6
 
     pbar = tqdm(range(1, epochs + 1))
 
+    # --- Early Stopping Setup --- #
+    patience_counter = 0
+
     # --- W&B Initialization --- #
     run_name_parts = [
-        f"zaremba_medium",
         f"lstm",
         f"l{n_layers}",
-        f"h{hid_size}",  # emb_size is same as hid_size
+        f"h{hid_size}",
+        f"emb{emb_size}",
+        f"drop{emb_dropout_rate}",
         f"lr{lr}",
-        f"emb_dropout{emb_dropout_rate}",
-        f"lstm_dropout{lstm_dropout_rate}",
-        f"out_dropout{out_dropout_rate}",
-        f"clip{clip}",
-        f"bptt_N/A"  # Indicate BPTT sequence length not implemented
     ]
     run_name = "_".join(run_name_parts)
-    group_name = f"{wandb_group_prefix}_zaremba_medium"
+    group_name = f"{wandb_group_prefix}"
 
     run = wandb.init(
         project=wandb_project,
@@ -111,16 +100,13 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
             "embedding_size": emb_size,
             "optimizer": type(optimizer).__name__,
             "epochs": epochs,
-            # Removed patience
             "clip_gradient": clip,
             "n_layers": n_layers,
-            "embeddings": embedding_type,
-            "emb_dropout": emb_dropout_rate,
-            "lstm_dropout": lstm_dropout_rate,
-            "out_dropout": out_dropout_rate,
-            # Removed separate dropout entries
             "lr_decay_factor": lr_decay_factor,
-            "lr_decay_epoch_threshold": lr_decay_epoch_threshold
+            "lr_decay_epoch_threshold": lr_decay_epoch_threshold,
+            "emb_dropout_rate": emb_dropout_rate,
+            "lstm_dropout_rate": lstm_dropout_rate,
+            "out_dropout_rate": out_dropout_rate
         }
     )
 
@@ -162,22 +148,25 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
                 "learning_rate": current_lr
             })
 
-            # --- Zaremba LR Schedule & Best Model Saving --- #
+            # --- LR Schedule & Best Model Saving --- #
             if ppl_dev < best_ppl:
                 best_ppl = ppl_dev
                 best_model = copy.deepcopy(model).to('cpu')
                 last_saved_epoch = epoch
+                patience_counter = 0
                 print(
                     f"  New best model found! Dev PPL: {best_ppl:.2f}. Saving model.")
-            elif epoch >= lr_decay_epoch_threshold:
-                # Decay LR if validation perplexity hasn't improved
+            else:
+                patience_counter += 1
                 print(
-                    f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}). Decaying learning rate.")
-                current_lr *= lr_decay_factor
-                for param_group in optimizer.param_groups:
-                    param_group['lr'] = current_lr
+                    f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}). Patience: {patience_counter}/{patience}")
+                if patience_counter >= patience:
+                    print(
+                        f"  Early stopping triggered after {patience} epochs without improvement.")
+                    break
 
-            # Removed patience-based early stopping check
+            # --- LR Scheduler Step --- #
+            scheduler.step(ppl_dev)
 
     except KeyboardInterrupt:
         print("\nTraining interrupted by user.")
@@ -187,83 +176,68 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, lstm_dropout_rate, 
         print(
             f"Evaluating best model (from epoch {last_saved_epoch}, PPL: {best_ppl:.2f}) on test set...")
         best_model.to(device=DEVICE)
-        best_model.eval()  # Ensure model is in eval mode
+        best_model.eval()
         final_ppl, _ = eval_loop(test_loader, criterion_eval, best_model)
         print(f'Final Test Perplexity: {final_ppl:.2f}')
+        print(f'Dev PPL: {best_ppl:.2f}')
 
-        # Save the final best model
-        os.makedirs('bin', exist_ok=True)  # Ensure bin directory exists
+        os.makedirs('bin', exist_ok=True)
         model_save_path = f'bin/best_model_{run_name}.pt'
         torch.save(best_model.state_dict(), model_save_path)
         print(f"Best model saved to {model_save_path}")
 
-        # Log final test perplexity to W&B
         run.log({"test_perplexity": final_ppl})
+        wandb.finish()
+        print("Run finished.")
+        return final_ppl
     else:
         print('No best model found - training might have diverged or stopped very early.')
-
-    wandb.finish()
-    print("Run finished.")
+        wandb.finish()
+        print("Run finished.")
+        return float('inf')  # <-- Return inf if no model
 
 
 if __name__ == "__main__":
-    # --- Zaremba Medium LSTM Hyperparameters --- #
-    hid_size = 650
-    emb_size = 650  # Zaremba uses tied emb/hid size
-    n_layers = 2
-    lr = 1.0  # Initial LR for SGD
-    emb_dropout_rate = 0.1
-    lstm_dropout_rate = 0.0
-    out_dropout_rate = 0.1
-    batch_size_train = 20
-    batch_size_eval = 20
-    epochs = 39  # Zaremba paper ran for 39 epochs
-    clip = 5.0  # Gradient clipping max norm
-    use_glove = False  # Zaremba used random init
-    wandb_project = "NLU-project"
-    wandb_group_prefix = "zaremba_medium_SGD"  # Updated group prefix
+    import argparse
 
-    # --- GloVe Setup (Should be skipped if use_glove is False) --- #
-    glove_path = None
-    if use_glove:
-        # This block should not run with Zaremba config, but kept for completeness
-        expected_glove_file = "glove.6B.300d.txt"
-        print(f"Attempting to download/use GloVe 300d...")
-        glove_path = download_and_extract_glove(
-            GLOVE_URL, DATA_DIR, expected_glove_file)
-        if not glove_path:
-            print(
-                f"Could not obtain {expected_glove_file}. You might need to download {GLOVE_URL} manually.")
-            print("Continuing without GloVe embeddings.")
-            # use_glove = False # Override if download failed - already False
-        else:
-            # This would override Zaremba's emb_size if GloVe were used
-            # emb_size = 300
-            pass
-    else:
-        print("Using random weight initialization U[-0.05, 0.05], not GloVe.")
+    parser = argparse.ArgumentParser(description="Train LSTM Language Model")
+    parser.add_argument("--hid_size", type=int, default=650)
+    parser.add_argument("--emb_size", type=int, default=650)
+    parser.add_argument("--n_layers", type=int, default=2)
+    parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--batch_size_train", type=int, default=32)
+    parser.add_argument("--batch_size_eval", type=int, default=128)
+    parser.add_argument("--epochs", type=int, default=40)
+    parser.add_argument("--clip", type=float, default=5.0)
+    parser.add_argument("--wandb_project", type=str,
+                        default="NLU-project-part1A")
+    parser.add_argument("--wandb_group_prefix", type=str,
+                        default="zaremba-medium")
+    parser.add_argument("--emb_dropout_rate", type=float, default=0.5)
+    parser.add_argument("--lstm_dropout_rate", type=float, default=0.5)
+    parser.add_argument("--out_dropout_rate", type=float, default=0.5)
+    parser.add_argument("--patience", type=int, default=3)
 
-    # --- Login to W&B --- #
+    args = parser.parse_args()
+
     try:
         wandb.login()
     except Exception as e:
         print(f"Could not login to WandB: {e}. Proceeding without logging.")
 
-    # --- Run Main Function --- #
     main(
-        hid_size=hid_size,
-        emb_size=emb_size,
-        n_layers=n_layers,
-        lr=lr,
-        emb_dropout_rate=emb_dropout_rate,
-        lstm_dropout_rate=lstm_dropout_rate,
-        out_dropout_rate=out_dropout_rate,
-        batch_size_train=batch_size_train,
-        batch_size_eval=batch_size_eval,
-        epochs=epochs,
-        clip=clip,
-        glove_path=glove_path,
-        use_glove=use_glove,
-        wandb_project=wandb_project,
-        wandb_group_prefix=wandb_group_prefix
+        hid_size=args.hid_size,
+        emb_size=args.emb_size,
+        n_layers=args.n_layers,
+        lr=args.lr,
+        batch_size_train=args.batch_size_train,
+        batch_size_eval=args.batch_size_eval,
+        epochs=args.epochs,
+        clip=args.clip,
+        wandb_project=args.wandb_project,
+        wandb_group_prefix=args.wandb_group_prefix,
+        emb_dropout_rate=args.emb_dropout_rate,
+        lstm_dropout_rate=args.lstm_dropout_rate,
+        out_dropout_rate=args.out_dropout_rate,
+        patience=args.patience
     )

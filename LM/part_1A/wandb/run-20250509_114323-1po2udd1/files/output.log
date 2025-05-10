@@ -1,0 +1,24 @@
+Starting training for run: lstm_l2_h650_emb650_drop0.5_lr0.001
+Epoch 15 | LR: 0.0010 | Train Loss: 4.3004 | Dev PPL: 122.10:  35%|████████████████                              | 14/40 [07:14<13:26, 31.01s/it]
+  New best model found! Dev PPL: 248.75. Saving model.
+  New best model found! Dev PPL: 181.53. Saving model.
+  New best model found! Dev PPL: 155.28. Saving model.
+  New best model found! Dev PPL: 142.06. Saving model.
+  New best model found! Dev PPL: 133.91. Saving model.
+  New best model found! Dev PPL: 129.12. Saving model.
+  New best model found! Dev PPL: 125.69. Saving model.
+  New best model found! Dev PPL: 123.14. Saving model.
+  New best model found! Dev PPL: 121.87. Saving model.
+  New best model found! Dev PPL: 121.16. Saving model.
+  New best model found! Dev PPL: 121.00. Saving model.
+  New best model found! Dev PPL: 120.55. Saving model.
+  No improvement in Dev PPL (120.90 vs best 120.55). Patience: 1/3
+  No improvement in Dev PPL (121.24 vs best 120.55). Patience: 2/3
+  No improvement in Dev PPL (122.10 vs best 120.55). Patience: 3/3
+  Early stopping triggered after 3 epochs without improvement.
+
+Training finished.
+Evaluating best model (from epoch 12, PPL: 120.55) on test set...
+Final Test Perplexity: 111.39
+Dev PPL: 120.55
+Best model saved to bin/best_model_lstm_l2_h650_emb650_drop0.5_lr0.001.pt

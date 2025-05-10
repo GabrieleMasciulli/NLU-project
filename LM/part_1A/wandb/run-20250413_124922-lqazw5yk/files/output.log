@@ -1,3 +1,0 @@
-Starting training for run: zaremba_medium_lstm_l2_h650_emb300_lr1.0_do_emb0.5_do_out0.5_gloveFalse
-Epoch 1 | Train Loss: 6.2499 | Dev PPL: 315.17:   3%|██                                                                              | 1/39 [00:31<20:11, 31.89s/it]
-  New best model found! Dev PPL: 315.17

@@ -1,0 +1,1 @@
+{"learning_rate":0.0078125,"_timestamp":1.7467831169242678e+09,"_runtime":291.372223638,"dev_loss":5.0290071526717215,"test_perplexity":147.02700512377368,"_wandb":{"runtime":291},"dev_perplexity":152.78124891415348,"train_loss":4.496827184519917,"epoch":30,"_step":30}

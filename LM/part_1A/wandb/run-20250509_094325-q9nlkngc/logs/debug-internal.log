@@ -1,0 +1,16 @@
+{"time":"2025-05-09T09:43:25.860191834Z","level":"INFO","msg":"stream: starting","core version":"0.19.9","symlink path":"/home/disi/NLU-project/LM/part_1A/wandb/run-20250509_094325-q9nlkngc/logs/debug-core.log"}
+{"time":"2025-05-09T09:43:26.089819083Z","level":"INFO","msg":"created new stream","id":"q9nlkngc"}
+{"time":"2025-05-09T09:43:26.089855682Z","level":"INFO","msg":"stream: started","id":"q9nlkngc"}
+{"time":"2025-05-09T09:43:26.089871382Z","level":"INFO","msg":"writer: Do: started","stream_id":"q9nlkngc"}
+{"time":"2025-05-09T09:43:26.089882582Z","level":"INFO","msg":"handler: started","stream_id":"q9nlkngc"}
+{"time":"2025-05-09T09:43:26.089903581Z","level":"INFO","msg":"sender: started","stream_id":"q9nlkngc"}
+{"time":"2025-05-09T09:43:26.36841497Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-05-09T09:47:39.301846781Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-05-09T09:47:39.30191188Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-05-09T09:47:40.303359211Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading output.log","runtime_seconds":0.651795974,"progress":"1.3KB/1.3KB"},{"desc":"uploading config.yaml","runtime_seconds":0.477182434,"progress":"802B/802B"}],"total_operations":2}}
+{"time":"2025-05-09T09:47:40.321546978Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-05-09T09:47:40.718712518Z","level":"INFO","msg":"stream: closing","id":"q9nlkngc"}
+{"time":"2025-05-09T09:47:40.718732818Z","level":"INFO","msg":"handler: closed","stream_id":"q9nlkngc"}
+{"time":"2025-05-09T09:47:40.718746118Z","level":"INFO","msg":"writer: Close: closed","stream_id":"q9nlkngc"}
+{"time":"2025-05-09T09:47:40.718753617Z","level":"INFO","msg":"sender: closed","stream_id":"q9nlkngc"}
+{"time":"2025-05-09T09:47:40.718852415Z","level":"INFO","msg":"stream: closed","id":"q9nlkngc"}

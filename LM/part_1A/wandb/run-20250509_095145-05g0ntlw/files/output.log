@@ -1,0 +1,13 @@
+Starting training for run: lstm_l1_h650_lr1.0
+Epoch 3 | LR: 1.0000 | Train Loss: 5.3163 | Dev PPL: 206.98:  10%|███▎                             | 3/30 [01:05<09:52, 21.94s/it]
+  New best model found! Dev PPL: 321.76. Saving model.
+  New best model found! Dev PPL: 248.09. Saving model.
+  New best model found! Dev PPL: 206.98. Saving model.
+
+Training interrupted by user.
+
+Training finished.
+Evaluating best model (from epoch 3, PPL: 206.98) on test set...
+Final Test Perplexity: 199.94
+Dev PPL: 206.98
+Best model saved to bin/best_model_lstm_l1_h650_lr1.0.pt

@@ -1,0 +1,38 @@
+Starting training for run: lstm_l1_h256_lr1.0
+Epoch 30 | LR: 0.0078 | Train Loss: 4.4968 | Dev PPL: 152.78: 100%|████████████████████████████████████████████| 30/30 [04:53<00:00,  9.79s/it]
+  New best model found! Dev PPL: 404.45. Saving model.
+  New best model found! Dev PPL: 303.94. Saving model.
+  New best model found! Dev PPL: 256.34. Saving model.
+  New best model found! Dev PPL: 238.18. Saving model.
+  New best model found! Dev PPL: 214.99. Saving model.
+  New best model found! Dev PPL: 201.30. Saving model.
+  New best model found! Dev PPL: 193.85. Saving model.
+  New best model found! Dev PPL: 187.05. Saving model.
+  New best model found! Dev PPL: 180.45. Saving model.
+  New best model found! Dev PPL: 175.86. Saving model.
+  New best model found! Dev PPL: 174.13. Saving model.
+  New best model found! Dev PPL: 168.75. Saving model.
+  New best model found! Dev PPL: 166.27. Saving model.
+  New best model found! Dev PPL: 164.08. Saving model.
+  New best model found! Dev PPL: 161.25. Saving model.
+  New best model found! Dev PPL: 159.55. Saving model.
+  New best model found! Dev PPL: 158.30. Saving model.
+  No improvement in Dev PPL (158.39 vs best 158.30). Decaying learning rate.
+  New best model found! Dev PPL: 154.28. Saving model.
+  No improvement in Dev PPL (154.29 vs best 154.28). Decaying learning rate.
+  New best model found! Dev PPL: 153.14. Saving model.
+  No improvement in Dev PPL (153.36 vs best 153.14). Decaying learning rate.
+  New best model found! Dev PPL: 152.77. Saving model.
+  No improvement in Dev PPL (152.85 vs best 152.77). Decaying learning rate.
+  No improvement in Dev PPL (152.79 vs best 152.77). Decaying learning rate.
+  No improvement in Dev PPL (152.81 vs best 152.77). Decaying learning rate.
+  New best model found! Dev PPL: 152.77. Saving model.
+  No improvement in Dev PPL (152.77 vs best 152.77). Decaying learning rate.
+  New best model found! Dev PPL: 152.76. Saving model.
+  No improvement in Dev PPL (152.78 vs best 152.76). Decaying learning rate.
+
+Training finished.
+Evaluating best model (from epoch 29, PPL: 152.76) on test set...
+Final Test Perplexity: 147.03
+Dev PPL: 152.76
+Best model saved to bin/best_model_lstm_l1_h256_lr1.0.pt
