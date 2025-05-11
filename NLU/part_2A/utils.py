@@ -5,7 +5,7 @@ import torch
 from torch.utils import data
 
 # global variables
-DEVICE = 'cuda:0'
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"  # used to debug CUDA errors
 PAD_TOKEN = 0
 
