@@ -1,0 +1,7 @@
+Starting training for run: lstm_bidir_drop_l2_h512_emb200_dp_fc0_dp_lstm0
+  1%|█▌                                                                                                                                                           | 2/199 [00:06<11:27,  3.49s/it]
+
+Training interrupted by user.
+
+Training finished.
+No best model found - training might have diverged or stopped very early.

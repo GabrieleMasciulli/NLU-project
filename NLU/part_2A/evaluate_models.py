@@ -1,5 +1,6 @@
 import os
 import torch
+import pickle
 from utils import DEVICE, PAD_TOKEN, IntentsAndSlots, Lang, load_data
 from functions import collate_fn, eval_loop
 from model import ModelIAS
@@ -8,46 +9,18 @@ from collections import Counter
 from sklearn.model_selection import train_test_split
 
 
-def build_lang_and_data():
-    train_raw = load_data(os.path.join("dataset", "ATIS", "train.json"))
+def build_lang_and_data(lang_path):
     test_raw = load_data(os.path.join("dataset", "ATIS", "test.json"))
-
-    portion = 0.10
-    intents = [sample['intent'] for sample in train_raw]
-    count_y = Counter(intents)
-
-    labels = []
-    inputs = []
-    mini_train = []
-
-    for id_y, y in enumerate(intents):
-        if count_y[y] > 1:
-            inputs.append(train_raw[id_y])
-            labels.append(y)
-        else:
-            mini_train.append(train_raw[id_y])
-
-    X_train, X_dev, y_train, y_dev = train_test_split(
-        inputs, labels, test_size=portion, stratify=labels, shuffle=True, random_state=42)
-
-    X_train.extend(mini_train)
-    dev_raw = X_dev
-
-    # Build vocab from train + dev + test, as in main.py
-    corpus = X_train + dev_raw + test_raw
-    words = sum([sample['utterance'].split() for sample in X_train], [])
-    slots = set(sum([line['slots'].split() for line in corpus], []))
-    intents = set([line['intent'] for line in corpus])
-    lang = Lang(words, intents, slots, cutoff=0)
-
+    # Load the specified Lang object
+    with open(lang_path, 'rb') as f:
+        lang = pickle.load(f)
     test_dataset = IntentsAndSlots(test_raw, lang)
     test_loader = DataLoader(test_dataset, batch_size=64,
                              shuffle=False, collate_fn=collate_fn)
     return lang, test_loader
 
-
-def evaluate_model(model_path, hid_size, emb_size, n_layers, fc_dropout, lstm_dropout):
-    lang, test_loader = build_lang_and_data()
+def evaluate_model(model_path, lang_path, hid_size, emb_size, n_layers, fc_dropout, lstm_dropout):
+    lang, test_loader = build_lang_and_data(lang_path)
     out_slots = len(lang.slot2id)
     out_intents = len(lang.intent2id)
     vocab_len = len(lang.word2id)
@@ -79,11 +52,11 @@ def evaluate_model(model_path, hid_size, emb_size, n_layers, fc_dropout, lstm_dr
     print('Intent Accuracy:', intent_test['accuracy'])
     print('-' * 40)
 
-
 if __name__ == "__main__":
     # Model 1: bin/best_model_lstm_bidir.pt
     evaluate_model(
         model_path="bin/best_model_lstm_bidir.pt",
+        lang_path="bin/lang_bidir.pkl",
         hid_size=512,
         emb_size=200,
         n_layers=1,
@@ -91,12 +64,13 @@ if __name__ == "__main__":
         lstm_dropout=0.0
     )
 
-    # Model 2: bin/best_model_lstm_drop.pt
+    # Model 2: bin/best_model_lstm_dropout.pt
     evaluate_model(
-        model_path="bin/best_model_lstm_drop.pt",
+        model_path="bin/best_model_lstm_dropout.pt",
+        lang_path="bin/lang_dropout.pkl",
         hid_size=500,
         emb_size=300,
         n_layers=2,
-        fc_dropout=0.0,
-        lstm_dropout=0.0
+        fc_dropout=0.3,
+        lstm_dropout=0.2
     )

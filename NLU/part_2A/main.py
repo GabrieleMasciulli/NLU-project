@@ -12,6 +12,7 @@ from model import ModelIAS
 import numpy as np
 from sklearn.model_selection import train_test_split
 import torch
+import pickle
 
 
 def main(
@@ -215,6 +216,10 @@ def main(
         torch.save(best_model.state_dict(), model_save_path)
         print(f"Best model saved to {model_save_path}")
 
+        # Save the Lang object
+        with open('bin/lang_bidir.pkl', 'wb') as f:
+            pickle.dump(lang, f)
+
     else:
         print('No best model found - training might have diverged or stopped very early.')
 
@@ -223,19 +228,19 @@ def main(
 
 
 if __name__ == "__main__":
-    hid_size = 500
-    emb_size = 300
+    hid_size = 512
+    emb_size = 200
     lr = 0.0001
     clip = 5.0
-    n_layers = 2
+    n_layers = 1
     n_epochs = 200
     patience = 5
-    fc_dropout = 0.3
-    lstm_dropout = 0.2
+    fc_dropout = 0
+    lstm_dropout = 0
     batch_size_train = 128
     batch_size_eval = 64
     wandb_project_name = "NLU-project-part-2A"
-    wandb_group_prefix = "bidir-lstm-dropout-l2-h500"
+    wandb_group_prefix = "sequential_sweep_ias_bidir"
 
     # --- Login to W&B --- #
     try:

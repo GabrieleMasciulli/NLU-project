@@ -1,0 +1,16 @@
+{"time":"2025-05-11T13:08:36.525941239Z","level":"INFO","msg":"stream: starting","core version":"0.19.9","symlink path":"/home/disi/NLU-project/NLU/part_2A/wandb/run-20250511_130836-jmm0dj7f/logs/debug-core.log"}
+{"time":"2025-05-11T13:08:36.813737455Z","level":"INFO","msg":"created new stream","id":"jmm0dj7f"}
+{"time":"2025-05-11T13:08:36.813785253Z","level":"INFO","msg":"stream: started","id":"jmm0dj7f"}
+{"time":"2025-05-11T13:08:36.813812652Z","level":"INFO","msg":"handler: started","stream_id":"jmm0dj7f"}
+{"time":"2025-05-11T13:08:36.813836452Z","level":"INFO","msg":"sender: started","stream_id":"jmm0dj7f"}
+{"time":"2025-05-11T13:08:36.813850051Z","level":"INFO","msg":"writer: Do: started","stream_id":"jmm0dj7f"}
+{"time":"2025-05-11T13:08:37.038294847Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-05-11T13:10:42.05309083Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-05-11T13:10:42.053170328Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-05-11T13:10:43.055346355Z","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading wandb-summary.json","runtime_seconds":0.484746894,"progress":"327B/327B"},{"desc":"uploading config.yaml","runtime_seconds":0.300662488,"progress":"916B/916B"}],"total_operations":2}}
+{"time":"2025-05-11T13:10:43.234581974Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-05-11T13:10:43.420049349Z","level":"INFO","msg":"stream: closing","id":"jmm0dj7f"}
+{"time":"2025-05-11T13:10:43.420071548Z","level":"INFO","msg":"handler: closed","stream_id":"jmm0dj7f"}
+{"time":"2025-05-11T13:10:43.420090948Z","level":"INFO","msg":"sender: closed","stream_id":"jmm0dj7f"}
+{"time":"2025-05-11T13:10:43.420085448Z","level":"INFO","msg":"writer: Close: closed","stream_id":"jmm0dj7f"}
+{"time":"2025-05-11T13:10:43.420141946Z","level":"INFO","msg":"stream: closed","id":"jmm0dj7f"}

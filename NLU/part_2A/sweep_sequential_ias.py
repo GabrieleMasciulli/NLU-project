@@ -83,9 +83,13 @@ default_n_layers = n_layers_list[0]
 for hid_size_candidate in hid_sizes:
     current_f1 = run_training_for_sweep(
         hid_size_candidate, default_emb_size, default_n_layers, results_cache)
-    print(
-        f"  hid_size={hid_size_candidate}, emb_size={default_emb_size}, n_layers={default_n_layers} -> Dev F1: {current_f1:.4f}")
-    if current_f1 > best_f1_for_hid:
+    if current_f1 is not None:
+        print(
+            f"  hid_size={hid_size_candidate}, emb_size={default_emb_size}, n_layers={default_n_layers} -> Dev F1: {current_f1:.4f}")
+    else:
+        print(
+            f"  hid_size={hid_size_candidate}, emb_size={default_emb_size}, n_layers={default_n_layers} -> Dev F1: None (training failed or returned None)")
+    if current_f1 is not None and current_f1 > best_f1_for_hid:
         best_f1_for_hid = current_f1
         best_hid_size = hid_size_candidate
 print(f"Best hid_size: {best_hid_size} with Dev F1: {best_f1_for_hid:.4f}")
@@ -98,9 +102,13 @@ best_f1_for_emb = -1.0
 for emb_size_candidate in emb_sizes:
     current_f1 = run_training_for_sweep(
         best_hid_size, emb_size_candidate, default_n_layers, results_cache)
-    print(
-        f"  hid_size={best_hid_size}, emb_size={emb_size_candidate}, n_layers={default_n_layers} -> Dev F1: {current_f1:.4f}")
-    if current_f1 > best_f1_for_emb:
+    if current_f1 is not None:
+        print(
+            f"  hid_size={best_hid_size}, emb_size={emb_size_candidate}, n_layers={default_n_layers} -> Dev F1: {current_f1:.4f}")
+    else:
+        print(
+            f"  hid_size={best_hid_size}, emb_size={emb_size_candidate}, n_layers={default_n_layers} -> Dev F1: None (training failed or returned None)")
+    if current_f1 is not None and current_f1 > best_f1_for_emb:
         best_f1_for_emb = current_f1
         best_emb_size = emb_size_candidate
 print(
@@ -113,9 +121,13 @@ final_best_f1 = -1.0
 for n_layers_candidate in n_layers_list:
     current_f1 = run_training_for_sweep(
         best_hid_size, best_emb_size, n_layers_candidate, results_cache)
-    print(
-        f"  hid_size={best_hid_size}, emb_size={best_emb_size}, n_layers={n_layers_candidate} -> Dev F1: {current_f1:.4f}")
-    if current_f1 > final_best_f1:
+    if current_f1 is not None:
+        print(
+            f"  hid_size={best_hid_size}, emb_size={best_emb_size}, n_layers={n_layers_candidate} -> Dev F1: {current_f1:.4f}")
+    else:
+        print(
+            f"  hid_size={best_hid_size}, emb_size={best_emb_size}, n_layers={n_layers_candidate} -> Dev F1: None (training failed or returned None)")
+    if current_f1 is not None and current_f1 > final_best_f1:
         final_best_f1 = current_f1
         best_n_layers = n_layers_candidate
 print(f"Best n_layers: {best_n_layers} with Dev F1: {final_best_f1:.4f} (using hid_size={best_hid_size}, emb_size={best_emb_size})")

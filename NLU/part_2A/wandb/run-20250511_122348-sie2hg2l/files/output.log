@@ -1,0 +1,42 @@
+Starting training for run: lstm_bidir_drop_l1_h512_emb200_dp_fc0.0_dp_lstm0.0
+ 85%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌                        | 84/99 [01:24<00:14,  1.02it/s]
+Epoch 5 - Train loss: 1.1540978636060442 - Dev loss: 1.1227039247751236
+  New best model found! F1: 0.67. Saving model.
+Epoch 10 - Train loss: 0.48252568415233066 - Dev loss: 0.5654890164732933
+  New best model found! F1: 0.84. Saving model.
+Epoch 15 - Train loss: 0.2514506595475333 - Dev loss: 0.36639824137091637
+  New best model found! F1: 0.89. Saving model.
+Epoch 20 - Train loss: 0.153255409853799 - Dev loss: 0.2824767008423805
+  New best model found! F1: 0.91. Saving model.
+Epoch 25 - Train loss: 0.10056792497634888 - Dev loss: 0.2430897206068039
+  New best model found! F1: 0.93. Saving model.
+Epoch 30 - Train loss: 0.06919200878058161 - Dev loss: 0.21698313392698765
+  New best model found! F1: 0.95. Saving model.
+Epoch 35 - Train loss: 0.048581166778291975 - Dev loss: 0.19881897047162056
+  New best model found! F1: 0.95. Saving model.
+Epoch 40 - Train loss: 0.034986729866692 - Dev loss: 0.18556316196918488
+  New best model found! F1: 0.96. Saving model.
+Epoch 45 - Train loss: 0.025553278518574578 - Dev loss: 0.1819184049963951
+  New best model found! F1: 0.96. Saving model.
+Epoch 50 - Train loss: 0.019025911816528865 - Dev loss: 0.17642118223011494
+  New best model found! F1: 0.96. Saving model.
+Epoch 55 - Train loss: 0.01448159712765898 - Dev loss: 0.17328032106161118
+Epoch 60 - Train loss: 0.011255350975053651 - Dev loss: 0.17066861130297184
+  New best model found! F1: 0.96. Saving model.
+Epoch 65 - Train loss: 0.008927679660597017 - Dev loss: 0.1681954124942422
+  New best model found! F1: 0.96. Saving model.
+Epoch 70 - Train loss: 0.00718586766826255 - Dev loss: 0.1664569629356265
+  New best model found! F1: 0.96. Saving model.
+Epoch 75 - Train loss: 0.005916680009769542 - Dev loss: 0.16511308960616589
+  New best model found! F1: 0.97. Saving model.
+Epoch 80 - Train loss: 0.004922910699886935 - Dev loss: 0.16320145782083273
+  New best model found! F1: 0.97. Saving model.
+Epoch 85 - Train loss: 0.004127416779686297 - Dev loss: 0.16198777593672276
+Epoch 90 - Train loss: 0.0035018864752990857 - Dev loss: 0.16286247037351131
+Epoch 95 - Train loss: 0.0029997273880456175 - Dev loss: 0.16302465088665485
+  New best model found! F1: 0.97. Saving model.
+
+Training finished.
+Slot F1:  0.9148409893992934
+Intent Accuracy: 0.9406494960806271
+Best model saved to bin/best_model_lstm_bidir_drop_l1_h512_emb200_dp_fc0.0_dp_lstm0.0.pt
