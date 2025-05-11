@@ -93,6 +93,14 @@ def main(
     lang = Lang(intents_unique, slots_unique)
     print(f"Intents: {len(lang.intent2id)}, Slots: {len(lang.slot2id)}")
 
+    # --- Save Lang object ---
+    import pickle
+    os.makedirs('bin', exist_ok=True)
+    lang_save_path = os.path.join('bin', 'lang.pkl')
+    with open(lang_save_path, 'wb') as f:
+        pickle.dump(lang, f)
+    print(f"Lang object saved to {lang_save_path}")
+
     # --- Create Dataset objects (Pass tokenizer) ---
     # Tokenizer is already initialized in utils.py
     train_dataset = IntentsAndSlots(train_raw, lang, tokenizer)
@@ -246,21 +254,16 @@ def main(
 
 
 if __name__ == "__main__":
-    dropout_values = [0.15, 0.2]
-
-    for dropout_val in dropout_values:
-        print(f"\n--- Starting Run with Dropout: {dropout_val} ---")
-        main(
-            bert_model_name=BERT_MODEL_NAME,
-            dropout_prob=dropout_val,
-            lr=5e-5,
-            n_epochs=25,
-            patience=3,
-            warmup_steps=0,
-            batch_size_train=32,
-            batch_size_eval=64,
-            wandb_project="NLU-project-part-2B",
-            wandb_group_prefix="joint-bert-atis-CTRAN-dropout-sweep",
-            data_dir=os.path.join("dataset", "ATIS")
-        )
-        print(f"--- Finished Run with Dropout: {dropout_val} ---")
+    main(
+        bert_model_name=BERT_MODEL_NAME,
+        dropout_prob=0.1,
+        lr=5e-5,
+        n_epochs=25,
+        patience=3,
+        warmup_steps=0,
+        batch_size_train=32,
+        batch_size_eval=64,
+        wandb_project="NLU-project-part-2B",
+        wandb_group_prefix="joint-bert-atis-CTRAN",
+        data_dir=os.path.join("dataset", "ATIS")
+    )
