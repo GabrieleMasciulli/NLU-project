@@ -80,8 +80,7 @@ class PennTreeBank (data.Dataset):
                     tmp_seq.append(lang.word2id[x])
                 else:
                     print('OOV found!')
-                    # PennTreeBank doesn't have OOV but "Trust is good, control is better!"
-                    print('You have to deal with that')
+                    # PennTreeBank doesn't have OOVs
                     break
             res.append(tmp_seq)
         return res
@@ -127,9 +126,6 @@ def load_glove_embeddings(path, word2id, emb_dim):
             else:
                 print(
                     f"Warning: Dimension mismatch for word '{word}'. Expected {emb_dim}, got {len(embedding_vector)}. Skipping.")
-        # Handle special tokens like <pad> or <eos> if they are not in GloVe
-        # They will retain their random initialization, which is often fine.
-        # Alternatively, you could initialize them to zeros or averages.
 
     print(f"Loaded {len(embeddings_index)} word vectors.")
     print(

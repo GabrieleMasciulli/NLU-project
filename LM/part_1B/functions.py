@@ -29,10 +29,7 @@ def collate_fn(data, pad_token):
     for key in data[0].keys():
         new_item[key] = [d[key] for d in data]
 
-    source, _ = merge(new_item["source"]
-
-
-                      )
+    source, _ = merge(new_item["source"])
     target, lengths = merge(new_item["target"])
 
     new_item["source"] = source.to(DEVICE)

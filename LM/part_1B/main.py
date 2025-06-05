@@ -63,7 +63,6 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                          pretrained_embeddings=glove_embeddings
                          ).to(DEVICE)
 
-    # Apply Zaremba weight initialization
     init_weights(model)
 
     # --- Optimizer and Loss --- #

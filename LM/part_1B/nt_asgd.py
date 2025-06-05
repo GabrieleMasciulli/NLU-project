@@ -56,8 +56,9 @@ class NTAvSGD(Optimizer):
                     state['T'] = state['step']
                     # Initialize ax only if it doesn't exist or needs re-initialization
                     if state.get('ax') is None:
-                         state['ax'] = torch.zeros_like(p.data)
-                    state['ax'].copy_(p.data) # Copy current params to start average
+                        state['ax'] = torch.zeros_like(p.data)
+                    # Copy current params to start average
+                    state['ax'].copy_(p.data)
 
     def is_averaging(self):
         """
@@ -67,7 +68,7 @@ class NTAvSGD(Optimizer):
         # Check the state of the first parameter in the first group is sufficient
         # as averaging starts for all parameters simultaneously.
         if not self.param_groups:
-            return False # No parameters to optimize
+            return False  # No parameters to optimize
         first_param = self.param_groups[0]['params'][0]
         state = self.state[first_param]
         return state.get('T') is not None
@@ -80,7 +81,8 @@ class NTAvSGD(Optimizer):
         Optionally accepts a model instance to swap its parameters instead of the optimizer's default ones.
         """
         original_params = {}
-        target_model = model_override if model_override is not None else None # Use override if provided
+        # Use override if provided
+        target_model = model_override if model_override is not None else None
 
         # Determine the parameters to swap
         params_to_swap = []
@@ -99,7 +101,8 @@ class NTAvSGD(Optimizer):
                 continue
 
             state = self.state[p]
-            if state.get('T') is not None and state.get('ax') is not None:  # Only swap if averaging and ax exists
+            # Only swap if averaging and ax exists
+            if state.get('T') is not None and state.get('ax') is not None:
                 # Store original param before overwriting
                 original_params[p] = p.data.clone()
                 # Swap current param with averaged param
@@ -107,13 +110,11 @@ class NTAvSGD(Optimizer):
             # else:
                 # print(f"Debug: Not swapping param. T={state.get('T')}, ax_exists={state.get('ax') is not None}")
 
-
         # If no parameters were swapped (e.g., averaging not started or ax not ready), return empty dict
         if not original_params and self.is_averaging():
-             print("Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.")
+            print("Warning: swap_parameters called while averaging, but no parameters were swapped. 'ax' might not be initialized yet.")
 
         return original_params
-
 
     def load_original_params(self, original_params, model_override=None):
         """
@@ -124,14 +125,13 @@ class NTAvSGD(Optimizer):
         target_model = model_override if model_override is not None else None
 
         # Determine the parameters to restore (must match those swapped)
-        params_to_restore = original_params.keys() # Use keys from the dict passed in
+        params_to_restore = original_params.keys()  # Use keys from the dict passed in
 
         for p in params_to_restore:
             if p in original_params:
-                 p.data.copy_(original_params[p])
+                p.data.copy_(original_params[p])
             # else: # This case should ideally not happen if original_params is correct
             #     print(f"Warning: Parameter {p} found in model but not in original_params dict during restore.")
-
 
     @torch.no_grad()
     def step(self, closure=None):

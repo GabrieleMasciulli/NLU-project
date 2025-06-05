@@ -76,8 +76,7 @@ class PennTreeBank (data.Dataset):
                     tmp_seq.append(lang.word2id[x])
                 else:
                     print('OOV found!')
-                    # PennTreeBank doesn't have OOV but "Trust is good, control is better!"
-                    print('You have to deal with that')
+                    # PennTreeBank doesn't have OOVs
                     break
             res.append(tmp_seq)
         return res

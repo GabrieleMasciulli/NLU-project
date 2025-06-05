@@ -1,12 +1,10 @@
 import os
 import torch
 import pickle
-from utils import DEVICE, PAD_TOKEN, IntentsAndSlots, Lang, load_data
+from utils import DEVICE, PAD_TOKEN, IntentsAndSlots, load_data
 from functions import collate_fn, eval_loop
 from model import ModelIAS
 from torch.utils.data import DataLoader
-from collections import Counter
-from sklearn.model_selection import train_test_split
 
 
 def build_lang_and_data(lang_path):
@@ -18,6 +16,7 @@ def build_lang_and_data(lang_path):
     test_loader = DataLoader(test_dataset, batch_size=64,
                              shuffle=False, collate_fn=collate_fn)
     return lang, test_loader
+
 
 def evaluate_model(model_path, lang_path, hid_size, emb_size, n_layers, fc_dropout, lstm_dropout):
     lang, test_loader = build_lang_and_data(lang_path)
@@ -51,6 +50,7 @@ def evaluate_model(model_path, lang_path, hid_size, emb_size, n_layers, fc_dropo
     print('Slot F1:', results_test['total']['f'])
     print('Intent Accuracy:', intent_test['accuracy'])
     print('-' * 40)
+
 
 if __name__ == "__main__":
     # Model 1: bin/best_model_lstm_bidir.pt

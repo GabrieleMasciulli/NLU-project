@@ -1,7 +1,4 @@
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from utils import DEVICE
 
 
 class LM_LSTM(nn.Module):

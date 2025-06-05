@@ -68,8 +68,6 @@ def main(hid_size, emb_size, n_layers, lr,
     sampled_epochs = []
     best_ppl = math.inf
     best_model = None
-    lr_decay_factor = 0.5
-    lr_decay_epoch_threshold = 6
 
     pbar = tqdm(range(1, epochs + 1))
 
@@ -102,8 +100,6 @@ def main(hid_size, emb_size, n_layers, lr,
             "epochs": epochs,
             "clip_gradient": clip,
             "n_layers": n_layers,
-            "lr_decay_factor": lr_decay_factor,
-            "lr_decay_epoch_threshold": lr_decay_epoch_threshold,
             "emb_dropout_rate": emb_dropout_rate,
             "lstm_dropout_rate": lstm_dropout_rate,
             "out_dropout_rate": out_dropout_rate

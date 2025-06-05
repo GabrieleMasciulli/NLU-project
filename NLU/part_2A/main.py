@@ -178,7 +178,7 @@ def main(
                     f"Epoch {epoch} - Train loss: {losses_train[-1]} - Dev loss: {losses_dev[-1]}")
 
                 f1 = results_dev['total']['f']
-                # @todo: for decreasing the patience, we could use the average btw slot f1 and intent accuracy
+
                 if f1 > best_f1:
                     best_f1 = f1
                     current_patience = patience  # Reset patience
