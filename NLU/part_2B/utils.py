@@ -8,6 +8,8 @@ BERT_MODEL_NAME = 'bert-base-uncased'
 SLOT_PAD_LABEL_ID = -100
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 PAD_TOKEN = 0  # BERT uses 0 for padding input_ids
+# see `bin/utterance_length_distribution.png` for reference
+BERT_MAXIMUM_SEQUENCE_LENGTH = 52
 
 tokenizer = BertTokenizerFast.from_pretrained(BERT_MODEL_NAME)
 
@@ -77,7 +79,9 @@ class IntentsAndSlots(data.Dataset):
             utterance,
             return_tensors="pt",  # Return PyTorch tensors
             padding='do_not_pad',  # We'll pad in collate_fn
-            truncation=True,  # Truncate long sequences
+            # No truncation needed as maximum length was selected based on dataset statistics
+            truncation=False,
+            max_length=BERT_MAXIMUM_SEQUENCE_LENGTH,
             return_offsets_mapping=True  # Needed for label alignment
         )
 
