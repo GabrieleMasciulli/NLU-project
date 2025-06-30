@@ -41,6 +41,23 @@ class Lang:
 
 class PennTreeBank (data.Dataset):
     # Mandatory methods are __init__, __len__ and __getitem__
+
+    """
+    The init method builds the actual split of source and target sequences:
+    - Starting from the list of sentences in the corpus, it takes each sentence
+    (of length n) and uses the first n-1 tokens as source and the last n-1
+    tokens.
+    - The idea is to predict the next token given the previous n-1 tokens:
+        source = ["<s>", "I", "am", "a", "student", "."]
+        target = ["I", "am", "a", "student", ".", "<eos>"]
+        then, the training examples from this will be:
+            ["<s>"] -> "I"
+            ["<s>", "I"] -> "am"
+            ...
+            ["<s>", "I", "am", "a", "student", "."] -> "<eos>"
+        this split will be actually done into the collate_fn
+    """
+
     def __init__(self, corpus, lang):
         self.source = []
         self.target = []

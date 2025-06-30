@@ -17,11 +17,14 @@ class LM_LSTM(nn.Module):
         # Output layer (fully connected)
         self.output = nn.Linear(hidden_size, vocab_len)
 
-    def forward(self, input_sequence):
-        emb = self.embedding(input_sequence)
+    def forward(self, input_sequences):
+        emb = self.embedding(input_sequences)
 
         rnn_out, _ = self.lstm(emb)
 
+        # Permute dimensions for cross entropy loss:
+        # from (batch_size X seq_len X vocab_len)
+        # to (batch_size X vocab_len X seq_len)
         output = self.output(rnn_out).permute(0, 2, 1)
         return output
 
