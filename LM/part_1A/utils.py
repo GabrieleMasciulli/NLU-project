@@ -50,7 +50,6 @@ class PennTreeBank (data.Dataset):
             self.source.append(sentence.split()[0:-1])
             # We get from the second token till the last token
             self.target.append(sentence.split()[1:])
-            # See example in section 6.2
 
         self.source_ids = self.mapping_seq(self.source, lang)
         self.target_ids = self.mapping_seq(self.target, lang)
@@ -75,8 +74,7 @@ class PennTreeBank (data.Dataset):
                 if x in lang.word2id:
                     tmp_seq.append(lang.word2id[x])
                 else:
-                    print('OOV found!')
-                    # PennTreeBank doesn't have OOVs
+                    tmp_seq.append(lang.word2id["<unk>"])
                     break
             res.append(tmp_seq)
         return res

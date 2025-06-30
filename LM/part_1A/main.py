@@ -27,7 +27,7 @@ def main(hid_size, emb_size, n_layers, lr,
     dev_raw = read_file("dataset/PennTreeBank/ptb.valid.txt")
     test_raw = read_file("dataset/PennTreeBank/ptb.test.txt")
 
-    lang = Lang(train_raw, ["<pad>", "<eos>"])
+    lang = Lang(train_raw, ["<pad>", "<eos>", "<unk>"])
     vocab_len = len(lang.word2id)
     pad_index = lang.word2id["<pad>"]
 
