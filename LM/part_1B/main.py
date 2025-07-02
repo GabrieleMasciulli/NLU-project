@@ -217,15 +217,17 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
             # Check NT-AvSGD trigger condition
             if not asgd_triggered and val_step > nonmono:
                 # Check if current validation is worse than minimum from n+1 steps ago
-                historical_min = min(
-                    validation_logs[:-nonmono-1]) if len(validation_logs) > nonmono else float('inf')
+                if len(validation_logs) > nonmono + 1:
+                    historical_min = min(validation_logs[:-nonmono-1])
+                else:
+                    historical_min = float('inf')
 
                 if ppl_dev > historical_min:
                     print(
                         f"NT-AvSGD trigger: Current PPL ({ppl_dev:.2f}) > Historical min ({historical_min:.2f})")
                     print(f"Switching to NT-ASGD optimizer at epoch {epoch}")
 
-                    # Switch optimizer keeping the same learning rate
+                    # Switch optimizer
                     current_optimizer_lr = optimizer.param_groups[0]['lr']
                     asgd_optimizer_params['lr'] = current_optimizer_lr
                     optimizer = NTAvSGD(model.parameters(),
