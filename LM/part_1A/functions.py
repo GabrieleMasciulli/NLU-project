@@ -86,7 +86,7 @@ def init_weights(mat):
             for name, param in m.named_parameters():
                 if 'weight_ih' in name:
                     for idx in range(4):
-                        mul = param.shape[0]//4
+                        mul = param.shape[0]//4  # one per gate
                         torch.nn.init.xavier_uniform_(
                             param[idx*mul:(idx+1)*mul])
                 elif 'weight_hh' in name:

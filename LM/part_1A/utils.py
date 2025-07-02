@@ -46,7 +46,7 @@ class PennTreeBank (data.Dataset):
     The init method builds the actual split of source and target sequences:
     - Starting from the list of sentences in the corpus, it takes each sentence
     (of length n) and uses the first n-1 tokens as source and the last n-1
-    tokens.
+    tokens as target.
     - The idea is to predict the next token given the previous n-1 tokens:
         source = ["<s>", "I", "am", "a", "student", "."]
         target = ["I", "am", "a", "student", ".", "<eos>"]

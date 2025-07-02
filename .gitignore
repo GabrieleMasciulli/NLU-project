@@ -44,3 +44,5 @@ Thumbs.db
 *.pdf
 
 bin/
+
+glove/

@@ -46,7 +46,7 @@ def evaluate_models():
     train_raw = read_file(train_file_path)
     test_raw = read_file(test_file_path)
 
-    lang = Lang(train_raw, ["<pad>", "<eos>"])
+    lang = Lang(train_raw, ["<pad>", "<eos>", "<unk>"])
     vocab_len = len(lang.word2id)
     pad_index = lang.word2id["<pad>"]
 
