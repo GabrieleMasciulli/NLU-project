@@ -54,6 +54,15 @@ def evaluate_models():
             "use_glove": False,
         },
         {
+            "name": "LSTM_NT-AvSGD (400emb, 1150hid, 3L)",
+            "path": "bin/best_model_nt-avsgd.pt",
+            "type": "LSTM_VarDrop",
+            "emb_size": 400,
+            "hidden_size": 1150,
+            "n_layers": 3,
+            "use_glove": False,
+        },
+        {
             "name": "LSTM_VarDrop_GloVe (300emb, 1150hid, 3L)",
             "path": "bin/best_model_glove.pt",
             "type": "LSTM_VarDrop",

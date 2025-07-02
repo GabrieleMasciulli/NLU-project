@@ -8,29 +8,25 @@ class NTAvSGD(Optimizer):
 
     Based on the paper 'Regularizing and Optimizing LSTM Language Models'.
     This implementation assumes the trigger condition (based on validation performance)
-    is checked externally in the training loop. The optimizer performs SGD steps
-    until `start_averaging()` is called, after which it maintains and updates
+    is checked externally in the training loop. The optimizer performs
+    traditional SGD steps until `start_averaging()` is called, after which it maintains and updates
     an average of the parameters.
 
     Args:
-        params (iterable): iterable of parameters to optimize or dicts defining
+        - params (iterable): iterable of parameters to optimize or dicts defining
             parameter groups
-        lr (float, optional): learning rate (default: 1e-2)
-        n (int, optional): non-monotonic interval for the external trigger condition (default: 5)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        t0 (int, optional): point at which to start averaging (only relevant if averaging is started manually, default: 0)
+        - lr (float, optional): learning rate (default: 1e-2)
+        - weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
     """
 
-    def __init__(self, params, lr=1e-2, n=5, weight_decay=0, t0=0):
+    def __init__(self, params, lr=1e-2, weight_decay=0):
         if not 0.0 <= lr:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if not 0.0 <= weight_decay:
             raise ValueError(
                 "Invalid weight_decay value: {}".format(weight_decay))
-        if not 0 <= n:
-            raise ValueError("Invalid non-monotonic interval n: {}".format(n))
 
-        defaults = dict(lr=lr, n=n, weight_decay=weight_decay, t0=t0)
+        defaults = dict(lr=lr, weight_decay=weight_decay)
         super(NTAvSGD, self).__init__(params, defaults)
 
         # State initialization (will be populated in the first step)
@@ -43,8 +39,9 @@ class NTAvSGD(Optimizer):
 
     def start_averaging(self):
         """
-        Call this method from the training loop when the trigger condition is met.
-        Initializes the averaged parameters `ax` with the current parameters
+        This method will be called from the training loop when the trigger
+        condition is met.
+        It initializes the averaged parameters `ax` with the current parameters
         and records the current step `k` as the trigger point `T`.
         """
         for group in self.param_groups:
@@ -173,11 +170,9 @@ class NTAvSGD(Optimizer):
                         raise RuntimeError(
                             "Optimizer averaging triggered but 'ax' is not initialized.")
                     # Update the average using the formula: ax_k = ax_{k-1} + (w_k - ax_{k-1}) / (k - T + 1)
-                    # Avoid division by zero if T == k (first step after trigger)
-                    if k > T:
+                    if k >= T:
                         state['ax'].add_(p.data.sub(
                             state['ax']).div(k - T + 1))
-                    # If k == T, ax was just initialized to p.data, so no update needed yet.
 
         return loss
 
@@ -191,7 +186,7 @@ class NTAvSGD(Optimizer):
                 if state.get('ax') is not None:
                     state['ax'] = state['ax'].cpu()
         state_dict['param_groups'] = copy.deepcopy(
-            self.param_groups)  # Ensure defaults like 'n' are saved
+            self.param_groups)  # Ensure defaults are saved
         return state_dict
 
     def load_state_dict(self, state_dict):

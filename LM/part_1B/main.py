@@ -68,7 +68,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
     # --- Optimizer and Loss --- #
     # (Initial optimizer is SGD)
     optimizer = optim.SGD(model.parameters(), lr=lr, weight_decay=weight_decay)
-    asgd_optimizer_params = {'lr': lr, 't0': 0, 'weight_decay': weight_decay}
+    asgd_optimizer_params = {'lr': lr, 'weight_decay': weight_decay}
     asgd_triggered = False
 
     criterion_train = nn.CrossEntropyLoss(ignore_index=pad_index)
@@ -82,6 +82,10 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
     best_ppl = math.inf
     best_model_state = None
     current_patience = 0
+
+    # validation logging for NT-AvSGD trigger
+    validation_logs = []  # stores validation perplexities
+    val_step = 0  # counter for validation steps
 
     pbar = tqdm(range(1, epochs + 1))
 
@@ -152,6 +156,10 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                 optimizer.load_original_params(original_params_dev, model)
             # --- End Evaluation --- #
 
+            # Add validation perplexity to logs for NT-AvSGD trigger
+            validation_logs.append(ppl_dev)
+            val_step += 1
+
             # Process and log metrics
             avg_train_loss = epoch_train_loss.item() if isinstance(
                 epoch_train_loss, torch.Tensor) else epoch_train_loss
@@ -206,30 +214,44 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                 print(
                     f"  No improvement in Dev PPL ({ppl_dev:.2f} vs best {best_ppl:.2f}). Patience: {current_patience}/{patience}")
 
-                if not asgd_triggered and current_patience == nonmono:
-                    for param_group in optimizer.param_groups:
-                        old_lr = param_group['lr']
-                        param_group['lr'] *= 0.5
-                        new_lr = param_group['lr']
-                        print(
-                            f"  Halving learning rate from {old_lr:.4f} to {new_lr:.4f} as nonmono patience ({current_patience}/{nonmono}) reached before ASGD switch.")
+            # Check NT-AvSGD trigger condition
+            if not asgd_triggered and val_step > nonmono:
+                # Check if current validation is worse than minimum from n+1 steps ago
+                historical_min = min(
+                    validation_logs[:-nonmono-1]) if len(validation_logs) > nonmono else float('inf')
 
-            if not asgd_triggered and current_patience >= nonmono:
-                print(
-                    f"Switching to NT-ASGD optimizer at epoch {epoch} after {nonmono} epochs of no improvement on dev PPL.")
-                current_optimizer_lr = optimizer.param_groups[0]['lr']
-                asgd_optimizer_params['lr'] = current_optimizer_lr
-                optimizer = NTAvSGD(model.parameters(), **
-                                    asgd_optimizer_params)
-                optimizer.start_averaging()  # Explicitly start the averaging process
-                asgd_triggered = True
-                print(
-                    f"  Optimizer switched to NTAvSGD with LR: {current_optimizer_lr:.4f} and averaging started.")
+                if ppl_dev > historical_min:
+                    print(
+                        f"NT-AvSGD trigger: Current PPL ({ppl_dev:.2f}) > Historical min ({historical_min:.2f})")
+                    print(f"Switching to NT-ASGD optimizer at epoch {epoch}")
 
-                run.log({"optimizer_switched_to_ASGD_epoch": epoch,
-                        "asgd_start_lr": current_optimizer_lr})
-                run.config.update(
-                    {"optimizer_active": "NT_ASGD"}, allow_val_change=True)
+                    # Switch optimizer keeping the same learning rate
+                    current_optimizer_lr = optimizer.param_groups[0]['lr']
+                    asgd_optimizer_params['lr'] = current_optimizer_lr
+                    optimizer = NTAvSGD(model.parameters(),
+                                        **asgd_optimizer_params)
+                    optimizer.start_averaging()  # Explicitly start the averaging process
+                    asgd_triggered = True
+                    print(
+                        f"  Optimizer switched to NTAvSGD with LR: {current_optimizer_lr:.4f} and averaging started.")
+
+                    # Reset patience counter after switching
+                    current_patience = 0
+
+                    run.log({"optimizer_switched_to_ASGD_epoch": epoch,
+                            "asgd_start_lr": current_optimizer_lr})
+                    run.config.update(
+                        {"optimizer_active": "NT_ASGD"}, allow_val_change=True)
+
+            # Learning rate reduction after NT-AvSGD is active
+            if asgd_triggered and current_patience >= 3:  # Reduce LR after 3 epochs of no improvement with NT-AvSGD
+                for param_group in optimizer.param_groups:
+                    old_lr = param_group['lr']
+                    param_group['lr'] *= 0.5
+                    new_lr = param_group['lr']
+                    print(
+                        f"  Reducing NT-AvSGD learning rate from {old_lr:.4f} to {new_lr:.4f} after {current_patience} epochs of no improvement.")
+                current_patience = 0  # Reset patience after LR reduction
 
             # Check for early stopping
             if current_patience >= patience:
@@ -287,7 +309,7 @@ if __name__ == "__main__":
     clip = 0.25
     weight_decay = 1.2e-6
     patience = 10
-    nonmono = 5
+    nonmono = 5  # represents the number of validation epochs to wait before deciding that the tracked metric has stagnated
     wandb_project = "NLU-project-part-1B"
     wandb_group_prefix = "LSTM-weight-tying-VarDrop-NT-AvSGD-"
 
