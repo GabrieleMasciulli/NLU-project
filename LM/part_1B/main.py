@@ -153,7 +153,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
             if original_params_dev is not None:  # Swap back if params were changed for dev eval
                 print(
                     f"  Epoch {epoch}: Swapping back to original weights after dev evaluation.")
-                optimizer.load_original_params(original_params_dev, model)
+                optimizer.load_original_params(original_params_dev)
             # --- End Evaluation --- #
 
             # Add validation perplexity to logs for NT-AvSGD trigger
@@ -195,7 +195,7 @@ def main(hid_size, emb_size, n_layers, lr, emb_dropout_rate, out_dropout_rate,
                         model.state_dict())  # Save averaged weights
                     # Swap back for continued training
                     optimizer.load_original_params(
-                        original_params_for_saving, model)
+                        original_params_for_saving)
                 else:
                     print(
                         f"  Epoch {epoch}: New best model found with SGD weights. Dev PPL: {best_ppl:.2f}.")

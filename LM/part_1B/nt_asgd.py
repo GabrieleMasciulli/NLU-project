@@ -1,6 +1,5 @@
 import torch
 from torch.optim.optimizer import Optimizer
-import copy
 
 
 class NTAvSGD(Optimizer):
@@ -13,8 +12,7 @@ class NTAvSGD(Optimizer):
     an average of the parameters.
 
     Args:
-        - params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
+        - params (iterable): iterable of parameters to optimize
         - lr (float, optional): learning rate (default: 1e-2)
         - weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
     """
@@ -47,11 +45,11 @@ class NTAvSGD(Optimizer):
         for group in self.param_groups:
             for p in group['params']:
                 state = self.state[p]
-                if state['T'] is None:  # Only trigger once
+                if state['T'] is None:  # Ensures this is the first and only time averaging is triggered
                     print(
                         f"NTAvSGD: Starting averaging at step {state['step']}")
                     state['T'] = state['step']
-                    # Initialize ax only if it doesn't exist or needs re-initialization
+                    # Initialize ax
                     if state.get('ax') is None:
                         state['ax'] = torch.zeros_like(p.data)
                     # Copy current params to start average
@@ -62,50 +60,35 @@ class NTAvSGD(Optimizer):
         Checks if the optimizer is currently in the averaging phase.
         Returns True if averaging has been triggered (state['T'] is not None), False otherwise.
         """
-        # Check the state of the first parameter in the first group is sufficient
-        # as averaging starts for all parameters simultaneously.
         if not self.param_groups:
             return False  # No parameters to optimize
         first_param = self.param_groups[0]['params'][0]
         state = self.state[first_param]
         return state.get('T') is not None
 
-    def swap_parameters(self, model_override=None):
+    def swap_parameters(self, model):
         """
         Swaps the current parameters with the averaged parameters `ax`.
         Should be called before evaluation if averaging has started.
         Returns the original parameters for swapping back later.
-        Optionally accepts a model instance to swap its parameters instead of the optimizer's default ones.
+        Accepts a model instance to swap its parameters with.
         """
         original_params = {}
-        # Use override if provided
-        target_model = model_override if model_override is not None else None
-
-        # Determine the parameters to swap
-        params_to_swap = []
-        if target_model:
-            params_to_swap = target_model.parameters()
-        else:
-            # Default: use parameters from the optimizer's param_groups
-            for group in self.param_groups:
-                params_to_swap.extend(group['params'])
+        params_to_swap = model.parameters()
 
         for p in params_to_swap:
             if p not in self.state:
-                # If using model_override, some params might not be in optimizer state (e.g., frozen layers)
+                # If parameter not in optimizer state (e.g., frozen layers)
                 # Or if the state wasn't properly initialized.
-                # print(f"Warning: Parameter not found in optimizer state during swap. Skipping.")
                 continue
 
             state = self.state[p]
             # Only swap if averaging and ax exists
-            if state.get('T') is not None and state.get('ax') is not None:
+            if self.is_averaging() and state.get('ax') is not None:
                 # Store original param before overwriting
                 original_params[p] = p.data.clone()
                 # Swap current param with averaged param
                 p.data.copy_(state['ax'])
-            # else:
-                # print(f"Debug: Not swapping param. T={state.get('T')}, ax_exists={state.get('ax') is not None}")
 
         # If no parameters were swapped (e.g., averaging not started or ax not ready), return empty dict
         if not original_params and self.is_averaging():
@@ -113,36 +96,20 @@ class NTAvSGD(Optimizer):
 
         return original_params
 
-    def load_original_params(self, original_params, model_override=None):
+    def load_original_params(self, original_params):
         """
         Restores the original parameters saved by `swap_parameters`.
         Should be called after evaluation if parameters were swapped.
-        Optionally accepts a model instance to restore its parameters.
         """
-        target_model = model_override if model_override is not None else None
-
-        # Determine the parameters to restore (must match those swapped)
-        params_to_restore = original_params.keys()  # Use keys from the dict passed in
+        params_to_restore = original_params.keys()
 
         for p in params_to_restore:
             if p in original_params:
                 p.data.copy_(original_params[p])
-            # else: # This case should ideally not happen if original_params is correct
-            #     print(f"Warning: Parameter {p} found in model but not in original_params dict during restore.")
 
     @torch.no_grad()
-    def step(self, closure=None):
-        """Performs a single optimization step.
-
-        Args:
-            closure (callable, optional): A closure that reevaluates the model
-                and returns the loss.
-        """
-        loss = None
-        if closure is not None:
-            with torch.enable_grad():
-                loss = closure()
-
+    def step(self):
+        """Performs a single optimization step."""
         for group in self.param_groups:
             weight_decay = group['weight_decay']
             lr = group['lr']
@@ -173,29 +140,3 @@ class NTAvSGD(Optimizer):
                     if k >= T:
                         state['ax'].add_(p.data.sub(
                             state['ax']).div(k - T + 1))
-
-        return loss
-
-    # Override state dict handling to include 'ax'
-    def state_dict(self):
-        state_dict = super().state_dict()
-        # Move 'ax' tensors to CPU before saving
-        for group in self.param_groups:
-            for p in group['params']:
-                state = self.state[p]
-                if state.get('ax') is not None:
-                    state['ax'] = state['ax'].cpu()
-        state_dict['param_groups'] = copy.deepcopy(
-            self.param_groups)  # Ensure defaults are saved
-        return state_dict
-
-    def load_state_dict(self, state_dict):
-        # Move 'ax' tensors back to the correct device after loading
-        super().load_state_dict(state_dict)
-        # Get device from first param
-        device = self.param_groups[0]['params'][0].device
-        for group in self.param_groups:
-            for p in group['params']:
-                state = self.state[p]
-                if state.get('ax') is not None:
-                    state['ax'] = state['ax'].to(device)
