@@ -78,7 +78,7 @@ def main(
     train_loader = DataLoader(
         train_dataset, batch_size=batch_size_train, shuffle=True, collate_fn=collate_fn)
     dev_loader = DataLoader(
-        dev_dataset, batch_size=batch_size_eval, shuffle=False, collate_fn=collate_fn)
+        dataset=dev_dataset, batch_size=batch_size_eval, shuffle=False, collate_fn=collate_fn)
     test_loader = DataLoader(
         test_dataset, batch_size=batch_size_eval, shuffle=False, collate_fn=collate_fn)
 
@@ -216,7 +216,11 @@ def main(
         torch.save(best_model.state_dict(), model_save_path)
         print(f"Best model saved to {model_save_path}")
 
-        # Save the Lang object
+        # Because of the shuffling of the data (due to the train / dev / test
+        # split), when generating the Lang object at inference time, it might
+        # not be the same as the one used during training. Thus, we save the
+        # Lang object so that we can use it to create the test set at inference
+        # time.
         with open('bin/lang_bidir.pkl', 'wb') as f:
             pickle.dump(lang, f)
 

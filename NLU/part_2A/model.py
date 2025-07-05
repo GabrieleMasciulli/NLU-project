@@ -16,7 +16,7 @@ class ModelIAS(nn.Module):
         # vocab_len: size of the vocabulary
         # lstm_dropout: dropout probability on the hidden state of the LSTM
         # fc_dropout: dropout probability on the output of the LSTM
-        # n_layers: number of layers of the LSTM
+        # n_layers: number LSTM layers
         # pad_index: index of the padding token
         super(ModelIAS, self).__init__()
 
@@ -25,6 +25,8 @@ class ModelIAS(nn.Module):
         self.utt_encoder = nn.LSTM(
             emb_size, hid_size, n_layers, batch_first=True, bidirectional=True, dropout=fc_dropout)
         self.fc_dropout = nn.Dropout(fc_dropout)
+
+        # hid_size * 2 because of bidirectional LSTM
         self.slot_out = nn.Linear(hid_size * 2, out_slot)
         self.intent_out = nn.Linear(hid_size * 2, out_int)
 
@@ -39,36 +41,36 @@ class ModelIAS(nn.Module):
         """
         utt_emb = self.embedding(utterance)  # (batch_size, seq_len, emb_size)
 
-        # pack_padded_sequence avoids computing the hidden state for padding tokens
-        # --> reduces computational cost
+        # pack_padded_sequence avoids computing the hidden state for padding
+        # tokens --> faster computation
         packed_input = pack_padded_sequence(
             utt_emb, seq_lengths.cpu().numpy(), batch_first=True)
 
-        # process the batch
+        # LSTM processing
         packed_output, (hidden, cell) = self.utt_encoder(packed_input)
 
-        # unpack the sequence
+        # unpack the sequence, converts back to padded tensor
         utt_encoded, input_sizes = pad_packed_sequence(
             packed_output, batch_first=True)  # (batch_size, seq_len, hid_size)
 
         # dropout on the output of the LSTM
         utt_encoded = self.fc_dropout(utt_encoded)
 
-        # (batch_size, hid_size * 2)
+        # For intent classification - combine final hidden states from both
+        # directions: (batch_size, hid_size * 2)
         combined_hidden = torch.cat(
             (hidden[-2, :, :], hidden[-1, :, :]), dim=1)
-
         # dropout on the combined hidden state
         combined_hidden = self.fc_dropout(combined_hidden)
 
         # compute the logits for the slot tagging task
-        # (batch_size, seq_len, classes)
+        # (batch_size, seq_len, out_slot)
         slot_logits = self.slot_out(utt_encoded)
-
         # compute the logits for the intent classification task
         # (batch_size, out_int)
-        intent_logits = self.intent_out(combined_hidden)
+        intent_logits = self.intent_out(
+            combined_hidden)
 
-        # (batch_size, classes, seq_len)
+        # (batch_size, out_slots, seq_len)
         slot_logits = slot_logits.permute(0, 2, 1)
         return slot_logits, intent_logits

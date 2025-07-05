@@ -8,8 +8,6 @@ from sklearn.metrics import classification_report
 
 def collate_fn(data):
     """
-    This function is used to pad the sequences of a batch to the same length
-    and move them to the selected device.
     Input:
         data: list of dictionaries containing the data
     Output:
@@ -17,8 +15,7 @@ def collate_fn(data):
     """
     def merge(sequences):
         """
-        merge from shape (batch_size, max_len) to shape (batch_size, max_len)
-        by using padding tokens
+        This function pads a list of sequences with the PAD_TOKEN.
 
         input:
             sequences: list of list of tokens
@@ -99,7 +96,7 @@ def init_weights(m: nn.Module):
 
 def train_loop(data, optimizer, criterion_slot, criterion_intent, model, clip=5):
     """
-    This function performs a training loop over the data.
+    This function performs a training loop iteration over the data.
     """
     model.train()
     loss_arr = []
@@ -121,7 +118,7 @@ def train_loop(data, optimizer, criterion_slot, criterion_intent, model, clip=5)
 
 def eval_loop(data, criterion_slot, criterion_intent, model, lang):
     """
-    This function performs an evaluation loop over the data.
+    This function performs an evaluation loop iteration over the data.
     """
     model.eval()
     loss_arr = []
@@ -172,7 +169,6 @@ def eval_loop(data, criterion_slot, criterion_intent, model, lang):
     try:
         results = evaluate(slot_golds, slot_preds)
     except Exception as ex:
-        # Sometimes the model predicts a class that is not in REF
         print("Warning:", ex)
         gold_set = set([x[1] for x in slot_golds])
         pred_set = set([x[1] for x in slot_preds])
