@@ -8,7 +8,7 @@ import os
 import copy
 from collections import Counter
 from utils import DEVICE, IntentsAndSlots, Lang, load_data, collate_fn, BERT_MODEL_NAME
-from model import CTRAN
+from model import CTRAN_INSPIRED
 from functions import train_loop, eval_loop
 
 
@@ -122,7 +122,7 @@ def main(
     # Can set num_labels to intent or slot
     config = BertConfig.from_pretrained(
         bert_model_name)
-    model = CTRAN.from_pretrained(
+    model = CTRAN_INSPIRED.from_pretrained(
         bert_model_name,
         config=config,
         num_intent_labels=num_intent_labels,

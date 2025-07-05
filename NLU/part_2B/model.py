@@ -11,15 +11,19 @@ TRANSFORMER_LAYERS = 2
 TRANSFORMER_FF_DIM = 1024
 
 
-class CTRAN(BertPreTrainedModel):
+class CTRAN_INSPIRED(BertPreTrainedModel):
     """
-    CTRAN: CNN-Transformer-based network for joint intent classification and slot filling.
-    Inherits from BertPreTrainedModel.
+    CTRAN_INSPIRED: CNN-Transformer-based network inspired by the C-TRAN model
+    for joint intent classification and slot filling. Inherits from
+    BertPreTrainedModel.
+
+    Original C-TRAN paper: `https://arxiv.org/abs/2303.10606`
+    Original C-TRAN code: `https://github.com/rafiepour/CTran`
     """
 
     def __init__(self, config, num_intent_labels, num_slot_labels, dropout_prob=0.1):
         """
-        Initializes the CTRAN model.
+        Initializes the model.
 
         Args:
             config: The BERT model configuration object.

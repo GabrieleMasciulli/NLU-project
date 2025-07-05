@@ -3,7 +3,7 @@ import torch
 import pickle
 from utils import DEVICE, IntentsAndSlots, load_data, collate_fn
 from functions import eval_loop
-from model import CTRAN
+from model import CTRAN_INSPIRED
 from torch.utils.data import DataLoader
 from transformers import BertConfig
 
@@ -26,7 +26,7 @@ def evaluate_model(model_path, lang_path, bert_model_name, dropout_prob):
 
     config = BertConfig.from_pretrained(
         bert_model_name, num_labels=num_intent_labels)
-    model = CTRAN.from_pretrained(
+    model = CTRAN_INSPIRED.from_pretrained(
         bert_model_name,
         config=config,
         num_intent_labels=num_intent_labels,
