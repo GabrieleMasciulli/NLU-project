@@ -9,8 +9,18 @@ SLOT_PAD_LABEL_ID = -100
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 PAD_TOKEN = 0  # BERT uses 0 for padding input_ids
 # see `bin/utterance_length_distribution.png` for reference
-BERT_MAXIMUM_SEQUENCE_LENGTH = 52
+MAXIMUM_SEQUENCE_LENGTH = 52
 
+
+# Quick overview of how WordPiece tokenization works:
+#     1. The initial alphabet contains all the characters in the training corpus,
+#        plus the characters preceeded by the WordPiece prefix '##' which
+#        indicates that the token is a continuation of a previous one.
+#     2. In the merging process, differently from BPE, WordPiece computes a score
+#        for each pair of adjacent tokens in the alphabet using the formula:
+#        score = (freq_of_pair) / (freq_of_first_element * freq_of_second_element)
+#        --> the idea is to merge faster pairs that where the individual parts are
+#        less frequent in the vocabulary
 tokenizer = BertTokenizerFast.from_pretrained(BERT_MODEL_NAME)
 
 
@@ -50,7 +60,7 @@ class IntentsAndSlots(data.Dataset):
     Handles tokenization, sub-token alignment, and padding mask generation.
     """
 
-    def __init__(self, dataset, lang: Lang, tokenizer: BertTokenizerFast):
+    def __init__(self, dataset, lang: Lang):
         self.utterances = []
         self.intents = []
         self.slots = []
@@ -78,16 +88,18 @@ class IntentsAndSlots(data.Dataset):
         tokenized_inputs = self.tokenizer(
             utterance,
             return_tensors="pt",  # Return PyTorch tensors
-            padding='do_not_pad',  # We'll pad in collate_fn
+            padding=False,
             # No truncation needed as maximum length was selected based on dataset statistics
             truncation=False,
-            max_length=BERT_MAXIMUM_SEQUENCE_LENGTH,
-            return_offsets_mapping=True  # Needed for label alignment
+            max_length=MAXIMUM_SEQUENCE_LENGTH,
+            # returns (char_start, char_end) for each token --> needed for label alignment
+            return_offsets_mapping=True
         )
 
         input_ids = tokenized_inputs["input_ids"].squeeze(
             0)  # Remove batch dim
-        attention_mask = tokenized_inputs["attention_mask"].squeeze(0)
+        attention_mask = tokenized_inputs["attention_mask"].squeeze(
+            0)  # initialized to 1 for all tokens
         offset_mapping = tokenized_inputs["offset_mapping"].squeeze(
             0).tolist()  # For alignment
 
@@ -107,11 +119,21 @@ class IntentsAndSlots(data.Dataset):
         """
         Aligns word-level slot labels to BERT token-level, assigning SLOT_PAD_LABEL_ID
         to special tokens ([CLS], [SEP]) and subsequent sub-tokens.
+        Only the first sub-token of each word is assigned a label, subsequent sub-tokens
+        receive the ignore index.
+
+        Args:
+            word_labels (list): List of word-level slot labels.
+            offset_mapping (list): List of tuples representing character-level offsets
+                                for each token.
+        Returns:
+            list: List of aligned slot label IDs.
         """
+
         aligned_labels = [SLOT_PAD_LABEL_ID] * len(offset_mapping)
         word_idx = 0
         for i, offset in enumerate(offset_mapping):
-            if offset == (0, 0):  # Special token ([CLS], [SEP], [PAD])
+            if offset == (0, 0):  # Special token ([CLS], [SEP])
                 continue
 
             # If it's the start of a new word (offset[0] is 0)

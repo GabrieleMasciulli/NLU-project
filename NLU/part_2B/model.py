@@ -4,7 +4,7 @@ from transformers import BertModel, BertPreTrainedModel
 from utils import SLOT_PAD_LABEL_ID
 
 # Define CTRAN specific parameters
-CNN_KERNEL_SIZE = 3
+CNN_KERNEL_SIZES = [1, 2, 3, 5]
 CNN_FILTERS = 256
 TRANSFORMER_HEADS = 8
 TRANSFORMER_LAYERS = 2
@@ -37,16 +37,12 @@ class CTRAN(BertPreTrainedModel):
         self.dropout = nn.Dropout(dropout_prob)
 
         # --- CTRAN Specific Layers ---
-        # 1. CNN Layer
-        # Input: (batch_size, seq_len, bert_hidden_size) -> permute to (batch_size, bert_hidden_size, seq_len)
-        # Output: (batch_size, cnn_filters, seq_len) -> permute back to (batch_size, seq_len, cnn_filters)
-        self.conv1d = nn.Conv1d(
-            in_channels=bert_hidden_size,
-            out_channels=CNN_FILTERS,
-            kernel_size=CNN_KERNEL_SIZE,
-            padding=(CNN_KERNEL_SIZE - 1) // 2  # Maintain sequence length
-        )
-        self.cnn_activation = nn.ReLU()
+        # 1. CNN Layers
+        # Input: (batch_size, seq_len, bert_hidden_size)
+        # Output: (batch_size, seq_len, cnn_filters)
+        self.conv_layers = nn.ModuleList(modules=[
+            nn.Conv1d(in_channels=bert_hidden_size, out_channels=CNN_FILTERS // len(CNN_KERNEL_SIZES),
+                      kernel_size=k, padding=(k-1)//2) for k in CNN_KERNEL_SIZES])
 
         # 2. Transformer Encoder Layer
         # Input: (batch_size, seq_len, cnn_filters)
@@ -77,32 +73,18 @@ class CTRAN(BertPreTrainedModel):
         self,
         input_ids=None,
         attention_mask=None,
-        token_type_ids=None,
-        position_ids=None,
-        head_mask=None,
-        inputs_embeds=None,
         intent_labels=None,
         slot_labels=None,
-        output_attentions=None,
-        output_hidden_states=None,
-        return_dict=None,
     ):
         """
         Forward pass of the CTRAN model.
         """
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         # Get BERT outputs
         outputs = self.bert(
             input_ids,
             attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
-            position_ids=position_ids,
-            head_mask=head_mask,
-            inputs_embeds=inputs_embeds,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
+            return_dict=True,
         )
 
         # Sequence output from BERT
@@ -121,8 +103,13 @@ class CTRAN(BertPreTrainedModel):
         # 1. CNN
         # Permute for Conv1d: (batch, seq_len, hidden) -> (batch, hidden, seq_len)
         cnn_input = sequence_output.permute(0, 2, 1)
-        cnn_output = self.conv1d(cnn_input)
-        cnn_output = self.cnn_activation(cnn_output)
+        cnn_outputs = []
+
+        for conv in self.conv_layers:
+            cnn_outputs.append(self.cnn_activation(conv(cnn_input)))
+        # Concatenate along filter dimension
+        cnn_output = torch.cat(cnn_outputs, dim=1)
+
         # Permute back: (batch, filters, seq_len) -> (batch, seq_len, filters)
         transformer_input = cnn_output.permute(0, 2, 1)
 
@@ -181,10 +168,6 @@ class CTRAN(BertPreTrainedModel):
                     slot_logits.view(-1, self.num_slot_labels), slot_labels.view(-1))
 
             total_loss = intent_loss + slot_loss
-
-        if not return_dict:
-            output = (intent_logits, slot_logits) + outputs[2:]
-            return ((total_loss,) + output) if total_loss is not None else output
 
         # Return a dictionary containing all relevant outputs
         return {

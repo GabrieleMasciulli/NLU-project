@@ -7,7 +7,7 @@ import wandb
 import os
 import copy
 from collections import Counter
-from utils import DEVICE, IntentsAndSlots, Lang, load_data, collate_fn, tokenizer, BERT_MODEL_NAME
+from utils import DEVICE, IntentsAndSlots, Lang, load_data, collate_fn, BERT_MODEL_NAME
 from model import CTRAN
 from functions import train_loop, eval_loop
 
@@ -103,9 +103,9 @@ def main(
 
     # --- Create Dataset objects (Pass tokenizer) ---
     # Tokenizer is already initialized in utils.py
-    train_dataset = IntentsAndSlots(train_raw, lang, tokenizer)
-    dev_dataset = IntentsAndSlots(dev_raw, lang, tokenizer)
-    test_dataset = IntentsAndSlots(test_raw, lang, tokenizer)
+    train_dataset = IntentsAndSlots(train_raw, lang)
+    dev_dataset = IntentsAndSlots(dev_raw, lang)
+    test_dataset = IntentsAndSlots(test_raw, lang)
 
     # --- Create DataLoader objects (Use new collate_fn) ---
     train_loader = DataLoader(
@@ -121,7 +121,7 @@ def main(
 
     # Can set num_labels to intent or slot
     config = BertConfig.from_pretrained(
-        bert_model_name, num_labels=num_intent_labels)
+        bert_model_name)
     model = CTRAN.from_pretrained(
         bert_model_name,
         config=config,

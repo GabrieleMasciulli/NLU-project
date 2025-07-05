@@ -28,7 +28,6 @@ def train_loop(model, data_loader: DataLoader, optimizer, scheduler):
             attention_mask=attention_mask,
             intent_labels=intent_labels,
             slot_labels=slot_labels,
-            return_dict=True,
         )
 
         # Access loss from the dictionary output
@@ -69,7 +68,6 @@ def eval_loop(model, data_loader: DataLoader, lang: Lang, is_test=False):
             outputs = model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
-                return_dict=True
             )
 
             # Get Logits from dictionary output

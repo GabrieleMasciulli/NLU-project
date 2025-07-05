@@ -1,7 +1,7 @@
 import os
 import torch
 import pickle
-from utils import DEVICE, IntentsAndSlots, load_data, collate_fn, tokenizer
+from utils import DEVICE, IntentsAndSlots, load_data, collate_fn
 from functions import eval_loop
 from model import CTRAN
 from torch.utils.data import DataLoader
@@ -13,7 +13,7 @@ def build_lang_and_data(lang_path):
     # Load the specified Lang object
     with open(lang_path, 'rb') as f:
         lang = pickle.load(f)
-    test_dataset = IntentsAndSlots(test_raw, lang, tokenizer)
+    test_dataset = IntentsAndSlots(test_raw, lang)
     test_loader = DataLoader(test_dataset, batch_size=64,
                              shuffle=False, collate_fn=collate_fn)
     return lang, test_loader
