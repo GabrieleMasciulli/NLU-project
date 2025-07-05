@@ -35,6 +35,9 @@ def train_loop(model, data_loader: DataLoader, optimizer, scheduler):
 
         # Backward pass and optimization
         loss.backward()
+        
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+        
         optimizer.step()
         scheduler.step()  # Update learning rate
 

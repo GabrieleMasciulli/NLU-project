@@ -46,7 +46,7 @@ class CTRAN_INSPIRED(BertPreTrainedModel):
         # Output: (batch_size, seq_len, cnn_filters)
         self.conv_layers = nn.ModuleList(modules=[
             nn.Conv1d(in_channels=bert_hidden_size, out_channels=CNN_FILTERS // len(CNN_KERNEL_SIZES),
-                      kernel_size=k, padding=(k-1)//2) for k in CNN_KERNEL_SIZES])
+                      kernel_size=k, padding='same') for k in CNN_KERNEL_SIZES])
 
         self.cnn_activation = nn.ReLU()
         self.cnn_dropout = nn.Dropout(dropout_prob)
@@ -110,17 +110,22 @@ class CTRAN_INSPIRED(BertPreTrainedModel):
         # 1. CNN
         # Permute for Conv1d: (batch, seq_len, hidden) -> (batch, hidden, seq_len)
         cnn_input = sequence_output.permute(0, 2, 1)
-        cnn_outputs = []
-
-        for conv in self.conv_layers:
-            cnn_outputs.append(self.cnn_activation(conv(cnn_input)))
-        # Concatenate along filter dimension
-        cnn_output = torch.cat(cnn_outputs, dim=1)
-
-        # Permute back: (batch, filters, seq_len) -> (batch, seq_len, filters)
-        transformer_input = cnn_output.permute(0, 2, 1)
-        transformer_input = self.cnn_dropout(
-            transformer_input)
+        
+        # Apply each convolution separately
+        convolve1 = self.cnn_activation(self.conv_layers[0](cnn_input))
+        convolve2 = self.cnn_activation(self.conv_layers[1](cnn_input))
+        convolve3 = self.cnn_activation(self.conv_layers[2](cnn_input))
+        convolve4 = self.cnn_activation(self.conv_layers[3](cnn_input))
+        
+        # Transpose back: (batch, filters, seq_len) -> (batch, seq_len, filters)
+        convolve1 = torch.transpose(convolve1, dim0=1, dim1=2)
+        convolve2 = torch.transpose(convolve2, dim0=1, dim1=2)
+        convolve3 = torch.transpose(convolve3, dim0=1, dim1=2)
+        convolve4 = torch.transpose(convolve4, dim0=1, dim1=2)
+        
+        # Concatenate along feature dimension
+        transformer_input = torch.cat((convolve1, convolve2, convolve3, convolve4), dim=2)
+        transformer_input = self.cnn_dropout(transformer_input)
 
         # 2. Transformer Encoder
         # Transformer expects src_key_padding_mask where True indicates padding

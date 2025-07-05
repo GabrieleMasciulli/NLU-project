@@ -264,6 +264,6 @@ if __name__ == "__main__":
         batch_size_train=32,
         batch_size_eval=64,
         wandb_project="NLU-project-part-2B",
-        wandb_group_prefix="joint-bert-atis-CTRAN",
+        wandb_group_prefix="joint-bert-atis-CTRAN-multiple-kernels",
         data_dir=os.path.join("dataset", "ATIS")
     )
