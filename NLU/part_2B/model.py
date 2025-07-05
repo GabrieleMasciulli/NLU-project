@@ -17,6 +17,15 @@ class CTRAN_INSPIRED(BertPreTrainedModel):
     for joint intent classification and slot filling. Inherits from
     BertPreTrainedModel.
 
+    Th architecture combines BERT, CNN, and Transformer components:
+    - BERT provides rich contextual embeddings for both tasks (IC & SF)
+    - Multi-scale CNN (kernels 1,2,3,5) extracts local n-gram patterns from BERT outputs
+    - Transformer encoder models global dependencies between CNN features
+    - Intent classification uses BERT's [CLS] token; slot filling uses CNN-Transformer output
+    - Joint training optimizes both tasks simultaneously with shared BERT representations
+
+    Architecture flow: Input → BERT → CNN (multi-scale) → Transformer → Task-specific heads
+
     Original C-TRAN paper: `https://arxiv.org/abs/2303.10606`
     Original C-TRAN code: `https://github.com/rafiepour/CTran`
     """

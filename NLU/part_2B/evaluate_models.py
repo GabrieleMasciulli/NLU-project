@@ -48,8 +48,8 @@ def evaluate_model(model_path, lang_path, bert_model_name, dropout_prob):
 
 if __name__ == "__main__":
     evaluate_model(
-        model_path="bin/best_model_CTRAN.pt",
-        lang_path="bin/lang.pkl",
+        model_path="bin/best_model_CTRAN_multiple_kernels.pt",
+        lang_path="bin/lang_CTRAN_multiple_kernels.pkl",
         bert_model_name="bert-base-uncased",
         dropout_prob=0.1
     )
