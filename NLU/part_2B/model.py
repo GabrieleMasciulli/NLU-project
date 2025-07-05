@@ -78,8 +78,8 @@ class CTRAN_INSPIRED(BertPreTrainedModel):
 
     def forward(
         self,
+        attention_mask,
         input_ids=None,
-        attention_mask=None,
         intent_labels=None,
         slot_labels=None,
     ):
@@ -110,32 +110,31 @@ class CTRAN_INSPIRED(BertPreTrainedModel):
         # 1. CNN
         # Permute for Conv1d: (batch, seq_len, hidden) -> (batch, hidden, seq_len)
         cnn_input = sequence_output.permute(0, 2, 1)
-        
+
         # Apply each convolution separately
         convolve1 = self.cnn_activation(self.conv_layers[0](cnn_input))
         convolve2 = self.cnn_activation(self.conv_layers[1](cnn_input))
         convolve3 = self.cnn_activation(self.conv_layers[2](cnn_input))
         convolve4 = self.cnn_activation(self.conv_layers[3](cnn_input))
-        
+
         # Transpose back: (batch, filters, seq_len) -> (batch, seq_len, filters)
         convolve1 = torch.transpose(convolve1, dim0=1, dim1=2)
         convolve2 = torch.transpose(convolve2, dim0=1, dim1=2)
         convolve3 = torch.transpose(convolve3, dim0=1, dim1=2)
         convolve4 = torch.transpose(convolve4, dim0=1, dim1=2)
-        
+
         # Concatenate along feature dimension
-        transformer_input = torch.cat((convolve1, convolve2, convolve3, convolve4), dim=2)
+        transformer_input = torch.cat(
+            (convolve1, convolve2, convolve3, convolve4), dim=2)
         transformer_input = self.cnn_dropout(transformer_input)
 
         # 2. Transformer Encoder
         # Transformer expects src_key_padding_mask where True indicates padding
         # attention_mask is 1 for real tokens, 0 for padding. Need to invert.
-        if attention_mask is not None:
-            # Ensure mask has same seq length as transformer input
-            transformer_mask = attention_mask[:,
-                                              :transformer_input.shape[1]] == 0
-        else:
-            transformer_mask = None
+
+        # Ensure mask has same seq length as transformer input
+        transformer_mask = attention_mask[:,
+                                          :transformer_input.shape[1]] == 0
 
         transformer_output = self.transformer_encoder(
             transformer_input,
