@@ -44,6 +44,9 @@ class CTRAN(BertPreTrainedModel):
             nn.Conv1d(in_channels=bert_hidden_size, out_channels=CNN_FILTERS // len(CNN_KERNEL_SIZES),
                       kernel_size=k, padding=(k-1)//2) for k in CNN_KERNEL_SIZES])
 
+        self.cnn_activation = nn.ReLU()
+        self.cnn_dropout = nn.Dropout(dropout_prob)
+
         # 2. Transformer Encoder Layer
         # Input: (batch_size, seq_len, cnn_filters)
         # Output: (batch_size, seq_len, cnn_filters) - Transformer preserves dimensions
@@ -112,6 +115,8 @@ class CTRAN(BertPreTrainedModel):
 
         # Permute back: (batch, filters, seq_len) -> (batch, seq_len, filters)
         transformer_input = cnn_output.permute(0, 2, 1)
+        transformer_input = self.cnn_dropout(
+            transformer_input)
 
         # 2. Transformer Encoder
         # Transformer expects src_key_padding_mask where True indicates padding
