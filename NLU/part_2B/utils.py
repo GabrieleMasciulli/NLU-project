@@ -86,26 +86,26 @@ class IntentsAndSlots(data.Dataset):
 
         # Tokenize utterance and align labels
         tokenized_inputs = self.tokenizer(
-            utterance,
+            utterance.split(),
+            is_split_into_words=True,
             return_tensors="pt",  # Return PyTorch tensors
             padding=False,
             # No truncation needed as maximum length was selected based on dataset statistics
             truncation=False,
             max_length=MAXIMUM_SEQUENCE_LENGTH,
-            # returns (char_start, char_end) for each token --> needed for label alignment
-            return_offsets_mapping=True
         )
 
         input_ids = tokenized_inputs["input_ids"].squeeze(
             0)  # Remove batch dim
         attention_mask = tokenized_inputs["attention_mask"].squeeze(
             0)  # initialized to 1 for all tokens
-        offset_mapping = tokenized_inputs["offset_mapping"].squeeze(
-            0).tolist()  # For alignment
+        # this list tells us which original word each token came from, including repreated word IDs for subwords.
+        word_ids = tokenized_inputs.word_ids()
 
         # Align slot labels to tokens
         aligned_slot_ids = self._align_labels_with_tokens(
-            slot_labels, offset_mapping)
+            slot_labels, word_ids
+        )
         aligned_slot_ids_tensor = torch.LongTensor(aligned_slot_ids)
 
         return {
@@ -115,36 +115,33 @@ class IntentsAndSlots(data.Dataset):
             'slot_labels': aligned_slot_ids_tensor
         }
 
-    def _align_labels_with_tokens(self, word_labels, offset_mapping):
+    def _align_labels_with_tokens(self, word_labels, word_ids):
         """
-        Aligns word-level slot labels to BERT token-level, assigning SLOT_PAD_LABEL_ID
-        to special tokens ([CLS], [SEP]) and subsequent sub-tokens.
-        Only the first sub-token of each word is assigned a label, subsequent sub-tokens
-        receive the ignore index.
+        Aligns word-level slot labels to BERT token-level labels.
 
         Args:
             word_labels (list): List of word-level slot labels.
-            offset_mapping (list): List of tuples representing character-level offsets
-                                for each token.
+            word_ids (list): List of word indices (or None for special tokens).
+
         Returns:
-            list: List of aligned slot label IDs.
+            list: Aligned list of slot label IDs for each token.
         """
+        aligned_labels = []
+        previous_word_idx = None
 
-        aligned_labels = [SLOT_PAD_LABEL_ID] * len(offset_mapping)
-        word_idx = 0
-        for i, offset in enumerate(offset_mapping):
-            if offset == (0, 0):  # Special token ([CLS], [SEP])
-                continue
-
-            # If it's the start of a new word (offset[0] is 0)
-            if offset[0] == 0 and word_idx < len(word_labels):
-                # Assign label to the first sub-token of the word
+        for word_idx in word_ids:
+            if word_idx is None:
+                aligned_labels.append(SLOT_PAD_LABEL_ID)  # Special tokens
+            elif word_idx != previous_word_idx:
+                # First sub-token of the word
                 label = word_labels[word_idx]
-                aligned_labels[i] = self.lang.slot2id.get(
-                    label, self.lang.slot2id['O'])  # Default to 'O' if label not found
-                word_idx += 1
-            # Subsequent sub-tokens of the same word get the ignore index
-            # (Handled by initializing aligned_labels with SLOT_PAD_LABEL_ID)
+                label_id = self.lang.slot2id.get(label, self.lang.slot2id['O'])
+                aligned_labels.append(label_id)
+            else:
+                # Subsequent sub-token → ignore
+                aligned_labels.append(SLOT_PAD_LABEL_ID)
+
+            previous_word_idx = word_idx
 
         return aligned_labels
 

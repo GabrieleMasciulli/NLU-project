@@ -40,8 +40,7 @@ def evaluate_model(model_path, lang_path, bert_model_name, dropout_prob):
 
     results_test = eval_loop(model, test_loader, lang, is_test=True)
     print(f"Results for {model_path}:")
-    print('Slot F1 (Macro):', results_test['slot_f1_macro'])
-    print('Slot F1 (Micro):', results_test['slot_f1_micro'])
+    print('Slot F1):', results_test['slot_f1'])
     print('Intent Accuracy:', results_test['intent_acc'])
     print('-' * 40)
 

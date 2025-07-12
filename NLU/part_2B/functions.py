@@ -1,7 +1,8 @@
 import torch
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
-from sklearn.metrics import accuracy_score, f1_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report
+from conll import evaluate
 from utils import DEVICE, SLOT_PAD_LABEL_ID, Lang
 
 # --- Training Loop ---
@@ -35,9 +36,7 @@ def train_loop(model, data_loader: DataLoader, optimizer, scheduler):
 
         # Backward pass and optimization
         loss.backward()
-        
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-        
         optimizer.step()
         scheduler.step()  # Update learning rate
 
@@ -49,12 +48,12 @@ def train_loop(model, data_loader: DataLoader, optimizer, scheduler):
 # --- Evaluation Loop ---
 
 
-def eval_loop(model, data_loader: DataLoader, lang: Lang, is_test=False):
+def eval_loop(model, data_loader: DataLoader, lang: Lang, tokenizer=None, is_test=False):
     model.eval()
     all_intent_preds = []
     all_intent_labels = []
-    flat_slot_preds = []
-    flat_slot_labels = []
+    slot_preds = []
+    slot_golds = []
 
     progress_bar = tqdm(data_loader, desc="Evaluating", leave=False)
 
@@ -88,82 +87,95 @@ def eval_loop(model, data_loader: DataLoader, lang: Lang, is_test=False):
             # Shape: (batch, seq_len)
             batch_slot_preds_tensor = torch.argmax(slot_logits, dim=-1)
 
-            # Flatten predictions and labels, respecting the mask and PAD ID
-            # Iterate through each sequence in the batch
+            # Process each sequence in the batch
             for i in range(slot_labels.shape[0]):
                 # Get the true length of the sequence using the mask
                 seq_len = int(attention_mask[i].sum().item())
-                # Get the predicted sequence for this item (up to true length)
-                # Convert the tensor slice to a list for iteration
-                preds_for_seq = batch_slot_preds_tensor[i][:seq_len].cpu(
-                ).tolist()
-                labels_for_seq = slot_labels[i][:seq_len].cpu().numpy()
 
-                # Iterate through tokens in the sequence
+                # Get input tokens for this sequence
+                input_tokens = input_ids[i][:seq_len].cpu().tolist()
+
+                # Decode tokens to words if tokenizer is provided
+                if tokenizer is not None:
+                    words = [tokenizer.decode([token_id], skip_special_tokens=True).strip()
+                             for token_id in input_tokens]
+                    # Filter out empty strings that might result from special tokens
+                    words = [word if word else f"[UNK_{token_id}]" for word, token_id in zip(
+                        words, input_tokens)]
+                else:
+                    # Fallback: use token IDs as strings
+                    words = [f"token_{token_id}" for token_id in input_tokens]
+
+                # Get predictions and gold labels for this sequence
+                pred_slot_ids = batch_slot_preds_tensor[i][:seq_len].cpu(
+                ).tolist()
+                gold_slot_ids = slot_labels[i][:seq_len].cpu().tolist()
+
+                # Convert slot IDs to slot labels and create (word, slot) tuples
+                pred_sequence = []
+                gold_sequence = []
+
                 for j in range(seq_len):
-                    # Only consider non-padding label tokens
-                    if labels_for_seq[j] != SLOT_PAD_LABEL_ID:
-                        flat_slot_preds.append(preds_for_seq[j])
-                        flat_slot_labels.append(labels_for_seq[j])
+                    if gold_slot_ids[j] != SLOT_PAD_LABEL_ID:
+                        word = words[j]
+                        pred_slot = lang.id2slot.get(
+                            pred_slot_ids[j], f"UNKNOWN_{pred_slot_ids[j]}")
+                        gold_slot = lang.id2slot.get(
+                            gold_slot_ids[j], f"UNKNOWN_{gold_slot_ids[j]}")
+
+                        pred_sequence.append((word, pred_slot))
+                        gold_sequence.append((word, gold_slot))
+
+                if pred_sequence:  # Only add non-empty sequences
+                    slot_preds.append(pred_sequence)
+                    slot_golds.append(gold_sequence)
 
     # --- Calculate Metrics ---
     # Intent Accuracy
     intent_accuracy = accuracy_score(all_intent_labels, all_intent_preds)
 
-    # Slot F1 Score - Already flattened and filtered
-    # Ensure there are labels to evaluate
-    if not flat_slot_labels:
-        print("Warning: No valid slot labels found for evaluation.")
-        slot_f1_macro = 0.0
-        slot_f1_micro = 0.0
-        slot_report_str = "No valid slot labels found."
-        slot_report_dict = {}
+    # Slot evaluation using conll evaluate function
+    if not slot_golds:
+        print("Warning: No valid slot sequences found for evaluation.")
+        slot_results = {"total": {"f": 0.0, "p": 0.0, "r": 0.0}}
     else:
-        # Get unique labels present in the actual data (excluding PAD/IGNORE)
-        # Use the already flattened and filtered labels
-        present_labels = sorted(list(set(flat_slot_labels)))
-        # Map IDs to names for the report, only for labels actually present
-        target_names = [lang.id2slot.get(
-            idx, f"UNKNOWN_{idx}") for idx in present_labels]
+        try:
+            slot_results = evaluate(slot_golds, slot_preds)
+        except Exception as ex:
+            print("Warning:", ex)
+            gold_set = set([x[1] for seq in slot_golds for x in seq])
+            pred_set = set([x[1] for seq in slot_preds for x in seq])
+            print("Gold - Pred:", gold_set.difference(pred_set))
+            print("Pred - Gold:", pred_set.difference(gold_set))
+            slot_results = {"total": {"f": 0.0, "p": 0.0, "r": 0.0}}
 
-        # Calculate metrics
-        slot_f1_macro = f1_score(flat_slot_labels, flat_slot_preds,
-                                 labels=present_labels, average='macro', zero_division=0)
-        slot_f1_micro = f1_score(flat_slot_labels, flat_slot_preds,
-                                 labels=present_labels, average='micro', zero_division=0)
-        slot_report_str = classification_report(
-            flat_slot_labels,
-            flat_slot_preds,
-            labels=present_labels,
-            target_names=target_names,
-            digits=4,
-            zero_division=0
-        )
-
-        slot_report_dict = classification_report(
-            flat_slot_labels,
-            flat_slot_preds,
-            labels=present_labels,
-            target_names=target_names,
-            digits=4,
-            zero_division=0,
-            output_dict=True
-        )
+    # Intent classification report
+    intent_names = [lang.id2intent.get(i, f"UNKNOWN_{i}") for i in sorted(
+        set(all_intent_labels + all_intent_preds))]
+    intent_report_dict = classification_report(
+        all_intent_labels, all_intent_preds,
+        target_names=intent_names, output_dict=True, zero_division=0
+    )
 
     results = {
         "intent_acc": intent_accuracy,
-        "slot_f1_macro": slot_f1_macro,
-        "slot_f1_micro": slot_f1_micro,
-        "slot_report_str": slot_report_str,
-        "slot_report_dict": slot_report_dict
+        "slot_f1": slot_results["total"]["f"],
+        "slot_precision": slot_results["total"]["p"],
+        "slot_recall": slot_results["total"]["r"],
+        "slot_results": slot_results,
+        "intent_report": intent_report_dict
     }
 
     if is_test:
         print("\n--- Test Results ---")
         print(f"Intent Accuracy: {intent_accuracy:.4f}")
-        print(f"Slot F1 (Macro): {slot_f1_macro:.4f}")
-        print(f"Slot F1 (Micro): {slot_f1_micro:.4f}")
-        print("\nSlot Classification Report:")
-        print(slot_report_str)
+        print(f"Slot F1: {slot_results['total']['f']:.4f}")
+        print(f"Slot Precision: {slot_results['total']['p']:.4f}")
+        print(f"Slot Recall: {slot_results['total']['r']:.4f}")
+        print("\nSlot Results by Class:")
+        for slot_type, metrics in slot_results.items():
+            if slot_type != "total":
+                print(
+                    f"  {slot_type}: F1={metrics['f']:.4f}, P={metrics['p']:.4f}, R={metrics['r']:.4f}")
 
     return results
