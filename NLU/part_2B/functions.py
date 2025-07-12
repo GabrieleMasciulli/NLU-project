@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from sklearn.metrics import accuracy_score, classification_report
 from conll import evaluate
-from utils import DEVICE, SLOT_PAD_LABEL_ID, Lang
+from utils import DEVICE, SLOT_PAD_LABEL_ID, Lang, tokenizer
 
 # --- Training Loop ---
 
@@ -48,7 +48,7 @@ def train_loop(model, data_loader: DataLoader, optimizer, scheduler):
 # --- Evaluation Loop ---
 
 
-def eval_loop(model, data_loader: DataLoader, lang: Lang, tokenizer=None, is_test=False):
+def eval_loop(model, data_loader: DataLoader, lang: Lang, is_test=False):
     model.eval()
     all_intent_preds = []
     all_intent_labels = []
@@ -95,16 +95,8 @@ def eval_loop(model, data_loader: DataLoader, lang: Lang, tokenizer=None, is_tes
                 # Get input tokens for this sequence
                 input_tokens = input_ids[i][:seq_len].cpu().tolist()
 
-                # Decode tokens to words if tokenizer is provided
-                if tokenizer is not None:
-                    words = [tokenizer.decode([token_id], skip_special_tokens=True).strip()
-                             for token_id in input_tokens]
-                    # Filter out empty strings that might result from special tokens
-                    words = [word if word else f"[UNK_{token_id}]" for word, token_id in zip(
-                        words, input_tokens)]
-                else:
-                    # Fallback: use token IDs as strings
-                    words = [f"token_{token_id}" for token_id in input_tokens]
+                # Decode tokens to words
+                words = tokenizer.convert_ids_to_tokens(input_tokens)
 
                 # Get predictions and gold labels for this sequence
                 pred_slot_ids = batch_slot_preds_tensor[i][:seq_len].cpu(
