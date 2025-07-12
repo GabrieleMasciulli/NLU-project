@@ -176,14 +176,14 @@ def main(
             # Evaluation
             dev_metrics = eval_loop(model, dev_loader, lang)
             dev_intent_acc = dev_metrics["intent_acc"]
-            dev_slot_f1 = dev_metrics["slot_f1_macro"]
+            dev_slot_f1 = dev_metrics["slot_f1"]
             # Example combined metric:
             current_dev_metric = (dev_intent_acc + dev_slot_f1) / 2
 
             print(f"Epoch {epoch} Summary:")
             print(f"  Avg Train Loss: {avg_train_loss:.4f}")
             print(f"  Dev Intent Acc: {dev_intent_acc:.4f}")
-            print(f"  Dev Slot F1 (Macro): {dev_slot_f1:.4f}")
+            print(f"  Dev Slot F1: {dev_slot_f1:.4f}")
             print(f"  Dev Combined Metric: {current_dev_metric:.4f}")
 
             # Log metrics to W&B
@@ -191,8 +191,7 @@ def main(
                 "epoch": epoch,
                 "train_loss": avg_train_loss,
                 "dev_intent_accuracy": dev_intent_acc,
-                "dev_slot_f1_macro": dev_slot_f1,
-                "dev_slot_f1_micro": dev_metrics["slot_f1_micro"],
+                "dev_slot_f1": dev_slot_f1,
                 "dev_combined_metric": current_dev_metric,
                 "learning_rate": scheduler.get_last_lr()[0]
             })
@@ -229,15 +228,13 @@ def main(
 
             print("\nTest Set Performance:")
             print(f"  Intent Accuracy: {test_metrics['intent_acc']:.4f}")
-            print(f"  Slot F1 (Macro): {test_metrics['slot_f1_macro']:.4f}")
-            print(f"  Slot F1 (Micro): {test_metrics['slot_f1_micro']:.4f}")
+            print(f"  Slot F1: {test_metrics['slot_f1']:.4f}")
 
             # Log final test metrics to W&B summary
             run.summary["best_dev_metric"] = best_dev_metric
             run.summary["best_dev_epoch"] = last_saved_epoch
             run.summary["test_intent_accuracy"] = test_metrics['intent_acc']
-            run.summary["test_slot_f1_macro"] = test_metrics['slot_f1_macro']
-            run.summary["test_slot_f1_micro"] = test_metrics['slot_f1_micro']
+            run.summary["test_slot_f1"] = test_metrics['slot_f1'] 
 
             model_save_path = f'bin/best_model_{run_name}.pt'
             os.makedirs('bin', exist_ok=True)
@@ -257,7 +254,7 @@ if __name__ == "__main__":
     main(
         bert_model_name=BERT_MODEL_NAME,
         dropout_prob=0.1,
-        lr=5e-5,
+        lr=1e-5,
         n_epochs=25,
         patience=3,
         warmup_steps=0,

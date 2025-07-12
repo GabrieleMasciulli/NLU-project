@@ -157,17 +157,4 @@ def eval_loop(model, data_loader: DataLoader, lang: Lang, is_test=False):
         "slot_results": slot_results,
         "intent_report": intent_report_dict
     }
-
-    if is_test:
-        print("\n--- Test Results ---")
-        print(f"Intent Accuracy: {intent_accuracy:.4f}")
-        print(f"Slot F1: {slot_results['total']['f']:.4f}")
-        print(f"Slot Precision: {slot_results['total']['p']:.4f}")
-        print(f"Slot Recall: {slot_results['total']['r']:.4f}")
-        print("\nSlot Results by Class:")
-        for slot_type, metrics in slot_results.items():
-            if slot_type != "total":
-                print(
-                    f"  {slot_type}: F1={metrics['f']:.4f}, P={metrics['p']:.4f}, R={metrics['r']:.4f}")
-
     return results
