@@ -89,7 +89,7 @@ Evaluation on the ATIS test set.
 | ------------ | --------------- | ----------- |
 | LSTM + BiDir | 94.44           | 92.51       |
 | + Dropout    | 94.96           | 93.05       |
-| BERT + CNN   | 97.31           | 97.64       |
+| BERT + CNN   | 97.76           | 95.06       |
 
 _Note: For exact numbers, please run the evaluation scripts._
 

@@ -25,7 +25,7 @@ class LockedDropout(nn.Module):
 
     Example:
         - Given some activations x = [10.0, 20.0, 30.0, 40.0] and a dropout rate
-          of 0.5, the expected value of the activations after dropout is (10.0 +
+          of 0.5, the expected value of the activations before dropout is (10.0 +
           20.0 + 30.0 + 40.0) / 4 = 25.0.
 
         - If we apply a dropout mask of [0, 1, 0, 1], the resulting activations
